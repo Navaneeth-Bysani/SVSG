@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { LoginScreen, HomeScreen } from './screens';
 import AppNavigator from "./navigation";
 
+
 export default function App() {
   return (
     

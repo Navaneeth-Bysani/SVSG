@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button, Alert } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
-import axios from "../utils/axios";
+import axios from "axios";
 
 export default function QRCodeScanner({navigation}) {
 //   const [hasPermission, setHasPermission] = useState(null);
@@ -41,15 +41,29 @@ export default function QRCodeScanner({navigation}) {
 //   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
-    setScanned(true);
-    alert(data);
-    const res = await axios.post(`/material/barcode/${data}`);
-    if(res.status === 404) {
+    try {
+        setScanned(true);
+        Alert.alert(data);
+        const res = await axios.get(`http://localhost:4000/api/v1/material/`, {
+            headers: {
+            //   Authorization: `Bearer ${authToken}`,
+              Accept: "application/json",
+            },
+          });
+        // Alert.alert(res.status)
+        console.log(res);
+        // if(res.status === 404) {
+        //     setScanned(false);
+        //     Alert.alert("Invalid QR Code. Try again");
+        // } else if(res.status === 200) {
+        //     navigation.navigate("material", {material : res.data.material})
+        // }
+    } catch(err) {
+        console.log(err);
         setScanned(false);
-        Alert.alert("Invalid QR Code. Try again");
-    } else if(res.status === 200) {
-        navigation.navigate("material", {material : res.data.material})
+        Alert.alert(err);
     }
+    
     // console.log(
     //   `Bar code with type ${type} and data ${data} has been scanned!`
     // );

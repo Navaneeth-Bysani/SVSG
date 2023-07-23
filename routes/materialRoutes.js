@@ -9,7 +9,7 @@ router.get("/barcode/:barcode", getMaterialByBarCode);
 router.get("/:id", getMaterial);
 
 
-router.use(protect);
+// router.use(protect);
 router.get("/", getAllMaterials);
 router.post("/", restrictTo("admin"), createMaterial);
 

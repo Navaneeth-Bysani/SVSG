@@ -15,7 +15,7 @@ const config = require("./utils/config");
 
 app.use(cookieParser());
 
-app.use(cors({credentials: true, origin: 'http://127.0.0.1:3000'}));
+app.use(cors());
 
 
 app.use("/api/v1/material", materialRouter);

@@ -118,7 +118,7 @@ exports.deleteMaterial = catchAsync(async (req,res,next) => {
 
 exports.getMaterialByBarCode = catchAsync(async (req,res) => {
     const barcode = req.params.barcode;
-
+    console.log(barcode);
     const material = await Material.findOne({barcode});
 
     if(!material) {

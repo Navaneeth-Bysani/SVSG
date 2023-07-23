@@ -1,6 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner} from "./../screens";
+import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen} from "./../screens";
 
 const AppNavigator = () => {
 
@@ -72,7 +72,17 @@ const AppNavigator = () => {
                 title: "QR Scanner"
               }}
             />
+
+            <MainTabs.Screen
+              name="material"
+              component={MaterialScreen}
+              options={{
+                title: "Material"
+              }}
+            />
           </MainTabs.Navigator>
+
+          
         );
       };
 
