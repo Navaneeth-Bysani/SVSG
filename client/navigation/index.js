@@ -1,32 +1,32 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {LoginScreen, HomeScreen} from "./../screens";
+import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner} from "./../screens";
 
 const AppNavigator = () => {
 
-    // const AuthStack = createNativeStackNavigator();
+    const AuthStack = createNativeStackNavigator();
 
-    // const AuthStackNavigator = () => {
-    //     return (
-    //         <AuthStack.Navigator
-    //           screenOptions={{
-    //             headerShown: false,
-    //             animation: "none",
-    //             contentStyle: {
-    //               backgroundColor: "white",
-    //             },
-    //           }}
-    //         >
-    //           <AuthStack.Screen
-    //             name="Home"
-    //             component={LoginScreen}
-    //             options={{
-    //               title: "Login Screen",
-    //             }}
-    //           />
-    //         </AuthStack.Navigator>
-    //       );
-    // }
+    const AuthStackNavigator = () => {
+        return (
+            <AuthStack.Navigator
+              screenOptions={{
+                headerShown: false,
+                animation: "none",
+                contentStyle: {
+                  backgroundColor: "white",
+                },
+              }}
+            >
+              <AuthStack.Screen
+                name="Home"
+                component={LoginScreen}
+                options={{
+                  title: "Login Screen",
+                }}
+              />
+            </AuthStack.Navigator>
+          );
+    }
 
     const MainTabs = createNativeStackNavigator();
     const MainUserTabsNavigator = () => {
@@ -56,17 +56,33 @@ const AppNavigator = () => {
                 title: "Login"
               }}
             />
+
+            <MainTabs.Screen
+              name="dashboard"
+              component={DashBoardScreen}
+              options={{
+                title: "Dashboard"
+              }}
+            />
+
+            <MainTabs.Screen
+              name="qrscanner"
+              component={QRCodeScanner}
+              options={{
+                title: "QR Scanner"
+              }}
+            />
           </MainTabs.Navigator>
         );
       };
 
-    // const isLoggedIn = true;
-    // let content;
-    // if(isLoggedIn) {
-    //     content = <MainUserTabsNavigator />
-    // } else {
-    //     content = <AuthStackNavigator />
-    // }
+    const isLoggedIn = true;
+    let content;
+    if(isLoggedIn) {
+        content = <MainUserTabsNavigator />
+    } else {
+        content = <AuthStackNavigator />
+    }
 
     return (
         <NavigationContainer>

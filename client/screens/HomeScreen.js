@@ -6,7 +6,7 @@ const HomeScreen = ({navigation}) => {
         <View>
             {/* <Text>I am Login Screen</Text> */}
             <View style={styles.main}>
-                <Pressable onPress={() => alert("Pressed")} style = {styles.logo}>
+                <Pressable onPress={() => navigation.navigate("dashboard")} style = {styles.logo}>
                     <Image source={require("./../assets/logo.png")}/>
                 </Pressable>
                 <Text>Sri Venkateshwara Engineering</Text>
