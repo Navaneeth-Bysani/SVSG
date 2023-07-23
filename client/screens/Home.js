@@ -1,0 +1,20 @@
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable } from "react-native";
+import styles from "./Home.module.css";
+
+const HomeScreen = () => {
+    return (
+        <View>
+            {/* <Text>I am Login Screen</Text> */}
+            <View>
+                <Pressable onPress={() => alert("Pressed")}>
+                    <Image source={require("./../assets/logo.png")}/>
+                </Pressable>
+                <Text>Sri Venkateshwara Engineering</Text>
+                {/* <Image source={require("./../assets/logo.png")} /> */}
+
+            </View>
+        </View>
+    )
+}
+
+export default HomeScreen;

@@ -1,0 +1,73 @@
+.container {
+    /* position: relative; */
+    flex: 1;
+    background: #FFFFFF;
+}
+.brandText{
+    position: absolute;
+width: 138px;
+height: 30px;
+left: 118px;
+top: 424px;
+
+/* font-family: 'Inter'; */
+font-style: normal;
+font-weight: 600;
+font-size: 25px;
+line-height: 30px;
+/* identical to box height, or 120% */
+
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: 0.25px;
+
+color: #00164E;
+}
+.logoImage {
+    position: absolute;
+width: 215px;
+height: 211px;
+left: 80px;
+top: 220px;
+border-radius: 12px;
+background-color: black;
+}
+.logoContainer{
+    position: absolute;
+    width: 215px;
+height: 211px;
+left: 80px;
+top: 220px;
+
+border-radius: 12px;
+/* background-color: black; */
+}
+
+.button {
+    position: absolute;
+width: 335px;
+height: 40px;
+left: 21px;
+top: 658px;
+/* background-color: black; */
+}
+
+.tagline {
+position: absolute;
+width: 185px;
+height: 12px;
+left: 96px;
+top: 746px;
+
+font-style: normal;
+font-weight: 600;
+font-size: 10px;
+line-height: 12px;
+/* identical to box height, or 120% */
+
+text-align: center;
+letter-spacing: 1.5px;
+
+color: #00164E;
+}

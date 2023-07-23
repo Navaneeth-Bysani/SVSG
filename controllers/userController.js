@@ -3,7 +3,7 @@ const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const Email = require("./../utils/email");
 
-const roles = ["admin", "tester", "filler", "pickup"];
+const roles = ["admin", "store"];
 
 exports.addUser = catchAsync(async (req,res,next) => {
     const {email, role} = req.body;

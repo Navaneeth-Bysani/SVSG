@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "frontend",
+    "slug": "sve",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "sve"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.navaneeth_bysani.sve"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "expo": {
+      "packagerOpts": {
+        "config": "metro.config.js",
+        "sourceExts": [
+          "js",
+          "jsx",
+          "css"
+        ]
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c385abf0-aedf-4524-8011-4f5ea1698e88"
+      }
+    },
+    "owner": "navaneeth_bysani"
+  }
+}
