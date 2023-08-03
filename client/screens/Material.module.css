@@ -1,0 +1,155 @@
+.rect {
+    box-sizing: border-box;
+    position: absolute;
+    width: 324px;
+    height: 210px;
+    left: 22px;
+    top: 50px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #000;
+}
+
+.date {
+    
+        /* position: absolute;
+    width: 111px;
+    height: 24px;
+    left: 20px;
+    top: 10px; */
+    
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    /* identical to box height, or 150% */
+    
+    /* display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.25px; */
+    
+    color: #00164E;
+    
+}
+
+.txt {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 5px;
+}
+
+.image {
+position: relative;
+width: 178px;
+height: 86px;
+
+left: 45%;
+top: -20%;
+border-radius: 4px;
+flex:2
+}
+
+.khana {
+    position: relative;
+    width: 224px;
+    height: 95px;
+    left: 30%;
+   /* transform: matrix(-1, 0, 0, 1, 0, 0);
+    */
+}
+
+.selectHostel {
+    position: absolute;
+    height: 19px;
+    left: 3.47%;
+    /* right: 61.33%; */
+    top: 300px;
+
+    /* font-family: 'Maven Pro'; */
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+
+    /* identical to box height */
+    letter-spacing: 0.300349px;
+
+    color: #222B45;
+}
+
+.selectorinput {
+    /* border: #000000 2px solid; */
+    top: 330px;
+    left: 30px;
+
+    /* Auto layout */
+    /* display: flex;
+    flex-direction: row;
+    align-items: center;  */
+    /* padding: 8px 16px; */
+    gap: 8px;
+
+    width: 300px;
+    height: 50px;
+
+    /* Neutral/Neutral 100 */
+    background: #FFFFFF;
+
+    /* Neutral/Neutral 500 */
+    /* border: 1px solid #D0D4DF; */
+    border-radius: 4px;
+
+    /* Inside auto layout */
+    /* flex: none; */
+    /* order: 0; */
+    /* align-self: stretch; */
+    /* flex-grow: 0; */
+}
+
+.buttonContainer {
+    position: absolute;
+    width: 300px;
+    height: 35px;
+    left: 30px;
+    top: 350px;
+}
+
+.buttonInner {
+    /* position: absolute;
+  left: 0%;
+  right: 0%;
+  top: 0%;*/
+    /* bottom: 0%; */
+    justify-content: center;
+    height: 50px;
+
+    /* Black */
+
+    background: #000000;
+    border-radius: 10px;
+
+}
+
+.buttonText1 {
+    /* position: absolute;
+  left: 0%;
+  right: 0%;
+  top: 0%;
+  bottom: 0%; */
+
+    /* Link */
+
+    /* font-family: 'Maven Pro'; */
+    font-style: normal;
+    font-weight: 500;
+    /* font-size: 20px; */
+    line-height: 14px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    /* White */
+
+    color: #FFFFFF;
+}

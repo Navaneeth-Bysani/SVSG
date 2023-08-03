@@ -43,7 +43,10 @@ exports.login = async (req, res, next) => {
     const { email, name, picture } = response?.data;
     let currentUser = await User.findOne({ email });
     if (!currentUser) {
-      return next(new AppError("user not found", 401));
+      // return next(new AppError("user not found", 401));
+      return res.status(401).json({
+        "message" : "user not found"
+      })
     }
 
     if(currentUser.isSignedUp === false) {
@@ -60,10 +63,18 @@ exports.login = async (req, res, next) => {
 
     const jwt_token = createToken(currentUser._id, currentUser.role);
     console.log(jwt_token);
+    const userInfo = {
+      name,
+      email,
+      picture,
+      role : currentUser.role,
+      _id : currentUser._id
+    }
     res.status(200).json({
       status: 'success',
       jwt: jwt_token,
       message: 'Logged in successfully',
+      user : userInfo
     })
   }
   catch(err){
@@ -125,6 +136,7 @@ exports.restrictTo = (...roles) => {
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
   let token;
+  console.log(req.headers);
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')

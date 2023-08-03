@@ -4,12 +4,14 @@ import AuthButton from "./../components/AuthButton.js";
 
 const LoginScreen = () => {
     return (
-        <View>
+        <View style={styles.container}>
             {/* <Text>I am Login Screen</Text> */}
+            <View style={styles.logoContainer}>
+                <Image source={require("./../assets/logo.png")}  />
+            </View>
             <View>
                 {/* <Image source={require("./../assets/icon.png")}/> */}
-                <Text>Sri Venkateshwara Engineering</Text>
-                <View>
+                <View style={styles.button}>
                     <AuthButton />
                 </View>
 

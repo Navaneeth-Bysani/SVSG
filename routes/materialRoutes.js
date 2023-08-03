@@ -9,10 +9,11 @@ router.get("/barcode/:barcode", getMaterialByBarCode);
 router.get("/:id", getMaterial);
 
 
-// router.use(protect);
+router.use(protect);
 router.get("/", getAllMaterials);
 router.post("/", restrictTo("admin"), createMaterial);
 
+// router.patch("/barcode/store/:barcode", storeEntryByBarcode);
 router.patch("/barcode/store/:barcode", restrictTo("admin", "store"), storeEntryByBarcode);
 router.delete("/barcode/:barcode", restrictTo("admin"), deleteMaterialByBarcode);
 

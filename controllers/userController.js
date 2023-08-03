@@ -32,7 +32,7 @@ exports.changeRole = catchAsync(async (req,res,next) => {
     const {newRole} = req.body;
     const id = req.params.id;
     if(!roles.includes(newRole)) {
-        return next (new AppError("give some role among : admin, tester,filler,pickup", 400));
+        return next (new AppError("give some role among : admin, store", 400));
     }
     const updatedUser = await User.findByIdAndUpdate(id, {role : newRole}, {new : true});
 
@@ -60,3 +60,19 @@ exports.getAllUsers = catchAsync(async (req,res,next) => {
         users
     })
 })
+
+
+exports.getUserRole = catchAsync(async (req, res, next) => {
+    const email = req.body.email;
+    if (!email) {
+      return next(new AppError("Invalid data", 404));
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(new AppError("Student not found", 404));
+    }
+    req.user = user;
+    req.user.save();
+    let role = req.user.role;
+    res.status(200).json({ status: "success", role });
+});

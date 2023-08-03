@@ -14,6 +14,7 @@ exports.createMaterial = catchAsync(async (req,res,next) => {
 
 exports.getAllMaterials = catchAsync(async (req,res, next) => {
     const materials = await Material.find();
+    console.log("here");
     res.status(200).json({
         materials
     })
@@ -37,32 +38,46 @@ exports.getMaterial = catchAsync(async (req,res,next) => {
 
 const makeEntry = async (material, type, orderDetails, quantity, res) => {
     let details = {};
-
+    console.log("here");
+    console.log(material, type, orderDetails, quantity)
     if(type === "output") {
         if(material.available_quanity - quantity < material.minimum_quantity) {
             return res.status(400).json({
                 "message" : "Available quantity will fall below minimum quantity"
-            });
+        });
 
         }
-        const {manufacturer_test_certificate_available, sve_tested_material} = orderDetails;
 
-        if(!manufacturer_test_certificate_available || !sve_tested_material) {
-            return next (new AppError("manufacturer test certificate available (or) sve tested material input not given", 400))
+        const {company_name, project_name, material_provided_to} = orderDetails;
+        console.log(company_name, project_name, material_provided_to);
+        if(!company_name || !project_name || !material_provided_to) {
+            // return next (new AppError("company_name (or) project_name (or) material_provided_to input not given", 400))
+            console.log("missing");
+            res.status(400).json({
+                message : "company_name (or) project_name (or) material_provided_to input not given"
+            })
+            return;
         }
-        details = {manufacturer_test_certificate_available, sve_tested_material};
+        details = {company_name, project_name, material_provided_to};
+        // const {manufacturer_test_certificate_available, sve_tested_material} = orderDetails;
+        
 
         material.available_quanity = material.available_quanity - quantity;
 
     } else if(type === "input") {
         
 
-        const {company_name, project_name, material_provided_to} = orderDetails;
-
-        if(!company_name || !project_name || !material_provided_to) {
-            return next (new AppError("company_name (or) project_name (or) material_provided_to input not given", 400))
+        const manufacturer_test_certificate_available = orderDetails.manufacturer_test_certificate_available;
+        const sve_tested_material = orderDetails.sve_tested_material;
+        console.log(manufacturer_test_certificate_available, sve_tested_material)
+        if(manufacturer_test_certificate_available === undefined || !sve_tested_material === undefined) {
+            // return next (new AppError("manufacturer test certificate available (or) sve tested material input not given", 400))
+            res.status(400).json({
+                message : "manufacturer test certificate available (or) sve tested material input not given"
+            })
+            return;
         }
-        details = {company_name, project_name, material_provided_to};
+        details = {manufacturer_test_certificate_available, sve_tested_material};
 
         material.available_quanity += quantity;
         console.log(material.available_quanity);
@@ -137,11 +152,12 @@ exports.storeEntryByBarcode = catchAsync(async (req, res, next) => {
     const {type, quantity, orderDetails} = req.body;
     const barcode = req.params.barcode;
     const material = await Material.findOne({barcode});
-
+    console.log(type, quantity, orderDetails)
     if(!material) {
         res.status(404).json({
             "message" : "No item found with that id"
         })
+        console.log(`${barcode} not found`)
         return;
     }
 

@@ -1,8 +1,10 @@
 const express = require("express");
 
 const router = express.Router();
-const {addUser, changeRole, getAllUsers} = require("./../controllers/userController");
+const {addUser, changeRole, getAllUsers, getUserRole} = require("./../controllers/userController");
 const {restrictTo, protect} = require("./../controllers/authController");
+
+router.post("/getRole", getUserRole);
 
 router.use(protect);
 

@@ -1,14 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-
+import { AuthContextProvider } from "./contexts/AuthContext";
 import { LoginScreen, HomeScreen } from './screens';
 import AppNavigator from "./navigation";
-
+import { Provider as PaperProvider } from "react-native-paper";
 
 export default function App() {
   return (
+    <AuthContextProvider>
+      <PaperProvider>
+      <AppNavigator />
+    </PaperProvider>
+    </AuthContextProvider>
     
-    <AppNavigator />
   );
 }
 

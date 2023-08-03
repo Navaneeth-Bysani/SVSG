@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button, Alert } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
-import axios from "axios";
+import axios from "./../utils/axios";
 
 export default function QRCodeScanner({navigation}) {
 //   const [hasPermission, setHasPermission] = useState(null);
@@ -42,27 +42,58 @@ export default function QRCodeScanner({navigation}) {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     try {
-        setScanned(true);
-        Alert.alert(data);
-        const res = await axios.get(`http://localhost:4000/api/v1/material/`, {
-            headers: {
-            //   Authorization: `Bearer ${authToken}`,
-              Accept: "application/json",
-            },
-          });
+      let res;
+      setScanned(true);
+      // Alert.alert(data);
+      const content = await axios.get(`/material/barcode/${data}`);
+      const material = content.data.material;
+      // Alert.alert(JSON.stringify(content));
+    //   const material = {
+    //     barcode: "SVE0102",
+    //     equipment_details: "Bla bla blaBla bla blavBla bla blaBla bla blaBla bla blaBla bla blaBla bla blaBla bla blaBla bla blaBla bla bla Bla bla blaBla bla bla",
+    //     moc: "bla",
+    //     size: "b",
+    //     additional_details: "bla bla bla bla bla",
+    //     available_quanity: 5,
+    //     minimum_quantity: 4,
+    // }
+      navigation.navigate("material", {material : material});
+
+
+    
+      
+      
+        
+      } catch (error) {
+        console.error(error);
+      }
+
+      
+    // try {
+    //     setScanned(true);
+        // Alert.alert(data);
+        // const res = await fetch(`http://localhost:4000/api/v1/material/`).json()
+        // console.log(res);
+        
+        // const res = await axios.get(`http://localhost:4000/api/v1/material/`, {
+        //     headers: {
+        //     //   Authorization: `Bearer ${authToken}`,cmd
+        //       Accept: "application/json",
+        //     },
+        //   });
         // Alert.alert(res.status)
-        console.log(res);
+        // console.log(res);
         // if(res.status === 404) {
         //     setScanned(false);
         //     Alert.alert("Invalid QR Code. Try again");
         // } else if(res.status === 200) {
         //     navigation.navigate("material", {material : res.data.material})
         // }
-    } catch(err) {
-        console.log(err);
-        setScanned(false);
-        Alert.alert(err);
-    }
+    // } catch(err) {
+    //     console.log(err);
+    //     setScanned(false);
+    //     Alert.alert(err);
+    // }
     
     // console.log(
     //   `Bar code with type ${type} and data ${data} has been scanned!`
