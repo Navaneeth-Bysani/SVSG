@@ -1,13 +1,13 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen, TransactionSuccessScreen, AddFileScreen} from "./../screens";
+import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen, TransactionSuccessScreen, AddFileScreen, AddMaterialScreen} from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
 
 const AppNavigator = () => {
 
-    const { user } = useAuthContext();
+    const { user, authToken } = useAuthContext();
     // let user = null;
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [role, setRole] = useState("");
@@ -15,7 +15,7 @@ const AppNavigator = () => {
     const AuthStack = createNativeStackNavigator();
 
     useEffect(() => {
-      if (user) {
+      if (user && authToken) {
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
@@ -130,9 +130,93 @@ const AppNavigator = () => {
         );
       };
 
+    const AdminTabs = createNativeStackNavigator();
+    const AdminTabsNavigator = () => {
+      return (
+        <AdminTabs.Navigator
+          sceneContainerStyle={{ backgroundColor: "white" }}
+          screenOptions={{
+          //   headerShown: false,
+            animation: "none",
+            contentStyle: {
+              backgroundColor: "white",
+              // padding : "3 px"
+            },
+          }}
+        >
+          <AdminTabs.Screen
+            name="addmaterial"
+            component={AddMaterialScreen}
+            options={{
+              title: "Add Material"
+            }}
+          />
+
+          <AdminTabs.Screen
+              name="home"
+              component={HomeScreen}
+              options={{
+                title: "Home"
+              }}
+            />
+            <AdminTabs.Screen
+              name="login"
+              component={LoginScreen}
+              options={{
+                title: "Login"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="dashboard"
+              component={DashBoardScreen}
+              options={{
+                title: "Dashboard"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="qrscanner"
+              component={QRCodeScanner}
+              options={{
+                title: "QR Scanner"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="material"
+              component={MaterialScreen}
+              options={{
+                title: "Material"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="transactionSuccess"
+              component={TransactionSuccessScreen}
+              options={{
+                title: "Transaction successful"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="addFile"
+              component={AddFileScreen}
+              options={{
+                title: "Add File Screen"
+              }}
+            />
+        </AdminTabs.Navigator>
+
+        
+      );
+    };
     let content;
     if(isLoggedIn) {
-        content = <MainUserTabsNavigator />
+      content = <MainUserTabsNavigator />
+      if(role === "admin") {
+        content = <AdminTabsNavigator />
+      }
     } else {
         content = <AuthStackNavigator />
     }

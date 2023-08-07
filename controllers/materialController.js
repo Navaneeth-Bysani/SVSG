@@ -1,6 +1,8 @@
 const catchAsync = require("../utils/catchAsync");
 const Material = require("../models/materialModel");
 const Order = require("./../models/orderModel");
+const multer = require("multer");
+const readXlsxFile = require('read-excel-file/node')
 
 exports.createMaterial = catchAsync(async (req,res,next) => {
     const {barcode, equipment_details, moc, size, additional_details, available_quanity, minimum_quantity} = req.body;
@@ -170,5 +172,74 @@ exports.deleteMaterialByBarcode = catchAsync(async (req,res,next) => {
 
     res.status(200).json({
         "message" : "deleted successfully"
+    })
+})
+
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null,'uploads/');
+    },
+    filename: (req,file,cb) => {
+      // user-3459923fdg-3334556474.jpeg
+      const ext = file.mimetype.split('/')[1];
+      cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+    }
+});
+  
+const multerFilter = (req,file,cb) => {
+    console.log(file.mimetype);
+    // if(file.mimetype.startsWith('image')) {
+    //   cb(null, true)
+    // }else {
+    //   cb(new AppError('Not an image. Upload only image',400),false);
+    // }
+    console.log("here");
+    console.log(req.file);
+    cb(null, true);
+};
+
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter
+});
+
+// const upload = multer({dest : "uploads/"})
+  
+exports.uploadExcel = upload.single('document');
+
+exports.createWithExcel = catchAsync(async(req,res,next) => {
+    console.log(req.headers);
+    console.log(req.file);
+    const filename = req.file.filename;
+
+    let data = await readXlsxFile(`uploads/${filename}`).then((rows) => {
+        // `rows` is an array of rows
+        // each row being an array of cells.
+        rows.shift();
+
+        let data = [];
+
+        rows.forEach(element => {
+            let obj = {
+                barcode : element[0],
+                equipment_details : element[1],
+                moc : element[2],
+                size : element[3],
+                additional_details : element[4],
+                available_quantity : element[5],
+                minimum_quantity : element[6]
+            }
+
+            data.push(obj);
+        });
+
+        return data;
+
+    });
+
+    await Material.insertMany(data);
+    
+    res.status(200).json({
+        "message" : "uploaded successfuly"
     })
 })

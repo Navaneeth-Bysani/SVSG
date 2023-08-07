@@ -49,13 +49,31 @@ const TransactionSuccessScreen = ({navigation, route}) => {
     const data = route.params.data;
     const order = data.order;
     const material = data.material;
+    let transactionPane = <></>;
     if(order.type === "input") {
         // return <InputTransaction />
-        return InputTransaction(order, material);
+        transactionPane = InputTransaction(order, material);
     } else if(order.type === "output") {
         // return <OutputTransaction />
-        return OutputTransaction(order, material);
+        transactionPane = OutputTransaction(order, material);
     }
+
+    return (
+        <ScrollView>
+            {transactionPane}
+            <View>
+                <Pressable
+                    onPress={() => {
+                        navigation.navigate("dashboard")
+                    }}
+                >
+                    <View>
+                        <Text>Go to dashboard</Text>
+                    </View>
+                </Pressable>
+            </View>
+        </ScrollView>
+    )
 }
 
 const styles = StyleSheet.create({

@@ -5,7 +5,7 @@ import QRCodeScanner from "./QRCodeScanner";
 import MaterialScreen from "./Material";
 import TransactionSuccessScreen from "./TransactionSuccessScreen";
 import AddFileScreen from "./AddFile";
-
+import AddMaterialScreen from "./AddMaterial";
 export {
     LoginScreen,
     HomeScreen,
@@ -13,5 +13,6 @@ export {
     QRCodeScanner,
     MaterialScreen,
     TransactionSuccessScreen,
-    AddFileScreen
+    AddFileScreen,
+    AddMaterialScreen
 }

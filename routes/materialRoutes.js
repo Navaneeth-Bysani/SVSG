@@ -1,6 +1,6 @@
 const express = require("express");
 
-const {createMaterial, getAllMaterials, getMaterial, deleteMaterial, getMaterialByBarCode, deleteMaterialByBarcode, storeEntry, storeEntryByBarcode} = require("../controllers/materialController");
+const {createMaterial, getAllMaterials, getMaterial, deleteMaterial, getMaterialByBarCode, deleteMaterialByBarcode, storeEntry, storeEntryByBarcode, createWithExcel, uploadExcel} = require("../controllers/materialController");
 
 const {loggedInUser, protect, restrictTo} = require("../controllers/authController");
 const router = express.Router();
@@ -8,8 +8,11 @@ const router = express.Router();
 router.get("/barcode/:barcode", getMaterialByBarCode);
 router.get("/:id", getMaterial);
 
-
 router.use(protect);
+
+
+router.post("/excel/upload",uploadExcel, createWithExcel);
+
 router.get("/", getAllMaterials);
 router.post("/", restrictTo("admin"), createMaterial);
 

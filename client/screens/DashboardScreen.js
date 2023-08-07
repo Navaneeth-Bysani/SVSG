@@ -11,9 +11,10 @@ const DashBoardScreen = ({navigation}) => {
             <Text>Role: {user?.role}</Text>
             <Text>{authToken ? "Logged In" : "Logged out"}</Text>
             <Button  title = "logout" onPress = {() => logout()} />
-            <TextInput style={styles.inputStyle} />
+            {/* <TextInput style={styles.inputStyle} /> */}
             <Button title = "QR Scanning" style = {styles.qrButton} onPress={() => navigation.navigate("qrscanner")}/>
             <Button title = "Add File" style = {styles.qrButton} onPress={() => navigation.navigate("addFile")}/>
+            <Button title = "Add Material" style = {styles.qrButton} onPress={() => navigation.navigate("addmaterial")}/>
         </View>
     )
 }
