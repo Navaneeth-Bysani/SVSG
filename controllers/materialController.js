@@ -5,9 +5,9 @@ const multer = require("multer");
 const readXlsxFile = require('read-excel-file/node')
 
 exports.createMaterial = catchAsync(async (req,res,next) => {
-    const {barcode, equipment_details, moc, size, additional_details, available_quanity, minimum_quantity} = req.body;
-
-    const newMaterial = await Material.create({barcode, equipment_details, moc, size, additional_details, available_quanity, minimum_quantity});
+    const {barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity} = req.body;
+    console.log(req.body);
+    const newMaterial = await Material.create({barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity});
 
     res.status(201).json({
         newMaterial

@@ -21,7 +21,7 @@ const materialSchema = new mongoose.Schema({
     additional_details : {
         type : String
     },
-    available_quanity : {
+    available_quantity : {
         type : Number,
         required : true,
         default : 0
