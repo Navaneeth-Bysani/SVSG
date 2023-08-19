@@ -33,7 +33,6 @@ const AddMaterialScreen = ({navigation}) => {
             },
         }).then((data) => {
             Alert.alert(`Material has been created with barcode ${data.data.newMaterial.barcode}`);
-            Alert.alert(`${JSON.stringify(data)}`);
 
             navigation.navigate("dashboard");
         }).catch(error => {
@@ -62,26 +61,26 @@ const AddMaterialScreen = ({navigation}) => {
         <View style={stylesText.container}>
             {/* <ScrollView> */}
                 <Text>barcode (case sensitive)</Text>
-                <TextInput  placeholder="Enter Barcode" onChangeText={setBarcode}/>
+                <TextInput  placeholder="Enter Barcode" onChangeText={setBarcode} style={styles.inputStyle}/>
 
                 <Text>equipment_details</Text>
-                <TextInput  placeholder="Enter Equipment Details" onChangeText={setEquipmentDetails}/>
+                <TextInput  placeholder="Enter Equipment Details" onChangeText={setEquipmentDetails} style={styles.inputStyle}/>
 
                 <Text>Material of Construction</Text>
-                <TextInput  placeholder="Enter Material of Construction" onChangeText={setMoc} />
+                <TextInput  placeholder="Enter Material of Construction" onChangeText={setMoc} style={styles.inputStyle}/>
 
                 <Text>Size</Text>
-                <TextInput  placeholder="Size" onChangeText={setSize} />
+                <TextInput  placeholder="Size" onChangeText={setSize} style={styles.inputStyle} />
 
                 <Text>additional details</Text>
-                <TextInput  placeholder="additional details" />
+                <TextInput  placeholder="additional details" style={styles.inputStyle} onChangeText={setAdditionalDetails}/>
 
                 <Text>available quantity</Text>
-                <TextInput  placeholder="available quantity" keyboardType="numeric" value={availableQuantity} onChangeText={(text) => {validateNumber(text, setAvailableQuantity)}}/>
+                <TextInput  placeholder="available quantity" keyboardType="numeric" value={availableQuantity} onChangeText={(text) => {validateNumber(text, setAvailableQuantity)}} style={styles.inputStyle}/>
                 
 
                 <Text>minimum quantity</Text>
-                <TextInput  placeholder="minimum quantity" keyboardType="numeric" value={minimumQuantity} onChangeText={(text) => {validateNumber(text, setMinimumQuantity)}}/>
+                <TextInput  placeholder="minimum quantity" keyboardType="numeric" value={minimumQuantity} onChangeText={(text) => {validateNumber(text, setMinimumQuantity)}} style={styles.inputStyle}/>
 
                 <Button
                     title = "Add Material"

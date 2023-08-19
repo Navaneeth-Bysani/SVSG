@@ -2,7 +2,7 @@ const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 
-const User = require("../models/userModel");
+const User = require("../models/regularUserModel");
 const config = require("../utils/config");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
@@ -172,3 +172,36 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+exports.regularLogin = catchAsync(async (req,res,next) => {
+  const { email, password } = req.body;
+
+  // 1) Check if email and password exist
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password!', 400));
+  }
+  // 2) Check if user exists && password is correct
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError('Incorrect email or password', 401));
+  }
+
+
+  // 3) If everything ok, send token to client
+  const jwt_token = createToken(user._id, user.role);
+  const userInfo = {
+    name : user.name,
+    email : user.email,
+    picture : user.picture,
+    role : user.role,
+    _id : user._id
+  }
+
+  res.status(200).json({
+    status: 'success',
+    jwt: jwt_token,
+    message: 'Logged in successfully',
+    user : userInfo
+  })
+})

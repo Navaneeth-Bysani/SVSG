@@ -1,8 +1,8 @@
 .inputStyle {
     /* box-sizing: border-box; */
     border: #000000 2px solid;
-    top: 100px;
-    left: 30px;
+    /* top: 500px;
+    left: 30px; */
 
     /* Auto layout */
     display: flex;
@@ -28,9 +28,18 @@
     flex-grow: 0; */
 }
 
+.searchBox {
+    top: 200px;
+    left: 30px;
+
+    /* Auto layout */
+    display: flex;
+}
 .qrButton {
     display: flex;
     flex-direction: row;
-    width: 400px;
+    width: 300px;
     top : 500px;
+    margin: 10px;
+
 }

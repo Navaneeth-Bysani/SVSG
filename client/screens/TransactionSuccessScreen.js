@@ -28,7 +28,7 @@ const InputTransaction = (order, material) => {
 
 const OutputTransaction = (order, material) => {
     const tableTitle = ["Order Type", "Material Barcode", "Quantity", "Company", "Project", "Material Provided to"];
-    const tableData = [order.type, material.barcode, order.quantity, order.company_name, order.project, order.material_provided_to]
+    const tableData = [order.type, material.barcode, order.quantity, order.company_name, order.project_name, order.material_provided_to]
     
 
     return (

@@ -1,8 +1,6 @@
 .inputStyle {
     /* box-sizing: border-box; */
     border: #000000 2px solid;
-    top: 100px;
-    left: 30px;
 
     /* Auto layout */
     display: flex;

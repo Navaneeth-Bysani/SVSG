@@ -6,6 +6,8 @@ import MaterialScreen from "./Material";
 import TransactionSuccessScreen from "./TransactionSuccessScreen";
 import AddFileScreen from "./AddFile";
 import AddMaterialScreen from "./AddMaterial";
+import RegularLoginScreen from "./RegularLoginScreen";
+
 export {
     LoginScreen,
     HomeScreen,
@@ -14,5 +16,6 @@ export {
     MaterialScreen,
     TransactionSuccessScreen,
     AddFileScreen,
-    AddMaterialScreen
+    AddMaterialScreen,
+    RegularLoginScreen
 }

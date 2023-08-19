@@ -1,9 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen, TransactionSuccessScreen, AddFileScreen, AddMaterialScreen} from "./../screens";
+import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen, TransactionSuccessScreen, AddFileScreen, AddMaterialScreen, RegularLoginScreen} from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
+import {Alert} from "react-native";
 
 const AppNavigator = () => {
 
@@ -16,6 +17,7 @@ const AppNavigator = () => {
 
     useEffect(() => {
       if (user && authToken) {
+        Alert.alert("Invoked");
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
@@ -50,6 +52,14 @@ const AppNavigator = () => {
                 component={LoginScreen}
                 options={{
                   title: "Login Screen",
+                }}
+              />
+
+            <AuthStack.Screen
+                name="regularLogin"
+                component={RegularLoginScreen}
+                options={{
+                  title: "Login with details",
                 }}
               />
             </AuthStack.Navigator>

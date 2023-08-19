@@ -29,6 +29,7 @@ export const AuthContextProvider = ({ children }) => {
       await setItemAsync("authToken", token);
       setUser(newUser);
       setAuthToken(token);
+      // return [user, authToken];
     } catch (error) {
       Alert.alert("Error", "Failed to store rider credentials on your device");
       setUser(null);

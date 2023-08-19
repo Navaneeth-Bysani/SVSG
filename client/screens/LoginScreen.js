@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Image, ImageBackground } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable } from "react-native";
 import styles from "./Login.module.css";
 import AuthButton from "./../components/AuthButton.js";
 
-const LoginScreen = () => {
+const LoginScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             {/* <Text>I am Login Screen</Text> */}
@@ -13,8 +13,14 @@ const LoginScreen = () => {
                 {/* <Image source={require("./../assets/icon.png")}/> */}
                 <View style={styles.button}>
                     <AuthButton />
+                    <Pressable onPress={() => navigation.navigate("regularLogin")}>
+                        <Text>Login with email and password</Text>
+                    </Pressable>
                 </View>
 
+                <View style = {styles.AuthButton}>
+                    
+                </View>
             </View>
         </View>
     )

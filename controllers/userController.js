@@ -1,4 +1,4 @@
-const User = require("./../models/userModel");
+const User = require("./../models/regularUserModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const Email = require("./../utils/email");
@@ -72,7 +72,21 @@ exports.getUserRole = catchAsync(async (req, res, next) => {
       return next(new AppError("Student not found", 404));
     }
     req.user = user;
-    req.user.save();
+    // req.user.save({validate});
     let role = req.user.role;
     res.status(200).json({ status: "success", role });
 });
+
+exports.addUserManual = catchAsync(async(req,res,next) => {
+    const newUser = await User.create({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        role : req.body.role,
+        passwordConfirm : req.body.passwordConfirm
+    });
+
+    res.status(200).json({
+        message : "user added successfully"
+    })
+})
