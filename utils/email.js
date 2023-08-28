@@ -24,7 +24,7 @@ module.exports = class Email {
 
   }
 
-  async send(template, subject) {
+  async send(template, subject, attachments = []) {
     //Send the actual email
     // 1) Render HTML based on a pug template
     const html = pug.renderFile(`${__dirname}/../views/emails/${template}.pug`, {
@@ -40,7 +40,8 @@ module.exports = class Email {
     to: this.to,
     subject,
     html,
-    text: htmlToText.htmlToText(html)
+    text: htmlToText.htmlToText(html),
+    attachments
     // html:
     }
 
@@ -51,5 +52,9 @@ module.exports = class Email {
 
   async sendInvite() {
    await this.send(`inviteEmail`, `Welcome to SVSG!`)
+  }
+
+  async sendMaterialsReport(attachments) {
+    await this.send(`inviteEmail`, `Here is your report`, attachments);
   }
 }
