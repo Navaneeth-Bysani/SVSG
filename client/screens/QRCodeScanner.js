@@ -54,7 +54,7 @@ export default function QRCodeScanner({navigation}) {
     //     moc: "bla",
     //     size: "b",
     //     additional_details: "bla bla bla bla bla",
-    //     available_quanity: 5,
+    //     available_quantity: 5,
     //     minimum_quantity: 4,
     // }
       navigation.navigate("material", {material : material});

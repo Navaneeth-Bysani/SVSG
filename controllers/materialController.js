@@ -45,7 +45,7 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
     console.log("here");
     console.log(material, type, orderDetails, quantity)
     if(type === "output") {
-        if(material.available_quanity - quantity < material.minimum_quantity) {
+        if(material.available_quantity - quantity < material.minimum_quantity) {
             return res.status(400).json({
                 "message" : "Available quantity will fall below minimum quantity"
         });
@@ -65,8 +65,9 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
         details = {company_name, project_name, material_provided_to, billed, invoice_no};
         // const {manufacturer_test_certificate_available, sve_tested_material} = orderDetails;
         
-
-        material.available_quanity = material.available_quanity - quantity;
+        // console.log(material.available_quantity);
+        material.available_quantity = material.available_quantity - quantity;
+        // console.log(material.available_quantity);
 
     } else if(type === "input") {
         
@@ -85,8 +86,8 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
         }
         details = {manufacturer_test_certificate_available, sve_tested_material, billed, invoice_no};
 
-        material.available_quanity += quantity;
-        console.log(material.available_quanity);
+        material.available_quantity += quantity;
+        console.log(material.available_quantity);
     } else {
         return res.status(401).json({
             "message" : "type should be either input or output"
