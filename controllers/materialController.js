@@ -3,6 +3,7 @@ const Material = require("../models/materialModel");
 const Order = require("./../models/orderModel");
 const multer = require("multer");
 const readXlsxFile = require('read-excel-file/node')
+const createExcel = require("./../utils/createExcel");
 
 exports.createMaterial = catchAsync(async (req,res,next) => {
     const {barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity} = req.body;
@@ -241,5 +242,35 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
     
     res.status(200).json({
         "message" : "uploaded successfuly"
+    })
+});
+
+exports.getAllMaterialsReport = catchAsync(async (req,res,next) => {
+    const userEmail = req.user.email;
+
+    //0. Fetch materials data
+    const data = await Material.find();
+
+    const headers = [
+        {key: "barcode", header: "Barcode"},
+        {key: "equipment_details", header : "Equipment details"},
+        {key: "moc", header: "Material of Contruction"},
+        {key: "size", header: "Size"},
+        {key: "additional_details", header:"Additional details"},
+        {key: "available_quantity", header:"Available quantity"},
+        {key: "minimum_quantity", header:"Minimum quantity"}
+    ];
+    //1. create excel sheet
+    const workbookName = `Materials_Report_${Date.now()}_${req.user._id}`;
+    console.log(workbookName);
+    const excelFilePath = await createExcel(workbookName, headers, data);
+    console.log(excelFilePath);
+    //2. send that excel sheet as email
+
+    //3. delete the excel file
+
+    //4. send response
+    res.status(200).json({
+        "message" : "email sent successfully"
     })
 })
