@@ -1,6 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen, TransactionSuccessScreen, AddFileScreen, AddMaterialScreen, RegularLoginScreen} from "./../screens";
+import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen, TransactionSuccessScreen, AddFileScreen, AddMaterialScreen, RegularLoginScreen, AddClientScreen} from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
@@ -214,6 +214,14 @@ const AppNavigator = () => {
               component={AddFileScreen}
               options={{
                 title: "Add File Screen"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="addClient"
+              component={AddClientScreen}
+              options={{
+                title: "Add Client Screen"
               }}
             />
         </AdminTabs.Navigator>
