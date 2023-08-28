@@ -12,7 +12,7 @@ const LoginScreen = ({navigation}) => {
             <View>
                 {/* <Image source={require("./../assets/icon.png")}/> */}
                 <View style={styles.button}>
-                    <AuthButton />
+                    {/* <AuthButton /> */}
                     <Pressable onPress={() => navigation.navigate("regularLogin")}>
                         <Text>Login with email and password</Text>
                     </Pressable>

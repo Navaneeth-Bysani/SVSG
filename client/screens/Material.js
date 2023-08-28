@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Image, ImageBackground, Pressable, ScrollView, 
 import stylesModule from "./Material.module.css";
 import { Table, Row, Rows, TableWrapper, Col } from 'react-native-table-component';
 import DropDown from "react-native-paper-dropdown";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import { Button, TextInput } from "react-native-paper";
 import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
@@ -26,14 +26,43 @@ const MaterialScreen = ({navigation, route}) => {
     const [materialProvidedTo, setMaterialProvidedTo] = useState("");
     const [manufacturerCertificateAvailable, setManufacturerCertificateAvailable] = useState(false);
     const [sveTested, setSveTested] = useState(false);
+    const [billed, setBilled] = useState(false);
+    const [invoiceNumber, setInvoiceNumber] = useState("");
 
     const [showSveTestedDropDown, setShowSveTestedDropDown] = useState("");
 
     const [showDropDown, setShowDropDown] = useState(false);
     const [showCompanyDropDown, setShowCompanyDropDown] = useState(false);
     const [showManufacturerCertificateDropDown, setShowManufacturerCertificateDropDown] = useState(false);
+    const [showBilledDropDown, setShowBilledDropDown] = useState(false);
+    const [companies, setCompanies] = useState([]);
 
+    useEffect(()=> {
 
+        const getClients = async () => {
+            try {
+                const data = await axios.get("/client", {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        Accept: "application/json",
+                    }
+                });
+                const companies_data = data.data.clients.map(el => {
+                    return {
+                        label : el.name,
+                        value : el._id
+                    }
+                });
+                // Alert.alert(JSON.stringify(companies_data[0].label));
+                setCompanies(companies_data);
+            } catch (error) {
+                console.error(error);
+            }
+            
+        };
+
+        getClients();
+    }, [])
 
     const onChangeQuantity = (text) => {
         let newText = '';
@@ -50,10 +79,10 @@ const MaterialScreen = ({navigation, route}) => {
         setQuantity(newText);
     }
 
-    const companies = [
-        {label : "ABC company", value : "abc"},
-        {label : "XYZ enterprise", value : "xyz enterprise"}
-    ]
+    // const companies = [
+    //     {label : "ABC company", value : "abc"},
+    //     {label : "XYZ enterprise", value : "xyz enterprise"}
+    // ]
 
     const makeSubmitRequest = async (type, quantity, orderDetails) => {
 
@@ -96,7 +125,9 @@ const MaterialScreen = ({navigation, route}) => {
             const orderDetails = {
                 company_name : company,
                 project_name : projectNumber,
-                material_provided_to : materialProvidedTo
+                material_provided_to : materialProvidedTo,
+                billed: billed,
+                invoice_no : invoiceNumber
             };
             await makeSubmitRequest("output", quantity, orderDetails) 
             nullifyVariables();
@@ -112,7 +143,9 @@ const MaterialScreen = ({navigation, route}) => {
         try {
             const orderDetails = {
                 manufacturer_test_certificate_available : manufacturerCertificateAvailable,
-                sve_tested_material : sveTested
+                sve_tested_material : sveTested,
+                billed : billed,
+                invoice_no : invoiceNumber
             };
             await makeSubmitRequest("input", quantity, orderDetails);
             nullifyVariables();
@@ -122,121 +155,164 @@ const MaterialScreen = ({navigation, route}) => {
         }
     }
 
-    const OutputComponent = () => {
-        return (
-            <View>
-                <Text>Quantity Being Used</Text>
-                <TextInput
-                    keyboardType="numeric"
-                    value = {quantity}
-                    onChangeText={text => onChangeQuantity(text)}
-                    placeholder="Number"
-                    />
-                <Text>Company Name</Text>
-                <DropDown
-                    label={"Select"}
-                    mode={"outlined"}
-                    value={company}
-                    setValue={setCompany}
-                    list={companies}
-                    visible={showCompanyDropDown}
-                    showDropDown={() => setShowCompanyDropDown(true)}
-                    onDismiss={() => setShowCompanyDropDown(false)}
-                    />
+    // const OutputComponent = () => {
+    //     return (
+    //         <View>
+    //             <Text>Quantity Being Used</Text>
+    //             <TextInput
+    //                 keyboardType="numeric"
+    //                 value = {quantity}
+    //                 onChangeText={text => onChangeQuantity(text)}
+    //                 placeholder="Number"
+    //                 />
+    //             <Text>Company Name</Text>
+    //             <DropDown
+    //                 label={"Select"}
+    //                 mode={"outlined"}
+    //                 value={company}
+    //                 setValue={setCompany}
+    //                 list={companies}
+    //                 visible={showCompanyDropDown}
+    //                 showDropDown={() => setShowCompanyDropDown(true)}
+    //                 onDismiss={() => setShowCompanyDropDown(false)}
+    //                 />
             
-                <Text>Project Name or Number</Text>
-                <TextInput 
-                    placeholder="enter project name or number"
-                    value = {projectNumber}
-                    onChangeText = {setProjectNumber}
-                />
+    //             <Text>Project Name or Number</Text>
+    //             <TextInput 
+    //                 placeholder="enter project name or number"
+    //                 value = {projectNumber}
+    //                 onChangeText = {setProjectNumber}
+    //             />
 
-                <Text>Material Provided to</Text>
-                <TextInput 
-                    placeholder="Material Provided to"
-                    value = {materialProvidedTo}
-                    onChangeText={setMaterialProvidedTo}
-                />
+    //             <Text>Material Provided to</Text>
+    //             <TextInput 
+    //                 placeholder="Material Provided to"
+    //                 value = {materialProvidedTo}
+    //                 onChangeText={setMaterialProvidedTo}
+    //             />
 
-                <Button
-                    title = "Submit"
-                    onPress={handleInputSubmit}>
-                        Submit
-                </Button>
-            </View>
-        )
-    }
+    //             <Text>Is it billed?</Text>
+    //             <DropDown
+    //                 label={"Select"}
+    //                 mode={"outlined"}
+    //                 value={billed}
+    //                 setValue={setBilled}
+    //                 list={
+    //                     [
+    //                         {label : "YES", value : true},
+    //                         {label : "NO", value : false}
+    //                     ]
+    //                 }
+    //                 visible={showBilledDropDown}
+    //                 showDropDown={() => setShowBilledDropDown(true)}
+    //                 onDismiss={() => setShowBilledDropDown(false)}
+    //                 />
 
-    const InputComponent = () => {
-        return (
-            <View>
-                <Text>Quantity Being Added</Text>
-                <TextInput
-                    keyboardType="numeric"
-                    value = {quantity}
-                    onChangeText={text => onChangeQuantity(text)}
-                    placeholder="Number"
-                    />
-                <Text>Manufacturer Test Certificate Available</Text>
-                <DropDown
-                    label={"Select"}
-                    mode={"outlined"}
-                    value={manufacturerCertificateAvailable}
-                    setValue={setManufacturerCertificateAvailable}
-                    list={
-                        [
-                            {label : "YES", value : true},
-                            {label : "NO", value : false}
-                        ]
-                    }
-                    visible={showManufacturerCertificateDropDown}
-                    showDropDown={() => setShowManufacturerCertificateDropDown(true)}
-                    onDismiss={() => setShowManufacturerCertificateDropDown(false)}
-                    />
+    //             <Text>Invoice Number</Text>
+    //             <TextInput
+    //                 keyboardType="numeric"
+    //                 value = {invoiceNumber}
+    //                 onChangeText={setInvoiceNumber}
+    //                 placeholder="Number"
+    //                 />
+    //             <Button
+    //                 title = "Submit"
+    //                 onPress={handleInputSubmit}>
+    //                     Submit
+    //             </Button>
+    //         </View>
+    //     )
+    // }
+
+    // const InputComponent = () => {
+    //     return (
+    //         <View>
+    //             <Text>Quantity Being Added</Text>
+    //             <TextInput
+    //                 keyboardType="numeric"
+    //                 value = {quantity}
+    //                 onChangeText={text => onChangeQuantity(text)}
+    //                 placeholder="Number"
+    //                 />
+    //             <Text>Manufacturer Test Certificate Available</Text>
+    //             <DropDown
+    //                 label={"Select"}
+    //                 mode={"outlined"}
+    //                 value={manufacturerCertificateAvailable}
+    //                 setValue={setManufacturerCertificateAvailable}
+    //                 list={
+    //                     [
+    //                         {label : "YES", value : true},
+    //                         {label : "NO", value : false}
+    //                     ]
+    //                 }
+    //                 visible={showManufacturerCertificateDropDown}
+    //                 showDropDown={() => setShowManufacturerCertificateDropDown(true)}
+    //                 onDismiss={() => setShowManufacturerCertificateDropDown(false)}
+    //                 />
             
-                <Text>SVE tested material</Text>
-                <DropDown
-                    label={"Select"}
-                    mode={"outlined"}
-                    value={sveTested}
-                    setValue={setSveTested}
-                    list={
-                        [
-                            {label : "YES", value : true},
-                            {label : "NO", value : false}
-                        ]
-                    }
-                    visible={showSveTestedDropDown}
-                    showDropDown={() => setShowSveTestedDropDown(true)}
-                    onDismiss={() => setShowSveTestedDropDown(false)}
-                    />
+    //             <Text>SVE tested material</Text>
+    //             <DropDown
+    //                 label={"Select"}
+    //                 mode={"outlined"}
+    //                 value={sveTested}
+    //                 setValue={setSveTested}
+    //                 list={
+    //                     [
+    //                         {label : "YES", value : true},
+    //                         {label : "NO", value : false}
+    //                     ]
+    //                 }
+    //                 visible={showSveTestedDropDown}
+    //                 showDropDown={() => setShowSveTestedDropDown(true)}
+    //                 onDismiss={() => setShowSveTestedDropDown(false)}
+    //                 />
 
-                <Button
-                    title = "Submit"
-                    onPress={handleOutputSubmit}>
-                        Submit
-                </Button>
-            </View>
-        )
-    }
+    //             <Text>Is it billed?</Text>
+    //             <DropDown
+    //                 label={"Select"}
+    //                 mode={"outlined"}
+    //                 value={billed}
+    //                 setValue={setBilled}
+    //                 list={
+    //                     [
+    //                         {label : "YES", value : true},
+    //                         {label : "NO", value : false}
+    //                     ]
+    //                 }
+    //                 visible={showBilledDropDown}
+    //                 showDropDown={() => setShowBilledDropDown(true)}
+    //                 onDismiss={() => setShowBilledDropDown(false)}
+    //                 />
 
-    let FormComponent = <></>;
+    //             <Text>Invoice Number</Text>
+    //             <TextInput
+    //                 keyboardType="numeric"
+    //                 value = {invoiceNumber}
+    //                 onChangeText={setInvoiceNumber}
+    //                 placeholder="Number"
+    //                 />
+    //             <Button
+    //                 title = "Submit"
+    //                 onPress={handleOutputSubmit}>
+    //                     Submit
+    //             </Button>
+    //         </View>
+    //     )
+    // }
 
-    if(transactionType === "input") {
-        FormComponent = <InputComponent/>
-    } else if(transactionType === "output") {
-        FormComponent = <OutputComponent />
-    }
+    // let FormComponent = <></>;
+
+    // if(transactionType === "input") {
+    //     FormComponent = <InputComponent/>
+    // } else if(transactionType === "output") {
+    //     FormComponent = <OutputComponent />
+    // }
 
     return (
         <ScrollView>
         <View style={styles.container}>
-            <Table borderStyle={{borderWidth: 1}}>
-                <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                </TableWrapper>
-            </Table> 
+            
             
             <Text>Select Transaction Type</Text>
             <View>
@@ -288,6 +364,29 @@ const MaterialScreen = ({navigation, route}) => {
                     onChangeText={setMaterialProvidedTo}
                 />
 
+                <Text>Is it billed?</Text>
+                <DropDown
+                    label={"Select"}
+                    mode={"outlined"}
+                    value={billed}
+                    setValue={setBilled}
+                    list={
+                        [
+                            {label : "YES", value : true},
+                            {label : "NO", value : false}
+                        ]
+                    }
+                    visible={showBilledDropDown}
+                    showDropDown={() => setShowBilledDropDown(true)}
+                    onDismiss={() => setShowBilledDropDown(false)}
+                    />
+
+                <Text>Invoice Number</Text>
+                <TextInput
+                    value = {invoiceNumber}
+                    onChangeText={setInvoiceNumber}
+                    placeholder="Number"
+                    />
                 <Button
                     title = "Submit"
                     onPress={handleOutputSubmit}>
@@ -339,6 +438,29 @@ const MaterialScreen = ({navigation, route}) => {
                 onDismiss={() => setShowSveTestedDropDown(false)}
                 />
 
+                <Text>Is it billed?</Text>
+                <DropDown
+                    label={"Select"}
+                    mode={"outlined"}
+                    value={billed}
+                    setValue={setBilled}
+                    list={
+                        [
+                            {label : "YES", value : true},
+                            {label : "NO", value : false}
+                        ]
+                    }
+                    visible={showBilledDropDown}
+                    showDropDown={() => setShowBilledDropDown(true)}
+                    onDismiss={() => setShowBilledDropDown(false)}
+                    />
+
+                <Text>Invoice Number</Text>
+                <TextInput
+                    value = {invoiceNumber}
+                    onChangeText={setInvoiceNumber}
+                    placeholder="Number"
+                    />
             <Button
                 title = "Submit"
                 onPress={handleInputSubmit}>
@@ -347,7 +469,17 @@ const MaterialScreen = ({navigation, route}) => {
         </View>
            ) : (<></>)}
             
+
+        <Table borderStyle={{borderWidth: 1}}>
+                <TableWrapper style={styles.wrapper}>
+                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                </TableWrapper>
+        </Table> 
         </View>
+
+
+        
         </ScrollView>
         
     )

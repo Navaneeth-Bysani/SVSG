@@ -17,7 +17,7 @@ const AppNavigator = () => {
 
     useEffect(() => {
       if (user && authToken) {
-        Alert.alert("Invoked");
+        // Alert.alert("Invoked");
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);

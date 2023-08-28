@@ -11,7 +11,8 @@ const orderSchema = new mongoose.Schema({
         required : true
     },
     company_name : {
-        type : String,
+        type : mongoose.Schema.ObjectId,
+        ref : "client"
     },
     project_name : {
         type : String,
@@ -27,7 +28,7 @@ const orderSchema = new mongoose.Schema({
     },
     materialId : {
         type : mongoose.Schema.ObjectId,
-        ref : "Material",
+        ref : "material",
         required  :true
     },
     billed : {

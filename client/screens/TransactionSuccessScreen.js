@@ -7,8 +7,8 @@ import { Button, TextInput } from "react-native-paper";
 import useAuthContext from "../hooks/useAuthContext";
 
 const InputTransaction = (order, material) => {
-    const tableTitle = ["Order Type", "Material Barcode", "Quantity", "Manufacturer test certificate", "SVE tested"];
-    const tableData = [order.type, material.barcode, order.quantity, order.manufacturer_test_certificate_available ? "Available" : "Unavailable", order.sve_tested_material ? "Yes" : "No"]
+    const tableTitle = ["Order Type", "Material Barcode", "Quantity", "Manufacturer test certificate", "SVE tested", "Billed", "Invoice Number"];
+    const tableData = [order.type, material.barcode, order.quantity, order.manufacturer_test_certificate_available ? "Available" : "Unavailable", order.sve_tested_material ? "Yes" : "No", order.billed ? "YES" : "NO", order.invoice_no]
     
 
     return (
@@ -16,8 +16,8 @@ const InputTransaction = (order, material) => {
         <View style={styles.container}>
             <Table borderStyle={{borderWidth: 1}}>
                 <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
                 </TableWrapper>
             </Table>
         </View>
@@ -27,8 +27,8 @@ const InputTransaction = (order, material) => {
 }
 
 const OutputTransaction = (order, material) => {
-    const tableTitle = ["Order Type", "Material Barcode", "Quantity", "Company", "Project", "Material Provided to"];
-    const tableData = [order.type, material.barcode, order.quantity, order.company_name, order.project_name, order.material_provided_to]
+    const tableTitle = ["Order Type", "Material Barcode", "Quantity", "Company", "Project", "Material Provided to", "Billed", "Invoice Number"];
+    const tableData = [order.type, material.barcode, order.quantity, order.company_name.name, order.project_name, order.material_provided_to, order.billed ? "YES" : "NO", order.invoice_no]
     
 
     return (
@@ -36,8 +36,8 @@ const OutputTransaction = (order, material) => {
         <View style={styles.container}>
             <Table borderStyle={{borderWidth: 1}}>
                 <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
                 </TableWrapper>
             </Table>
         </View>

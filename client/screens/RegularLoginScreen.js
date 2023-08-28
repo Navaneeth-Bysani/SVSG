@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, ImageBackground, TextInput, Button, Alert } from "react-native";
-import styles from "./Login.module.css";
+import styles from "./RegularLoginScreen.module.css";
 import AuthButton from "./../components/AuthButton.js";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState} from "react";
@@ -57,8 +57,8 @@ const RegularLoginScreen = ({navigation}) => {
                         Submit
                 </Button>
 
-                <Text>{authToken}</Text>
-                <Text>{JSON.stringify(user)}</Text>
+                {/* <Text>{authToken}</Text>
+                <Text>{JSON.stringify(user)}</Text> */}
         </View>
     )
 }

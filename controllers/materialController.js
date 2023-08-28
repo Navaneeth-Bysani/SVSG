@@ -95,7 +95,8 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
 
     try {
         await material.save();
-        const order = await Order.create({type, quantity,...details, materialId : material._id });
+        let order = (await Order.create({type, quantity,...details, materialId : material._id }));
+        order = await order.populate("company_name");
         return res.status(200).json({
             "message" : "successful",
             material,

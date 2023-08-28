@@ -1,0 +1,7 @@
+.container {
+    position: relative;
+    flex: 1;
+    background: #FFFFFF;
+    top: 250px;
+    margin: 10px;
+}
