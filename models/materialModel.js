@@ -30,6 +30,12 @@ const materialSchema = new mongoose.Schema({
         type : Number,
         required : true,
         default : 0
+    },
+    storage_location : {
+        type : String
+    },
+    store_no : {
+        type : String
     }
 });
 

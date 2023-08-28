@@ -7,9 +7,9 @@ const createExcel = require("./../utils/createExcel");
 const Email = require("./../utils/email");
 
 exports.createMaterial = catchAsync(async (req,res,next) => {
-    const {barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity} = req.body;
+    const {barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity, storage_location, store_no} = req.body;
     console.log(req.body);
-    const newMaterial = await Material.create({barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity});
+    const newMaterial = await Material.create({barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity, storage_location, store_no});
 
     res.status(201).json({
         newMaterial
@@ -52,8 +52,8 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
 
         }
 
-        const {company_name, project_name, material_provided_to} = orderDetails;
-        console.log(company_name, project_name, material_provided_to);
+        const {company_name, project_name, material_provided_to, billed, invoice_no} = orderDetails;
+        console.log(company_name, project_name, material_provided_to, billed, invoice_no);
         if(!company_name || !project_name || !material_provided_to) {
             // return next (new AppError("company_name (or) project_name (or) material_provided_to input not given", 400))
             console.log("missing");
@@ -62,7 +62,7 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
             })
             return;
         }
-        details = {company_name, project_name, material_provided_to};
+        details = {company_name, project_name, material_provided_to, billed, invoice_no};
         // const {manufacturer_test_certificate_available, sve_tested_material} = orderDetails;
         
 
@@ -73,7 +73,9 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
 
         const manufacturer_test_certificate_available = orderDetails.manufacturer_test_certificate_available;
         const sve_tested_material = orderDetails.sve_tested_material;
-        console.log(manufacturer_test_certificate_available, sve_tested_material)
+        const billed = orderDetails.billed;
+        const invoice_no = orderDetails.invoice_no;
+        console.log(manufacturer_test_certificate_available, sve_tested_material, billed, invoice_no)
         if(manufacturer_test_certificate_available === undefined || !sve_tested_material === undefined) {
             // return next (new AppError("manufacturer test certificate available (or) sve tested material input not given", 400))
             res.status(400).json({
@@ -81,7 +83,7 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
             })
             return;
         }
-        details = {manufacturer_test_certificate_available, sve_tested_material};
+        details = {manufacturer_test_certificate_available, sve_tested_material, billed, invoice_no};
 
         material.available_quanity += quantity;
         console.log(material.available_quanity);
@@ -259,7 +261,9 @@ exports.getAllMaterialsReport = catchAsync(async (req,res,next) => {
         {key: "size", header: "Size"},
         {key: "additional_details", header:"Additional details"},
         {key: "available_quantity", header:"Available quantity"},
-        {key: "minimum_quantity", header:"Minimum quantity"}
+        {key: "minimum_quantity", header:"Minimum quantity"},
+        {key: "storage_location", header:"Storage location"},
+        {key: "store_no", header:"Store no"}
     ];
     //1. create excel sheet
     const workbookName = `Materials_Report_${Date.now()}_${req.user._id}`;

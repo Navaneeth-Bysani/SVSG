@@ -29,6 +29,14 @@ const orderSchema = new mongoose.Schema({
         type : mongoose.Schema.ObjectId,
         ref : "Material",
         required  :true
+    },
+    billed : {
+        type : Boolean,
+        required : true
+    },
+    invoice_no : {
+        type : String,
+        default : ""
     }
 })
 

@@ -1,0 +1,17 @@
+extends baseEmail
+
+block content
+  p Hi #{name},
+  p Here is the report of the materials stock as per this moment 🎉🙏
+
+  table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+    tbody
+      tr
+        td(align='left')
+          table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+            tbody
+              tr
+                td
+                  a(href=`${url}`, target='_blank') SVSG
+  p 
+  p - SVSG

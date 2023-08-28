@@ -55,6 +55,6 @@ module.exports = class Email {
   }
 
   async sendMaterialsReport(attachments) {
-    await this.send(`inviteEmail`, `Here is your report`, attachments);
+    await this.send(`materialsReportEmail`, `Here is your report`, attachments);
   }
 }
