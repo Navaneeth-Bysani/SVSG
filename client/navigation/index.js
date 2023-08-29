@@ -34,7 +34,7 @@ const AppNavigator = () => {
       } else {
         setIsLoggedIn(false);
       }
-    }, [user]);
+    }, [user, authToken]);
 
     useEffect(() => {
       const getRole = async () => {

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, Alert, ScrollView, KeyboardAvoidingView } from "react-native";
 import styles from "./Dashboard.module.css";
 import useAuthContext from "../hooks/useAuthContext"
 import {useState, useEffect} from "react";
@@ -11,10 +11,18 @@ const DashBoardScreen = ({navigation}) => {
     const [barcode, setBarcode] = useState("");
     useEffect(() => {
         const getRole = async () => {
-          const res = await axios.post("/user/getRole", {
-            email: user.email,
-          });
-          setRole(res.data.role);
+          try {
+            if(user) {
+              const res = await axios.post("/user/getRole", {
+                email: user?.email,
+              });
+              setRole(res.data.role);
+            }   
+          } catch (error) {
+            Alert.alert("something went wrong");
+            console.error(error);
+          }
+          
         //   Alert.alert(res.data.role);
         };
         getRole();
@@ -45,10 +53,19 @@ const DashBoardScreen = ({navigation}) => {
     }
 
     return (
+      // <ScrollView>
+      // <KeyboardAvoidingView behavior={'padding'} style={styles1.container} enabled = {true}>
+        <ScrollView>
         <View>
             <Text>Username : {user?.name}</Text>
             <Text>Role: {user?.role}</Text>
             <Text>{authToken ? "Logged In" : "Logged out"}</Text>
+            
+            <View style = {styles.searchBox}>
+              <TextInput style={styles.inputStyle} placeholder="Enter barcode" onChangeText={setBarcode}/>
+              <Button title = "search" onPress={handleSearch}/>
+            </View>
+            
             <Button  title = "logout" style = {styles.qrButton} onPress = {() => logout()} />
             <Button title = "QR Scanning" style = {styles.qrButton} onPress={() => navigation.navigate("qrscanner")}/>
             {/* {role === "admin" && <Button title = "Add File" style = {styles.qrButton} onPress={() => navigation.navigate("addFile")}/>} */}
@@ -56,13 +73,21 @@ const DashBoardScreen = ({navigation}) => {
             {role === "admin" && <Button title = "Add Client" style = {styles.qrButton} onPress={() => navigation.navigate("addClient")}/>}
             {role === "admin" && <Button title = "Add User" style = {styles.qrButton} onPress={() => navigation.navigate("addUser")}/>}
             <Button title="Get Materials Report" style={styles.qrButton} onPress={() => getAllMaterialsReport()}/>
-            <View style = {styles.searchBox}>
-              <TextInput style={styles.inputStyle} placeholder="Enter barcode" onChangeText={setBarcode}/>
-              <Button title = "search" onPress={handleSearch}/>
-            </View>
+            
+            
 
         </View>
+        </ScrollView>
+        // </KeyboardAvoidingView>
+
+      // {/* </ScrollView> */}
     )
 }
+
+const styles1 = StyleSheet.create({
+  container: {
+    flex: 1,
+  }
+});
 
 export default DashBoardScreen;

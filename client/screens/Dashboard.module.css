@@ -29,17 +29,18 @@
 }
 
 .searchBox {
-    top: 200px;
+    /* top: 100px; */
     left: 30px;
 
+    margin: 40px;
     /* Auto layout */
     display: flex;
 }
 .qrButton {
     display: flex;
     flex-direction: row;
-    width: 300px;
+    width: 200px;
     top : 500px;
-    margin: 10px;
+    margin: 20px;
 
 }

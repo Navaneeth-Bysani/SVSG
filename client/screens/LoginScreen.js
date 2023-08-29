@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image, ImageBackground, Pressable } from "react
 import styles from "./Login.module.css";
 import AuthButton from "./../components/AuthButton.js";
 import { useEffect } from "react";
+import axios from "../utils/axios";
 
 const LoginScreen = ({navigation}) => {
     useEffect(() => {

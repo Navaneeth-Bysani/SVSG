@@ -23,8 +23,11 @@ const RegularLoginScreen = ({navigation}) => {
             const data = loginResponse.data.user;
             const authToken = loginResponse.data.jwt;
 
-            login(data, authToken);
-            
+            await login(data, authToken);
+            // Alert.alert(`${loginResponse.status}`);
+            // if(loginResponse.status === 200) {
+                // navigation.navigate("dashboard")
+            // }
             // if(userContext && authTokenContext){
             //     navigation.navigate("dashboard")
             // }

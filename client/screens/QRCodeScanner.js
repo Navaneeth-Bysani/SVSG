@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Button, Alert } from "react-native";
+import { Text, View, StyleSheet, Button, Alert, ScrollView } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import axios from "./../utils/axios";
 
@@ -111,6 +111,7 @@ export default function QRCodeScanner({navigation}) {
 //   }
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View>
         <Text>
@@ -125,6 +126,7 @@ export default function QRCodeScanner({navigation}) {
         <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
       )}
     </View>
+    </ScrollView>
   );
 }
 

@@ -59,8 +59,10 @@ export const AuthContextProvider = ({ children }) => {
         const isSecureStoreAvailable = await isAvailableAsync();
         if (isSecureStoreAvailable) {
           const storedUser = await getItemAsync("user");
+          const fetchedToken = await getItemAsync("authToken");
           if (storedUser !== null) {
             setUser(JSON.parse(storedUser));
+            setAuthToken(fetchedToken);
           }
         }
         setLoading(false);
