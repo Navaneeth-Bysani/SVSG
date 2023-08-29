@@ -5,6 +5,7 @@ const multer = require("multer");
 const readXlsxFile = require('read-excel-file/node')
 const createExcel = require("./../utils/createExcel");
 const Email = require("./../utils/email");
+const moment = require("moment-timezone");
 
 exports.createMaterial = catchAsync(async (req,res,next) => {
     const {barcode, equipment_details, moc, size, additional_details, available_quantity, minimum_quantity, storage_location, store_no} = req.body;
@@ -96,7 +97,7 @@ const makeEntry = async (material, type, orderDetails, quantity, res) => {
 
     try {
         await material.save();
-        let order = (await Order.create({type, quantity,...details, materialId : material._id }));
+        let order = (await Order.create({type, quantity,...details, materialId : material._id, order_created_at : Date.now() }));
         order = await order.populate("company_name");
         return res.status(200).json({
             "message" : "successful",
@@ -285,5 +286,83 @@ exports.getAllMaterialsReport = catchAsync(async (req,res,next) => {
     //4. send response
     res.status(200).json({
         "message" : "email sent successfully"
+    })
+})
+const getIndianDateTimeFromTimeStamp = (timestamp) => {
+    const indianTime = moment(timestamp).tz("Asia/Kolkata");
+
+    const date = indianTime.format("DD-MM-YYYY");
+    const time = indianTime.format("HH:mm:ss");
+
+    return {date, time};
+
+}
+exports.getMaterialTransactionHistory = catchAsync(async(req,res,next) => {
+    console.log(req.query);
+    // let filter = {barcode : req.query.barcode, _id : req.query.materialId};
+    let filter = {};
+    if(req.query.barcode) {
+        filter = {barcode : req.query.barcode}
+    } else if(req.query.materialId) {
+        filter = {_id : req.query.materialId}
+    } else {
+        return res.status(400).json({
+            "message" : "need some query parameter"
+        })
+    }
+    const material = await Material.findOne(filter);
+    // console.log(material);
+    const orders = await Order.find({materialId : material._id}).populate("company_name");
+
+    const headers = [
+        {key : "date", header : "Date", width : 20},
+        {key : "time", header: "Time", width : 20},
+        {key : "type", header: "Type of Transaction", width : 20},
+        {key : "quantity", header : "quantity", width : 20},
+        {key : "company_name", header : "Company name", width : 30},
+        {key : "project_name", header:"Project Name", width : 30},
+        {key : "material_provided_to", header : "Material Provided to", width : 30} ,
+        {key : "billed", header : "billed", width : 20},
+        {key : "invoice_no", header : "invoice No", width : 20},
+        {key : "manufacturer_test_certificate_available", header: "Manufacturer test certificate", width : 20},
+        {key : "sve_tested_material", header : "SVE tested material", width : 20}
+    ];
+    // console.log(orders);
+    const modifiedOrders = orders.map((order) => {
+       
+        let date_time = {date : "", time : ""};
+        if(order.order_created_at) {
+            console.log(1);
+            date_time = getIndianDateTimeFromTimeStamp(order.order_created_at)
+        }
+        // console.log(order);
+        return {
+            date : date_time.date,
+            time : date_time.time,
+            type : order.type,
+            quantity : order.quantity,
+            company_name : order.company_name?.name || "-",
+            project_name : order.project_name || "-",
+            material_provided_to : order.material_provided_to || "-",
+            billed : order.billed || "-",
+            invoice_no : order.invoice_no || "-",
+            manufacturer_test_certificate_available : order.manufacturer_test_certificate_available || "-",
+            sve_tested_material : order.sve_tested_material || "-"
+        }
+    })
+
+    // console.log(modifiedOrders);
+    const current_date_time = getIndianDateTimeFromTimeStamp(Date.now());
+
+    const workbookName = `${material.equipment_details}_${current_date_time.date}_${current_date_time.time}`;
+    const excelFilePath = await createExcel(workbookName, headers, modifiedOrders);
+    const Emailer = new Email(req.user, "some url");
+
+    const attachments = [{
+        path : excelFilePath
+    }]
+    await Emailer.sendMaterialsReport(attachments);
+    res.status(200).json({
+        "message" : "email sent succesfully"
     })
 })

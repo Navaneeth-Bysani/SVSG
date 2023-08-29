@@ -38,6 +38,10 @@ const orderSchema = new mongoose.Schema({
     invoice_no : {
         type : String,
         default : ""
+    },
+    order_created_at : {
+        type : Date,
+        // default : Date.now()
     }
 })
 

@@ -1,13 +1,13 @@
 const express = require("express");
 
-const {createMaterial, getAllMaterials, getMaterial, deleteMaterial, getMaterialByBarCode, deleteMaterialByBarcode, storeEntry, storeEntryByBarcode, createWithExcel, uploadExcel, getAllMaterialsReport} = require("../controllers/materialController");
+const {createMaterial, getAllMaterials, getMaterial, deleteMaterial, getMaterialByBarCode, deleteMaterialByBarcode, storeEntry, storeEntryByBarcode, createWithExcel, uploadExcel, getAllMaterialsReport, getMaterialTransactionHistory} = require("../controllers/materialController");
 
 const {loggedInUser, protect, restrictTo} = require("../controllers/authController");
 const router = express.Router();
 
 router.get("/barcode/:barcode", getMaterialByBarCode);
 router.get("/report", protect, restrictTo("admin", "store"), getAllMaterialsReport);
-
+router.get("/material-report", protect, restrictTo("admin", "store"), getMaterialTransactionHistory);
 router.get("/:id", getMaterial);
 
 router.use(protect);
