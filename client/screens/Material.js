@@ -10,8 +10,8 @@ import useAuthContext from "../hooks/useAuthContext";
 const MaterialScreen = ({navigation, route}) => {
     const { authToken } = useAuthContext();
     const material = route.params.material;
-    const tableTitle = ["Barcode", "Equipment Details", "MOC", "Size", "Additional Details", "Minimum Qty", "Available quantity"];
-    const tableData = [material.barcode, material.equipment_details, material.moc, material.size, material.additional_details, material.minimum_quantity, material.available_quantity]
+    const tableTitle = ["Barcode", "Equipment Details", "MOC", "Size", "Additional Details", "Minimum Qty", "Available quantity", "Storage Location", "Store Number"];
+    const tableData = [material.barcode, material.equipment_details, material.moc, material.size, material.additional_details, material.minimum_quantity, material.available_quantity, material.storage_location, material.store_no]
     
     const input_types = [
         { label: "Input", value: "input" },
@@ -341,8 +341,8 @@ const MaterialScreen = ({navigation, route}) => {
 
         <Table borderStyle={{borderWidth: 1}}>
                 <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
                 </TableWrapper>
         </Table> 
         </View>

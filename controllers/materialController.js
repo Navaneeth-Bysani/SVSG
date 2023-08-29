@@ -219,7 +219,7 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
     console.log(req.file);
     const filename = req.file.filename;
 
-    let data = await readXlsxFile(`uploads/${filename}`).then((rows) => {
+    let repeated_barcodes = await readXlsxFile(`uploads/${filename}`).then((rows) => {
         // `rows` is an array of rows
         // each row being an array of cells.
         rows.shift();
@@ -234,20 +234,39 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
                 size : element[3],
                 additional_details : element[4],
                 available_quantity : element[5],
-                minimum_quantity : element[6]
+                minimum_quantity : element[6],
+                storage_location : element[7],
+                store_no : element[8]
             }
 
             data.push(obj);
         });
 
-        return data;
+        let repeated_barcodes = [];
+        data.forEach(async (el) => {
+            try {
+                await Material.create(el);
+            } catch (error) {
+                repeated_barcodes.push(el.barcode);
+                console.log(error);
+            }
+        })
+        return repeated_barcodes;
 
     });
 
-    await Material.insertMany(data);
+    if(repeated_barcodes.length !== 0) {
+        res.status(204).json({
+            "message" : "Few barcodes are repeated",
+            repeated_barcodes
+        });
+        return;
+    }
+    // await Material.insertMany(data);
     
-    res.status(200).json({
-        "message" : "uploaded successfuly"
+    
+    res.status(201).json({
+        "message" : "created successfuly"
     })
 });
 

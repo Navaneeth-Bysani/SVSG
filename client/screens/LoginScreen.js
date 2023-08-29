@@ -6,7 +6,7 @@ import axios from "../utils/axios";
 
 const LoginScreen = ({navigation}) => {
     useEffect(() => {
-        axios.get("/").then((data) => {}).catch(err => console.error(error));
+        axios.get("/").then((data) => {}).catch(err => console.error(err));
     }, [])
     return (
         <View style={styles.container}>
