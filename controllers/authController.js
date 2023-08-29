@@ -174,6 +174,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 exports.regularLogin = catchAsync(async (req,res,next) => {
+  console.log("In login");
   const { email, password } = req.body;
 
   // 1) Check if email and password exist
@@ -186,6 +187,7 @@ exports.regularLogin = catchAsync(async (req,res,next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
+
 
 
   // 3) If everything ok, send token to client
