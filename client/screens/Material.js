@@ -155,159 +155,21 @@ const MaterialScreen = ({navigation, route}) => {
         }
     }
 
-    // const OutputComponent = () => {
-    //     return (
-    //         <View>
-    //             <Text>Quantity Being Used</Text>
-    //             <TextInput
-    //                 keyboardType="numeric"
-    //                 value = {quantity}
-    //                 onChangeText={text => onChangeQuantity(text)}
-    //                 placeholder="Number"
-    //                 />
-    //             <Text>Company Name</Text>
-    //             <DropDown
-    //                 label={"Select"}
-    //                 mode={"outlined"}
-    //                 value={company}
-    //                 setValue={setCompany}
-    //                 list={companies}
-    //                 visible={showCompanyDropDown}
-    //                 showDropDown={() => setShowCompanyDropDown(true)}
-    //                 onDismiss={() => setShowCompanyDropDown(false)}
-    //                 />
-            
-    //             <Text>Project Name or Number</Text>
-    //             <TextInput 
-    //                 placeholder="enter project name or number"
-    //                 value = {projectNumber}
-    //                 onChangeText = {setProjectNumber}
-    //             />
-
-    //             <Text>Material Provided to</Text>
-    //             <TextInput 
-    //                 placeholder="Material Provided to"
-    //                 value = {materialProvidedTo}
-    //                 onChangeText={setMaterialProvidedTo}
-    //             />
-
-    //             <Text>Is it billed?</Text>
-    //             <DropDown
-    //                 label={"Select"}
-    //                 mode={"outlined"}
-    //                 value={billed}
-    //                 setValue={setBilled}
-    //                 list={
-    //                     [
-    //                         {label : "YES", value : true},
-    //                         {label : "NO", value : false}
-    //                     ]
-    //                 }
-    //                 visible={showBilledDropDown}
-    //                 showDropDown={() => setShowBilledDropDown(true)}
-    //                 onDismiss={() => setShowBilledDropDown(false)}
-    //                 />
-
-    //             <Text>Invoice Number</Text>
-    //             <TextInput
-    //                 keyboardType="numeric"
-    //                 value = {invoiceNumber}
-    //                 onChangeText={setInvoiceNumber}
-    //                 placeholder="Number"
-    //                 />
-    //             <Button
-    //                 title = "Submit"
-    //                 onPress={handleInputSubmit}>
-    //                     Submit
-    //             </Button>
-    //         </View>
-    //     )
-    // }
-
-    // const InputComponent = () => {
-    //     return (
-    //         <View>
-    //             <Text>Quantity Being Added</Text>
-    //             <TextInput
-    //                 keyboardType="numeric"
-    //                 value = {quantity}
-    //                 onChangeText={text => onChangeQuantity(text)}
-    //                 placeholder="Number"
-    //                 />
-    //             <Text>Manufacturer Test Certificate Available</Text>
-    //             <DropDown
-    //                 label={"Select"}
-    //                 mode={"outlined"}
-    //                 value={manufacturerCertificateAvailable}
-    //                 setValue={setManufacturerCertificateAvailable}
-    //                 list={
-    //                     [
-    //                         {label : "YES", value : true},
-    //                         {label : "NO", value : false}
-    //                     ]
-    //                 }
-    //                 visible={showManufacturerCertificateDropDown}
-    //                 showDropDown={() => setShowManufacturerCertificateDropDown(true)}
-    //                 onDismiss={() => setShowManufacturerCertificateDropDown(false)}
-    //                 />
-            
-    //             <Text>SVE tested material</Text>
-    //             <DropDown
-    //                 label={"Select"}
-    //                 mode={"outlined"}
-    //                 value={sveTested}
-    //                 setValue={setSveTested}
-    //                 list={
-    //                     [
-    //                         {label : "YES", value : true},
-    //                         {label : "NO", value : false}
-    //                     ]
-    //                 }
-    //                 visible={showSveTestedDropDown}
-    //                 showDropDown={() => setShowSveTestedDropDown(true)}
-    //                 onDismiss={() => setShowSveTestedDropDown(false)}
-    //                 />
-
-    //             <Text>Is it billed?</Text>
-    //             <DropDown
-    //                 label={"Select"}
-    //                 mode={"outlined"}
-    //                 value={billed}
-    //                 setValue={setBilled}
-    //                 list={
-    //                     [
-    //                         {label : "YES", value : true},
-    //                         {label : "NO", value : false}
-    //                     ]
-    //                 }
-    //                 visible={showBilledDropDown}
-    //                 showDropDown={() => setShowBilledDropDown(true)}
-    //                 onDismiss={() => setShowBilledDropDown(false)}
-    //                 />
-
-    //             <Text>Invoice Number</Text>
-    //             <TextInput
-    //                 keyboardType="numeric"
-    //                 value = {invoiceNumber}
-    //                 onChangeText={setInvoiceNumber}
-    //                 placeholder="Number"
-    //                 />
-    //             <Button
-    //                 title = "Submit"
-    //                 onPress={handleOutputSubmit}>
-    //                     Submit
-    //             </Button>
-    //         </View>
-    //     )
-    // }
-
-    // let FormComponent = <></>;
-
-    // if(transactionType === "input") {
-    //     FormComponent = <InputComponent/>
-    // } else if(transactionType === "output") {
-    //     FormComponent = <OutputComponent />
-    // }
+    const handleGetTransactionHistory = async() => {
+        try {
+            await axios.get(`/material/material-report?barcode=${material.barcode}`, {
+                headers: {
+                    "Accept": 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                    "Authorization": `Bearer ${authToken}`,
+                  }
+            });
+            Alert.alert("Email sent successfully");
+        } catch (error) {
+            Alert.alert("something went wrong");
+            console.error(error);
+        }
+    }
 
     return (
         <ScrollView>
@@ -328,6 +190,13 @@ const MaterialScreen = ({navigation, route}) => {
                     />
             </View>
 
+            <View>
+                <Button
+                    title = "Get transaction history"
+                    onPress={handleGetTransactionHistory}>
+                        Get transaction history
+                </Button>
+            </View>
             {/* {FormComponent} */}
            {transactionType === "output" ? (
                 <View>

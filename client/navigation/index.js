@@ -1,6 +1,18 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {LoginScreen, HomeScreen, DashBoardScreen, QRCodeScanner, MaterialScreen, TransactionSuccessScreen, AddFileScreen, AddMaterialScreen, RegularLoginScreen, AddClientScreen} from "./../screens";
+import {
+  LoginScreen, 
+  HomeScreen, 
+  DashBoardScreen, 
+  QRCodeScanner, 
+  MaterialScreen, 
+  TransactionSuccessScreen, 
+  AddFileScreen, 
+  AddMaterialScreen, 
+  RegularLoginScreen, 
+  AddClientScreen,
+  AddUserScreen
+} from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
@@ -26,10 +38,16 @@ const AppNavigator = () => {
 
     useEffect(() => {
       const getRole = async () => {
-        const res = await axios.post("/user/getRole", {
-          email: user.email,
-        });
-        setRole(res.data.role);
+        try {
+          const res = await axios.post("/user/getRole", {
+            email: user.email,
+          });
+          setRole(res.data.role);
+        } catch (error) {
+          Alert.alert("Something went wrong");
+          console.error(error);
+        }
+        
       };
       if (isLoggedIn) {
         getRole();
@@ -222,6 +240,14 @@ const AppNavigator = () => {
               component={AddClientScreen}
               options={{
                 title: "Add Client Screen"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="addUser"
+              component={AddUserScreen}
+              options={{
+                title: "Add User Screen"
               }}
             />
         </AdminTabs.Navigator>

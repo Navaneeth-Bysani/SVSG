@@ -54,6 +54,7 @@ const DashBoardScreen = ({navigation}) => {
             {/* {role === "admin" && <Button title = "Add File" style = {styles.qrButton} onPress={() => navigation.navigate("addFile")}/>} */}
             {role === "admin" && <Button title = "Add Material" style = {styles.qrButton} onPress={() => navigation.navigate("addmaterial")}/>}
             {role === "admin" && <Button title = "Add Client" style = {styles.qrButton} onPress={() => navigation.navigate("addClient")}/>}
+            {role === "admin" && <Button title = "Add User" style = {styles.qrButton} onPress={() => navigation.navigate("addUser")}/>}
             <Button title="Get Materials Report" style={styles.qrButton} onPress={() => getAllMaterialsReport()}/>
             <View style = {styles.searchBox}>
               <TextInput style={styles.inputStyle} placeholder="Enter barcode" onChangeText={setBarcode}/>

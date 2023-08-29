@@ -8,6 +8,7 @@ import AddFileScreen from "./AddFile";
 import AddMaterialScreen from "./AddMaterial";
 import RegularLoginScreen from "./RegularLoginScreen";
 import AddClientScreen from "./AddClientScreen";
+import AddUserScreen from "./AddUserScreen";
 
 export {
     LoginScreen,
@@ -19,5 +20,6 @@ export {
     AddFileScreen,
     AddMaterialScreen,
     RegularLoginScreen,
-    AddClientScreen
+    AddClientScreen,
+    AddUserScreen
 }
