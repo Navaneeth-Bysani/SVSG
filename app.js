@@ -20,6 +20,9 @@ app.use(cookieParser());
 app.use(cors());
 
 
+app.get("/api/v1", (req,res,next) => {
+    res.status(200);
+})
 app.use("/api/v1/material", materialRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);

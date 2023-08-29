@@ -14,6 +14,8 @@ const AddMaterialScreen = ({navigation}) => {
     const [ additionalDetails, setAdditionalDetails] = useState("");
     const [ availableQuantity, setAvailableQuantity] = useState("");
     const [ minimumQuantity, setMinimumQuantity] = useState("");
+    const [ storeNumber, setStoreNumber] = useState("");
+    const [ storageLocation, setStorageLocation] = useState("");
 
     const handleSubmit = () => {
         const material = {
@@ -23,7 +25,9 @@ const AddMaterialScreen = ({navigation}) => {
             size,
             additional_details : additionalDetails,
             available_quantity : 1*availableQuantity,
-            minimum_quantity : 1*minimumQuantity
+            minimum_quantity : 1*minimumQuantity,
+            storage_location : storageLocation,
+            store_no : storeNumber
         };
         console.log(material);
         axios.post("/material", material , {
@@ -81,6 +85,14 @@ const AddMaterialScreen = ({navigation}) => {
 
                 <Text>minimum quantity</Text>
                 <TextInput  placeholder="minimum quantity" keyboardType="numeric" value={minimumQuantity} onChangeText={(text) => {validateNumber(text, setMinimumQuantity)}} style={styles.inputStyle}/>
+
+                <Text>Storage Location</Text>
+                <TextInput  placeholder="storage location"  value={storageLocation} onChangeText={setStorageLocation} style={styles.inputStyle}/>
+                
+                <Text>Store Number</Text>
+                <TextInput  placeholder="store number"  value={storeNumber} onChangeText={setStoreNumber} style={styles.inputStyle}/>
+
+                
 
                 <Button
                     title = "Add Material"
