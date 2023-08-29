@@ -4,18 +4,18 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import axios from "./../utils/axios";
 
 export default function QRCodeScanner({navigation}) {
-//   const [hasPermission, setHasPermission] = useState(null);
+  const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
 //   const [meal, setMeal] = useState({ type: "dinner", date: "20-03-23" });
 
-//   useEffect(() => {
-//     const getBarCodeScannerPermissions = async () => {
-//       const { status } = await BarCodeScanner.requestPermissionsAsync();
-//       setHasPermission(status === "granted");
-//     };
+  useEffect(() => {
+    const getBarCodeScannerPermissions = async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    };
 
-//     getBarCodeScannerPermissions();
-//   }, []);
+    getBarCodeScannerPermissions();
+  }, []);
 
 //   const chargeUserForMeal = async (encryptedString) => {
 //     try {
@@ -101,17 +101,17 @@ export default function QRCodeScanner({navigation}) {
     // chargeUserForMeal(data);
   };
 
-//   if (hasPermission === null) {
-//     // Alert.alert("Requesting for camera permission");
-//     return <Text>Requesting for camera permission</Text>;
-//   }
-//   if (hasPermission === false) {
-//     // Alert.alert("No camera permission");
-//     return <Text>No access to camera</Text>;
-//   }
+  if (hasPermission === null) {
+    // Alert.alert("Requesting for camera permission");
+    return <Text>Requesting for camera permission</Text>;
+  }
+  if (hasPermission === false) {
+    // Alert.alert("No camera permission");
+    return <Text>No access to camera</Text>;
+  }
 
   return (
-    <ScrollView>
+    // <ScrollView>
     <View style={styles.container}>
       <View>
         <Text>
@@ -120,13 +120,14 @@ export default function QRCodeScanner({navigation}) {
       </View>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={{ width: "80%", height: "80%" }}
+        // style={{ width: "40%", height: "40%" }}
+        style = {StyleSheet.absoluteFillObject}
       />
       {scanned && (
         <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
       )}
     </View>
-    </ScrollView>
+    // </ScrollView>
   );
 }
 
@@ -137,3 +138,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+
+// https://www.youtube.com/watch?v=3mMyd3r2LRc
