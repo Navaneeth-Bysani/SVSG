@@ -7,6 +7,14 @@ const createExcel = require("../utils/createExcel");
 const Email = require("../utils/email");
 const moment = require("moment-timezone");
 
+const getIndianDateTimeFromTimeStamp = (timestamp) => {
+    const indianTime = moment(timestamp).tz("Asia/Kolkata");
+
+    const date = indianTime.format("DD-MM-YYYY");
+    const time = indianTime.format("HH:mm:ss");
+
+    return {date, time};
+}
 
 const createOneEntity = async(data) => {
     try {
@@ -65,6 +73,28 @@ exports.getAll = catchAsync(async (req,res, next) => {
     })
 });
 
+const format_cylinder_response = (data) => {
+    const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
+    const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
+    const formattedData = {
+        barcode : data.barcode,
+        serial_number :  data.serial_number,
+        product_code :  data.product_code,
+        volume : data.volume,
+        manufactured_date : `${indian_manufactured_date.date}`,
+        manufacturer : data.manufacturer,
+        owner : data.owner,
+        branch : data.branch,
+        status : data.status,
+        batch_number : data.batch_number || "Not assigned yet",
+        filling_pressure :  (data.status === "full" ? data.filling_pressure : "Not filled yet"),
+        grade : (data.status === "full" ? data.grade : "Not filled yet"),
+        last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
+        transaction_status : (data.isDispatched ? "Dispatched" : "In store")
+    };
+
+    return formattedData;
+}
 exports.getOne = catchAsync(async (req,res,next) => {
     const data = await Cylinder.findById(req.params.id);
     
@@ -77,7 +107,7 @@ exports.getOne = catchAsync(async (req,res,next) => {
     }
 
     res.status(200).json({
-        data
+        data : format_cylinder_response(data)
     })
 });
 
@@ -103,7 +133,7 @@ exports.getOneByBarCode = catchAsync(async (req,res) => {
     }
 
     res.status(200).json({
-        data
+        data : format_cylinder_response(data)
     })
 });
 
@@ -172,16 +202,17 @@ const fillerEntryHelper = async(cylinder, data, res) => {
     }
     if(!data.filling_pressure || !data.grade || !data.batch_number) {
         console.log("Not sufficient information. Missing some fields");
-        res.status(400).json({
+        return res.status(400).json({
             "message" : "Missing few field entries"
         });
+        
     }
     try {
         data.status = "full";
         const updated = await Cylinder.findByIdAndUpdate(cylinder._id, data, {new:true});
         return res.status(200).json({
             "message" : "succesfully updated",
-            updated
+            updated : format_cylinder_response(updated)
         });
     } catch (error) {
         console.log(error);
@@ -215,7 +246,7 @@ exports.testerEntry = catchAsync(async(req,res, next) => {
 
     res.status(200).json({
         "message" : "tested successfully",
-        testUpdated
+        data : format_cylinder_response(testUpdated)
     })
 });
 
@@ -224,7 +255,7 @@ exports.testerEntryByBarcode = catchAsync(async(req, res, next) => {
     const testUpdated = await Cylinder.findOneAndUpdate({barcode}, {last_test_date : Date.now()}, {new : true});
     res.status(200).json({
         "message" : "tested successfully",
-        testUpdated
+        data : format_cylinder_response(testUpdated)
     })
 });
 
@@ -454,14 +485,7 @@ exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
 
 
 
-const getIndianDateTimeFromTimeStamp = (timestamp) => {
-    const indianTime = moment(timestamp).tz("Asia/Kolkata");
 
-    const date = indianTime.format("DD-MM-YYYY");
-    const time = indianTime.format("HH:mm:ss");
-
-    return {date, time};
-}
 
 // exports.getMaterialTransactionHistory = catchAsync(async(req,res,next) => {
 //     console.log(req.query);

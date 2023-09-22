@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, ScrollView, Alert } from "react-native";
 import DropDown from "react-native-paper-dropdown";
 
-import styles from "./AddMaterial.module.css";
+import styles from "./AddCylinder";
 import useAuthContext from "../hooks/useAuthContext"
 import {useState} from "react";
 import axios from "./../utils/axios";

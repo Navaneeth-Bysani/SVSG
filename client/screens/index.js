@@ -2,10 +2,10 @@ import LoginScreen from "./LoginScreen";
 import HomeScreen from "./HomeScreen";
 import DashBoardScreen from "./DashboardScreen";
 import QRCodeScanner from "./QRCodeScanner";
-import MaterialScreen from "./Material";
+import CylinderScreen from "./Cylinder";
 import TransactionSuccessScreen from "./TransactionSuccessScreen";
 import AddFileScreen from "./AddFile";
-import AddMaterialScreen from "./AddMaterial";
+import AddCylinderScreen from "./AddCylinder";
 import RegularLoginScreen from "./RegularLoginScreen";
 import AddClientScreen from "./AddClientScreen";
 import AddUserScreen from "./AddUserScreen";
@@ -15,10 +15,10 @@ export {
     HomeScreen,
     DashBoardScreen,
     QRCodeScanner,
-    MaterialScreen,
+    CylinderScreen,
     TransactionSuccessScreen,
     AddFileScreen,
-    AddMaterialScreen,
+    AddCylinderScreen,
     RegularLoginScreen,
     AddClientScreen,
     AddUserScreen

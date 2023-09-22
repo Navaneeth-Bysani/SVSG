@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable, ScrollView, Alert } from "react-native";
-import stylesModule from "./Material.module.css";
+import stylesModule from "./Cylinder.module.css";
 import { Table, Row, Rows, TableWrapper, Col } from 'react-native-table-component';
 import DropDown from "react-native-paper-dropdown";
 import {useState} from "react";
