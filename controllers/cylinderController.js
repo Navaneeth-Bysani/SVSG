@@ -73,7 +73,7 @@ exports.getAll = catchAsync(async (req,res, next) => {
     })
 });
 
-const format_material_response = (data) => {
+const format_cylinder_response = (data) => {
     const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
     const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
     const formattedData = {
@@ -89,7 +89,7 @@ const format_material_response = (data) => {
         batch_number : data.batch_number || "Not assigned yet",
         filling_pressure :  (data.status === "full" ? data.filling_pressure : "Not filled yet"),
         grade : (data.status === "full" ? data.grade : "Not filled yet"),
-        last_test_date : `${indian_last_test_date.date}, ${indian_last_test_date.time}`,
+        last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
         transaction_status : (data.isDispatched ? "Dispatched" : "In store")
     };
 
@@ -107,7 +107,7 @@ exports.getOne = catchAsync(async (req,res,next) => {
     }
 
     res.status(200).json({
-        data : format_material_response(data)
+        data : format_cylinder_response(data)
     })
 });
 
@@ -133,7 +133,7 @@ exports.getOneByBarCode = catchAsync(async (req,res) => {
     }
 
     res.status(200).json({
-        data : format_material_response(data)
+        data : format_cylinder_response(data)
     })
 });
 
@@ -202,16 +202,17 @@ const fillerEntryHelper = async(cylinder, data, res) => {
     }
     if(!data.filling_pressure || !data.grade || !data.batch_number) {
         console.log("Not sufficient information. Missing some fields");
-        res.status(400).json({
+        return res.status(400).json({
             "message" : "Missing few field entries"
         });
+        
     }
     try {
         data.status = "full";
         const updated = await Cylinder.findByIdAndUpdate(cylinder._id, data, {new:true});
         return res.status(200).json({
             "message" : "succesfully updated",
-            updated
+            updated : format_cylinder_response(updated)
         });
     } catch (error) {
         console.log(error);
@@ -245,7 +246,7 @@ exports.testerEntry = catchAsync(async(req,res, next) => {
 
     res.status(200).json({
         "message" : "tested successfully",
-        testUpdated
+        data : format_cylinder_response(testUpdated)
     })
 });
 
@@ -254,7 +255,7 @@ exports.testerEntryByBarcode = catchAsync(async(req, res, next) => {
     const testUpdated = await Cylinder.findOneAndUpdate({barcode}, {last_test_date : Date.now()}, {new : true});
     res.status(200).json({
         "message" : "tested successfully",
-        testUpdated
+        data : format_cylinder_response(testUpdated)
     })
 });
 

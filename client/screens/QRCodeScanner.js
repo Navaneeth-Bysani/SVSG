@@ -45,8 +45,8 @@ export default function QRCodeScanner({navigation}) {
       let res;
       setScanned(true);
       // Alert.alert(data);
-      const content = await axios.get(`/material/barcode/${data}`);
-      const material = content.data.material;
+      const content = await axios.get(`/cylinder/barcode/${data}`);
+      const cylinder = content.data.data;
       // Alert.alert(JSON.stringify(content));
     //   const material = {
     //     barcode: "SVE0102",
@@ -57,7 +57,7 @@ export default function QRCodeScanner({navigation}) {
     //     available_quantity: 5,
     //     minimum_quantity: 4,
     // }
-      navigation.navigate("material", {material : material});
+      navigation.navigate("cylinder", {cylinder : cylinder});
 
 
     
@@ -115,7 +115,7 @@ export default function QRCodeScanner({navigation}) {
     <View style={styles.container}>
       <View>
         <Text>
-          Scanning for Material
+          Scanning for Cylinder
         </Text>
       </View>
       <BarCodeScanner

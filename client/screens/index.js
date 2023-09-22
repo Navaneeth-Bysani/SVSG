@@ -5,7 +5,7 @@ import QRCodeScanner from "./QRCodeScanner";
 import CylinderScreen from "./Cylinder";
 import TransactionSuccessScreen from "./TransactionSuccessScreen";
 import AddFileScreen from "./AddFile";
-import AddMaterialScreen from "./AddMaterial";
+import AddCylinderScreen from "./AddCylinder";
 import RegularLoginScreen from "./RegularLoginScreen";
 import AddClientScreen from "./AddClientScreen";
 import AddUserScreen from "./AddUserScreen";
@@ -18,7 +18,7 @@ export {
     CylinderScreen,
     TransactionSuccessScreen,
     AddFileScreen,
-    AddMaterialScreen,
+    AddCylinderScreen,
     RegularLoginScreen,
     AddClientScreen,
     AddUserScreen

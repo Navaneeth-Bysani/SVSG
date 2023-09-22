@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, ScrollView, Alert } from "react-native";
-import styles from "./AddMaterial.module.css";
+import styles from "./AddCylinder.module.css";
 import useAuthContext from "../hooks/useAuthContext"
 import {useState} from "react";
 import axios from "../utils/axios";

@@ -69,7 +69,7 @@ const DashBoardScreen = ({navigation}) => {
             <Button  title = "logout" style = {styles.qrButton} onPress = {() => logout()} />
             <Button title = "QR Scanning" style = {styles.qrButton} onPress={() => navigation.navigate("qrscanner")}/>
             {/* {role === "admin" && <Button title = "Add File" style = {styles.qrButton} onPress={() => navigation.navigate("addFile")}/>} */}
-            {role === "admin" && <Button title = "Add Material" style = {styles.qrButton} onPress={() => navigation.navigate("addmaterial")}/>}
+            {role === "admin" && <Button title = "Add Cylinder" style = {styles.qrButton} onPress={() => navigation.navigate("addcylinder")}/>}
             {role === "admin" && <Button title = "Add Client" style = {styles.qrButton} onPress={() => navigation.navigate("addClient")}/>}
             {role === "admin" && <Button title = "Add User" style = {styles.qrButton} onPress={() => navigation.navigate("addUser")}/>}
             <Button title="Get Materials Report" style={styles.qrButton} onPress={() => getAllMaterialsReport()}/>

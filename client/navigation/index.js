@@ -8,7 +8,7 @@ import {
   CylinderScreen, 
   TransactionSuccessScreen, 
   AddFileScreen, 
-  AddMaterialScreen, 
+  AddCylinderScreen, 
   RegularLoginScreen, 
   AddClientScreen,
   AddUserScreen
@@ -173,10 +173,10 @@ const AppNavigator = () => {
           }}
         >
           <AdminTabs.Screen
-            name="addmaterial"
-            component={AddMaterialScreen}
+            name="addcylinder"
+            component={AddCylinderScreen}
             options={{
-              title: "Add Material"
+              title: "Add Cylinder"
             }}
           />
 

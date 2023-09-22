@@ -8,16 +8,19 @@ import axios from "../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
 
 const CylinderScreen = ({navigation, route}) => {
-    const { authToken } = useAuthContext();
+    const { user, authToken } = useAuthContext();
     const cylinder = route.params.cylinder;
     const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status"];
     const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status];
     
-    
-    const input_types = [
-        { label: "Input", value: "input" },
-        { label: "Output", value: "output" }
-      ];
+    const [role, setRole] = useState("");
+    const [actionTypes, setActionTypes] = useState([]);
+    const [selectedActionType, setSelectedActionType] = useState("");
+
+
+    const [fillingPressure, setFillingPressure] = useState("");
+    const [grade, setGrade] = useState("");
+    const [batchNumber, setBatchNumber] = useState("");
 
     const [materialBarcode, setMaterialBarcode] = useState(cylinder.barcode);
     const [transactionType, setTransactionType] = useState("");
@@ -65,6 +68,39 @@ const CylinderScreen = ({navigation, route}) => {
         getClients();
     }, [])
 
+    useEffect(() => {
+        const getRole = async () => {
+          try {
+            if(user) {
+              const res = await axios.post("/user/getRole", {
+                email: user?.email,
+              });
+            //   setRole(res.data.role);
+            const role = res.data.role;
+
+            let actions = [];
+            
+            if(role === "admin") {
+                actions = [
+                    {label : "Filling",  value : "filler"},
+                    {label : "Testing",  value : "tester"},
+                    {label : "Pickup",  value : "pickup"}
+                ];
+                setActionTypes(actions);
+            } else {
+                setSelectedActionType(role);
+            }
+            }   
+          } catch (error) {
+            Alert.alert("something went wrong");
+            console.error(error);
+          }
+          
+        //   Alert.alert(res.data.role);
+        };
+        getRole();
+      }, []);
+
     const onChangeQuantity = (text) => {
         let newText = '';
         let numbers = '0123456789';
@@ -111,6 +147,7 @@ const CylinderScreen = ({navigation, route}) => {
             console.error(error);
         }
     }
+
     const nullifyVariables = () => {
         setQuantity("");
         setCompany("");
@@ -120,6 +157,7 @@ const CylinderScreen = ({navigation, route}) => {
         setManufacturerCertificateAvailable("");
         setSveTested("")
     }
+
     const handleOutputSubmit = async () => {
         // Alert.alert(`${transactionType}${quantity}-${company}-${projectNumber}-${materialProvidedTo}`);
        try {
@@ -138,6 +176,53 @@ const CylinderScreen = ({navigation, route}) => {
         
     }
 
+    const handleTestedSubmit =  async() => {
+        try {
+            const testedRespone = await axios.patch(`/cylinder/tester/barcode/${cylinder.barcode}`, {}, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  Accept: "application/json",
+                },
+            });
+            if(testedRespone.status === 200) {
+                Alert.alert("Test date updated successfully");
+                navigation.navigate("cylinder", {cylinder : testedRespone.data.data});
+                setSelectedActionType("");
+            }
+        } catch (error) {
+            Alert.alert("Something went wrong!");
+            console.error(error);
+        }
+    }
+
+    const handleFillerSubmit = async() => {
+        const body = {
+            filling_pressure : fillingPressure,
+            grade : grade,
+            batch_number : batchNumber
+        };
+
+        try {
+            const updated = await axios.patch(`/cylinder/filler/barcode/${cylinder.barcode}`, body, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  Accept: "application/json",
+                },
+            });
+    
+            if(updated.status === 200) {
+                Alert.alert("Cylinder filling entry marked successfully");
+                navigation.navigate("cylinder", {cylinder : updated.data.updated});
+                setSelectedActionType("");
+            } else  {
+                Alert.alert("Something went wrong");
+            }
+        } catch (error) {    
+            Alert.alert("Either the cylinder is already full or something went wrong");
+            console.error(error);
+        }
+        
+    }
     const handleInputSubmit = async () => {
         // Alert.alert(`${transactionType}-${quantity}-${manufacturerCertificateAvailable} -${sveTested}`);
         
@@ -176,20 +261,64 @@ const CylinderScreen = ({navigation, route}) => {
         <ScrollView>
         <View style={styles.container}>
             
+            {actionTypes.length != 0 ? (
+                <>
+                <Text>Select Transaction Type</Text>
+                <View>
+                    <DropDown
+                        label={"Select"}
+                        mode={"outlined"}
+                        value={transactionType}
+                        setValue={setSelectedActionType}
+                        list={actionTypes}
+                        visible={showDropDown}
+                        showDropDown={() => setShowDropDown(true)}
+                        onDismiss={() => setShowDropDown(false)}
+                        />
+                </View>
+                </>
+            ) : <></>}
             
-            <Text>Select Transaction Type</Text>
-            <View>
-                <DropDown
-                    label={"Select"}
-                    mode={"outlined"}
-                    value={transactionType}
-                    setValue={setTransactionType}
-                    list={input_types}
-                    visible={showDropDown}
-                    showDropDown={() => setShowDropDown(true)}
-                    onDismiss={() => setShowDropDown(false)}
+            {selectedActionType === "tester" ? (
+                <>
+                    <Text>Click the below button if you have tested it today</Text>
+                    <Button
+                        title = "Mark tested"
+                        onPress={handleTestedSubmit}>
+                            Mark Tested
+                    </Button>
+                </>
+            ) : <></>}
+
+            {selectedActionType === "filler" ? (
+                <>
+                    <Text>Enter Filling Pressure</Text>
+                    <TextInput 
+                        placeholder="enter filling pressure"
+                        value = {fillingPressure}
+                        onChangeText = {setFillingPressure}
                     />
-            </View>
+
+                    <Text>Enter Grade</Text>
+                    <TextInput 
+                        placeholder="enter grade"
+                        value = {grade}
+                        onChangeText = {setGrade}
+                    />
+
+                    <Text>Batch Number</Text>
+                    <TextInput 
+                        placeholder="enter batch number"
+                        value = {batchNumber}
+                        onChangeText = {setBatchNumber}
+                    />
+                    <Button
+                        title = "Submit"
+                        onPress={handleFillerSubmit}>
+                            Submit
+                    </Button>
+                </>
+            ) : <></>}
 
             <View>
                 <Button
@@ -199,7 +328,7 @@ const CylinderScreen = ({navigation, route}) => {
                 </Button>
             </View>
             {/* {FormComponent} */}
-           {transactionType === "output" ? (
+           {/* {transactionType === "output" ? (
                 <View>
                 <Text>Quantity Being Used</Text>
                 <TextInput
@@ -263,9 +392,9 @@ const CylinderScreen = ({navigation, route}) => {
                         Submit
                 </Button>
             </View>
-           ) : (<></>)}
+           ) : (<></>)} */}
 
-           {transactionType === "input" ? (
+           {/* {transactionType === "input" ? (
             <View>
             <Text>Quantity Being Added</Text>
             <TextInput
@@ -337,7 +466,7 @@ const CylinderScreen = ({navigation, route}) => {
                     Submit
             </Button>
         </View>
-           ) : (<></>)}
+           ) : (<></>)} */}
             
 
         <Table borderStyle={{borderWidth: 1}}>
