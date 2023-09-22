@@ -4,7 +4,7 @@ const cors = require("cors");
 
 app.use(express.json());
 
-const materialRouter = require("./routes/materialRoutes");
+const cylinderRouter = require("./routes/cylinderRoutes");
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const orderRouter = require("./routes/orderRoutes");
@@ -19,11 +19,10 @@ app.use(cookieParser());
 
 app.use(cors());
 
-
 app.get("/api/v1", (req,res,next) => {
     res.status(200);
 })
-app.use("/api/v1/material", materialRouter);
+app.use("/api/v1/cylinder", cylinderRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/order", orderRouter);
