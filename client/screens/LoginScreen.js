@@ -12,7 +12,7 @@ const LoginScreen = ({navigation}) => {
         <View style={styles.container}>
             {/* <Text>I am Login Screen</Text> */}
             <View style={styles.logoContainer}>
-                <Image source={require("./../assets/logo.png")}  />
+                <Image source={require("./../assets/logo.jpg")}  />
             </View>
             <View>
                 {/* <Image source={require("./../assets/icon.png")}/> */}

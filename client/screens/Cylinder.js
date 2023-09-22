@@ -1,24 +1,25 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable, ScrollView, Alert } from "react-native";
-import stylesModule from "./Material.module.css";
+import stylesModule from "./Cylinder.module.css";
 import { Table, Row, Rows, TableWrapper, Col } from 'react-native-table-component';
 import DropDown from "react-native-paper-dropdown";
 import {useState, useEffect} from "react";
 import { Button, TextInput } from "react-native-paper";
-import axios from "./../utils/axios";
+import axios from "../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
 
-const MaterialScreen = ({navigation, route}) => {
+const CylinderScreen = ({navigation, route}) => {
     const { authToken } = useAuthContext();
-    const material = route.params.material;
-    const tableTitle = ["Barcode", "Equipment Details", "MOC", "Size", "Additional Details", "Minimum Qty", "Available quantity", "Storage Location", "Store Number"];
-    const tableData = [material.barcode, material.equipment_details, material.moc, material.size, material.additional_details, material.minimum_quantity, material.available_quantity, material.storage_location, material.store_no]
+    const cylinder = route.params.cylinder;
+    const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status"];
+    const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status];
+    
     
     const input_types = [
         { label: "Input", value: "input" },
         { label: "Output", value: "output" }
       ];
 
-    const [materialBarcode, setMaterialBarcode] = useState(material.barcode);
+    const [materialBarcode, setMaterialBarcode] = useState(cylinder.barcode);
     const [transactionType, setTransactionType] = useState("");
     const [quantity, setQuantity] = useState("");
     const [company, setCompany] = useState("");
@@ -157,7 +158,7 @@ const MaterialScreen = ({navigation, route}) => {
 
     const handleGetTransactionHistory = async() => {
         try {
-            await axios.get(`/material/material-report?barcode=${material.barcode}`, {
+            await axios.get(`/material/material-report?barcode=${cylinder.barcode}`, {
                 headers: {
                     "Accept": 'application/json',
                     'Content-Type': 'multipart/form-data',
@@ -341,8 +342,8 @@ const MaterialScreen = ({navigation, route}) => {
 
         <Table borderStyle={{borderWidth: 1}}>
                 <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
                 </TableWrapper>
         </Table> 
         </View>
@@ -363,4 +364,4 @@ const styles = StyleSheet.create({
     text: { textAlign: 'center' }
 });
 
-export default MaterialScreen;
+export default CylinderScreen;

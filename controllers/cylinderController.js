@@ -7,6 +7,14 @@ const createExcel = require("../utils/createExcel");
 const Email = require("../utils/email");
 const moment = require("moment-timezone");
 
+const getIndianDateTimeFromTimeStamp = (timestamp) => {
+    const indianTime = moment(timestamp).tz("Asia/Kolkata");
+
+    const date = indianTime.format("DD-MM-YYYY");
+    const time = indianTime.format("HH:mm:ss");
+
+    return {date, time};
+}
 
 const createOneEntity = async(data) => {
     try {
@@ -65,6 +73,28 @@ exports.getAll = catchAsync(async (req,res, next) => {
     })
 });
 
+const format_material_response = (data) => {
+    const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
+    const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
+    const formattedData = {
+        barcode : data.barcode,
+        serial_number :  data.serial_number,
+        product_code :  data.product_code,
+        volume : data.volume,
+        manufactured_date : `${indian_manufactured_date.date}`,
+        manufacturer : data.manufacturer,
+        owner : data.owner,
+        branch : data.branch,
+        status : data.status,
+        batch_number : data.batch_number || "Not assigned yet",
+        filling_pressure :  (data.status === "full" ? data.filling_pressure : "Not filled yet"),
+        grade : (data.status === "full" ? data.grade : "Not filled yet"),
+        last_test_date : `${indian_last_test_date.date}, ${indian_last_test_date.time}`,
+        transaction_status : (data.isDispatched ? "Dispatched" : "In store")
+    };
+
+    return formattedData;
+}
 exports.getOne = catchAsync(async (req,res,next) => {
     const data = await Cylinder.findById(req.params.id);
     
@@ -77,7 +107,7 @@ exports.getOne = catchAsync(async (req,res,next) => {
     }
 
     res.status(200).json({
-        data
+        data : format_material_response(data)
     })
 });
 
@@ -103,7 +133,7 @@ exports.getOneByBarCode = catchAsync(async (req,res) => {
     }
 
     res.status(200).json({
-        data
+        data : format_material_response(data)
     })
 });
 
@@ -454,14 +484,7 @@ exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
 
 
 
-const getIndianDateTimeFromTimeStamp = (timestamp) => {
-    const indianTime = moment(timestamp).tz("Asia/Kolkata");
 
-    const date = indianTime.format("DD-MM-YYYY");
-    const time = indianTime.format("HH:mm:ss");
-
-    return {date, time};
-}
 
 // exports.getMaterialTransactionHistory = catchAsync(async(req,res,next) => {
 //     console.log(req.query);

@@ -30,9 +30,9 @@ const DashBoardScreen = ({navigation}) => {
 
     const handleSearch = async () => {
       try {        
-        const content = await axios.get(`/material/barcode/${barcode}`);
-        const material = content.data.material;
-        navigation.navigate("material", {material : material});    
+        const content = await axios.get(`/cylinder/barcode/${barcode}`);
+        const cylinder = content.data.data;
+        navigation.navigate("cylinder", {cylinder : cylinder});    
         } catch (error) {
           console.error(error);
         }

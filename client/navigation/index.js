@@ -5,7 +5,7 @@ import {
   HomeScreen, 
   DashBoardScreen, 
   QRCodeScanner, 
-  MaterialScreen, 
+  CylinderScreen, 
   TransactionSuccessScreen, 
   AddFileScreen, 
   AddMaterialScreen, 
@@ -130,10 +130,10 @@ const AppNavigator = () => {
             />
 
             <MainTabs.Screen
-              name="material"
-              component={MaterialScreen}
+              name="cylinder"
+              component={CylinderScreen}
               options={{
-                title: "Material"
+                title: "Cylinder"
               }}
             />
 
@@ -212,10 +212,10 @@ const AppNavigator = () => {
             />
 
             <AdminTabs.Screen
-              name="material"
-              component={MaterialScreen}
+              name="cylinder"
+              component={CylinderScreen}
               options={{
-                title: "Material"
+                title: "Cylinder"
               }}
             />
 

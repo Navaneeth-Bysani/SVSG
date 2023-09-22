@@ -7,10 +7,10 @@ const HomeScreen = ({navigation}) => {
             {/* <Text>I am Login Screen</Text> */}
             <View style={styles.main}>
                 <Pressable onPress={() => navigation.navigate("dashboard")} style = {styles.logo}>
-                    <Image source={require("./../assets/logo.png")}/>
+                    <Image source={require("./../assets/logo.jpg")}/>
                 </Pressable>
-                <Text>Sri Venkateshwara Engineering</Text>
-                {/* <Image source={require("./../assets/logo.png")} /> */}
+                <Text>Sri Vishnu Speciality Gases</Text>
+                {/* <Image source={require("./../assets/logo.jpg")} /> */}
 
             </View>
         </View>
