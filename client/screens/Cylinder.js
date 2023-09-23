@@ -263,7 +263,7 @@ const CylinderScreen = ({navigation, route}) => {
             
             {actionTypes.length != 0 ? (
                 <>
-                <Text>Select Transaction Type</Text>
+                <Text>Select Action Type</Text>
                 <View>
                     <DropDown
                         label={"Select"}

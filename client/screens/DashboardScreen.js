@@ -37,9 +37,9 @@ const DashBoardScreen = ({navigation}) => {
           console.error(error);
         }
     }
-    const getAllMaterialsReport = async () => {
+    const getAllCylindersReport = async () => {
       try {
-        await axios.get("/material/report", {
+        await axios.get("/cylinder/report", {
           headers: {
               "Accept": 'application/json',
               'Content-Type': 'multipart/form-data',
@@ -72,7 +72,7 @@ const DashBoardScreen = ({navigation}) => {
             {role === "admin" && <Button title = "Add Cylinder" style = {styles.qrButton} onPress={() => navigation.navigate("addcylinder")}/>}
             {role === "admin" && <Button title = "Add Client" style = {styles.qrButton} onPress={() => navigation.navigate("addClient")}/>}
             {role === "admin" && <Button title = "Add User" style = {styles.qrButton} onPress={() => navigation.navigate("addUser")}/>}
-            <Button title="Get Materials Report" style={styles.qrButton} onPress={() => getAllMaterialsReport()}/>
+            <Button title="Get Cylinders Report" style={styles.qrButton} onPress={() => getAllCylindersReport()}/>
             
             
 
