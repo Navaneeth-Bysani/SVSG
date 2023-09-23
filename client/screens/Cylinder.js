@@ -6,6 +6,7 @@ import {useState, useEffect} from "react";
 import { Button, TextInput } from "react-native-paper";
 import axios from "../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
+import * as Location from 'expo-location';
 
 const CylinderScreen = ({navigation, route}) => {
     const { user, authToken } = useAuthContext();
@@ -57,7 +58,6 @@ const CylinderScreen = ({navigation, route}) => {
                         value : el._id
                     }
                 });
-                // Alert.alert(JSON.stringify(companies_data[0].label));
                 setCompanies(companies_data);
             } catch (error) {
                 console.error(error);
@@ -159,7 +159,6 @@ const CylinderScreen = ({navigation, route}) => {
     }
 
     const handleOutputSubmit = async () => {
-        // Alert.alert(`${transactionType}${quantity}-${company}-${projectNumber}-${materialProvidedTo}`);
        try {
             const orderDetails = {
                 company_name : company,
@@ -257,6 +256,34 @@ const CylinderScreen = ({navigation, route}) => {
         }
     }
 
+    const handlePickupSubmit = async() => {
+
+        try {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+            let location = await Location.getCurrentPositionAsync({});
+            // location: '{"timestamp":1695456806278,"mocked":false,"coords":{"altitude":622.2000122070312,"heading":0,"altitudeAccuracy":100,"latitude":13.5531922,"speed":0,"longitude":78.5066255,"accuracy":100}}'
+            const body = {
+                location
+            };
+
+            const pickUpData = await axios.patch(`/cylinder/pickup/barcode/${cylinder.barcode}`, body , {
+                    headers: {
+                        "Accept": 'application/json',
+                        "Authorization": `Bearer ${authToken}`
+                    }
+            }); 
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Something went wrong!");
+        }
+        
+
+    }
+
     return (
         <ScrollView>
         <View style={styles.container}>
@@ -320,6 +347,15 @@ const CylinderScreen = ({navigation, route}) => {
                 </>
             ) : <></>}
 
+            {selectedActionType === "pickup" ? (
+                <>
+                   <Button
+                        title = "Submit"
+                        onPress={handlePickupSubmit}>
+                            Submit
+                    </Button> 
+                </>
+            ) : <></>}
             <View>
                 <Button
                     title = "Get transaction history"
