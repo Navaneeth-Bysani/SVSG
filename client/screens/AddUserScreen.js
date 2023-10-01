@@ -64,7 +64,9 @@ const AddUserScreen = ({navigation}) => {
                     list={
                         [
                             {label : "Admin", value : "admin"},
-                            {label : "Store", value : "store"}
+                            {label : "Filler", value : "filler"},
+                            {label : "Tester", value : "tester"},
+                            {label : "Pickup", value : "pickup"}
                         ]
                     }
                     visible={showRoleDropDown}
