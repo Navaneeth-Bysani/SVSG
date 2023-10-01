@@ -1,6 +1,19 @@
 const express = require("express");
 
-const {createOne, getAll, getOne, deleteOne, getOneByBarCode, deleteOneByBarcode, getAllReport, fillerEntry, fillerEntryByBarcode, testerEntry, testerEntryByBarcode} = require("../controllers/cylinderController");
+const {
+    createOne, 
+    getAll, 
+    getOne, 
+    deleteOne, 
+    getOneByBarCode, 
+    deleteOneByBarcode, 
+    getAllReport, 
+    fillerEntry, 
+    fillerEntryByBarcode, 
+    testerEntry, 
+    testerEntryByBarcode,
+    pickUpEntryByBarcode
+} = require("../controllers/cylinderController");
 
 const {loggedInUser, protect, restrictTo} = require("../controllers/authController");
 const router = express.Router();
@@ -26,6 +39,8 @@ router.patch("/filler/barcode/:barcode", restrictTo("admin", "filler"), fillerEn
 router.patch("/tester/:id", restrictTo("admin", "tester"), testerEntry);
 router.patch("/tester/barcode/:barcode", restrictTo("admin", "tester"), testerEntryByBarcode);
 
+// router.patch("/pickup/:id", restrictTo("admin", "pickup"), )
+router.patch("/pickup/barcode/:barcode", restrictTo("admin", "pickup"), pickUpEntryByBarcode);
 
 router.delete("/barcode/:barcode", restrictTo("admin"), deleteOneByBarcode);
 
