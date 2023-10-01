@@ -1,20 +1,17 @@
 const mongoose = require("mongoose");
 
 const trackingSchema = new mongoose.Schema({
-    company : {
-        type : String,
-        required : true
+    cylinderId : {
+        type: mongoose.Schema.ObjectId,
+        ref : "cylinder"
     },
-
-    product_code : {
-        type : String,
-        required: true
-    },
-
-    date_time : {
-        type : Date,
-        required : true
-    }
+    actions: [
+        //"Cylinder dispatched at <time> by <email_id> at (lat, long)"
+        {
+            type: String
+        }
+    ]
 })
 
 const trackingModel = mongoose.model("tracking", trackingSchema);
+module.exports = trackingModel;

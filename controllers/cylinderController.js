@@ -6,6 +6,7 @@ const readXlsxFile = require('read-excel-file/node')
 const createExcel = require("../utils/createExcel");
 const Email = require("../utils/email");
 const moment = require("moment-timezone");
+const Tracking = require("./../models/trackingModel");
 
 const getIndianDateTimeFromTimeStamp = (timestamp) => {
     const indianTime = moment(timestamp).tz("Asia/Kolkata");
@@ -76,6 +77,7 @@ exports.getAll = catchAsync(async (req,res, next) => {
 const format_cylinder_response = (data) => {
     const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
     const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
+    console.log(data);
     const formattedData = {
         barcode : data.barcode,
         serial_number :  data.serial_number,
@@ -90,13 +92,15 @@ const format_cylinder_response = (data) => {
         filling_pressure :  (data.status === "full" ? data.filling_pressure : "Not filled yet"),
         grade : (data.status === "full" ? data.grade : "Not filled yet"),
         last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
-        transaction_status : (data.isDispatched ? "Dispatched" : "In store")
+        transaction_status : (data.isDispatched ? "Dispatched" : "In store"),
+        actions : data.currentTrackId.actions,
+        trackingStatus : data.trackingStatus
     };
 
     return formattedData;
 }
 exports.getOne = catchAsync(async (req,res,next) => {
-    const data = await Cylinder.findById(req.params.id);
+    const data = await Cylinder.findById(req.params.id).populate("currentTrackId");
     
     if(!data) {
         res.status(404).json({
@@ -123,7 +127,7 @@ exports.deleteOne = catchAsync(async (req,res,next) => {
 exports.getOneByBarCode = catchAsync(async (req,res) => {
     const barcode = req.params.barcode;
     console.log(barcode);
-    const data = await Cylinder.findOne({barcode});
+    const data = await Cylinder.findOne({barcode}).populate("currentTrackId");
 
     if(!data) {
         res.status(404).json({
@@ -209,6 +213,7 @@ const fillerEntryHelper = async(cylinder, data, res) => {
     }
     try {
         data.status = "full";
+        data.trackingStatus = 1;
         const updated = await Cylinder.findByIdAndUpdate(cylinder._id, data, {new:true});
         return res.status(200).json({
             "message" : "succesfully updated",
@@ -290,6 +295,74 @@ exports.pickUpEntry = catchAsync(async(req,res,next) => {
 
 exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
     const barcode = req.params.barcode;
+    const {location} = req.body;
+    console.log(req.body);
+    const latitude = location.coords.latitude;
+    const longitude = location.coords.longitude;
+    console.log(latitude, longitude);
+
+    const cylinder = await Cylinder.findOne({barcode});
+    if(!cylinder) {
+        return res.status(404).json({
+            "message" : "Cylinder not found"
+        });
+    }
+
+    const trackingStatus = cylinder.trackingStatus;
+    if(trackingStatus === 0) {
+        return res.status(400).json({
+            "message" : "Can't be dispatched, because the cylinder is empty"
+        })
+    };
+
+    const currentDate = getIndianDateTimeFromTimeStamp(Date.now());
+
+    if(trackingStatus === 1) {
+        const billId = req.body.billId;
+        if(!billId) {
+            return res.status(400).json({
+                "message" : "Bad request, need billId"
+            })
+        }
+        const trackingString = `Cylinder dispatched with ${billId} at ${currentDate.date}, ${currentDate.time} by ${req.user.email} from (${latitude},${longitude})`;
+        const tracking = await Tracking.create({
+            cylinderId : cylinder._id,
+            actions: [trackingString]
+        });
+        cylinder.currentTrackId = tracking._id;
+        cylinder.isDispatched = true;
+        cylinder.trackingStatus = 2;
+        await cylinder.save();
+    } else if(trackingStatus === 2) {
+        const tracking = await Tracking.findById(cylinder.currentTrackId);
+        const trackingString = `Cylinder reached the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        tracking.actions.push(trackingString);
+        await tracking.save();
+        cylinder.trackingStatus = 3;
+        await cylinder.save();
+    } else if(trackingStatus === 3) {
+        const tracking = await Tracking.findById(cylinder.currentTrackId);
+        const trackingString = `Cylinder picked up from the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        tracking.actions.push(trackingString);
+        await tracking.save();
+        cylinder.status = "empty";
+        cylinder.trackingStatus = 4;
+        await cylinder.save();
+    } else if(trackingStatus === 4) {
+        const tracking = await Tracking.findById(cylinder.currentTrackId);
+        const trackingString = `Cylinder reached SVSG at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        tracking.actions.push(trackingString);
+        await tracking.save();
+        cylinder.isDispatched = false;
+        cylinder.trackingStatus = 0;
+        await cylinder.save();
+    }
+
+    const fetchedCylinder = await Cylinder.findOne(cylinder._id).populate("currentTrackId");
+    return res.status(200).json({
+        "message" : "updated cylinder",
+        fetchedCylinder
+    })
 })
 
 // const makeEntry = async (material, type, orderDetails, quantity, res) => {

@@ -6,6 +6,7 @@ import {useState, useEffect} from "react";
 import { Button, TextInput } from "react-native-paper";
 import axios from "../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
+import * as Location from 'expo-location';
 
 const CylinderScreen = ({navigation, route}) => {
     const { user, authToken } = useAuthContext();
@@ -21,7 +22,7 @@ const CylinderScreen = ({navigation, route}) => {
     const [fillingPressure, setFillingPressure] = useState("");
     const [grade, setGrade] = useState("");
     const [batchNumber, setBatchNumber] = useState("");
-
+    const [billId, setBillId] = useState("");
     const [materialBarcode, setMaterialBarcode] = useState(cylinder.barcode);
     const [transactionType, setTransactionType] = useState("");
     const [quantity, setQuantity] = useState("");
@@ -57,7 +58,6 @@ const CylinderScreen = ({navigation, route}) => {
                         value : el._id
                     }
                 });
-                // Alert.alert(JSON.stringify(companies_data[0].label));
                 setCompanies(companies_data);
             } catch (error) {
                 console.error(error);
@@ -159,7 +159,6 @@ const CylinderScreen = ({navigation, route}) => {
     }
 
     const handleOutputSubmit = async () => {
-        // Alert.alert(`${transactionType}${quantity}-${company}-${projectNumber}-${materialProvidedTo}`);
        try {
             const orderDetails = {
                 company_name : company,
@@ -257,6 +256,44 @@ const CylinderScreen = ({navigation, route}) => {
         }
     }
 
+    const handlePickupSubmit = async() => {
+
+        try {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+            let location = await Location.getCurrentPositionAsync({});
+            // location: '{"timestamp":1695456806278,"mocked":false,"coords":{"altitude":622.2000122070312,"heading":0,"altitudeAccuracy":100,"latitude":13.5531922,"speed":0,"longitude":78.5066255,"accuracy":100}}'
+            const body = {
+                billId,
+                location
+            };
+
+            const pickUpData = await axios.patch(`/cylinder/pickup/barcode/${cylinder.barcode}`, body , {
+                    headers: {
+                        "Accept": 'application/json',
+                        "Authorization": `Bearer ${authToken}`
+                    }
+            });
+            
+            if(pickUpData.status === 200) {
+                Alert.alert("Cylinder pickup updated successfully");
+                // Alert.alert(JSON.stringify(pickUpData.data));
+                navigation.navigate("cylinder", {cylinder : pickUpData.data.fetchedCylinder});
+                setSelectedActionType("");
+            } else  {
+                Alert.alert("Something went wrong");
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Something went wrong!");
+        }
+        
+
+    }
+
     return (
         <ScrollView>
         <View style={styles.container}>
@@ -320,6 +357,31 @@ const CylinderScreen = ({navigation, route}) => {
                 </>
             ) : <></>}
 
+            {selectedActionType === "pickup" && cylinder.trackingStatus === 0 ? <Text>Cylinder is empty, fill it first to dispatch</Text> : <></>}
+            {selectedActionType === "pickup" && cylinder.trackingStatus !== 0 ? (
+                <>
+                    
+                    {cylinder.actions?.map((el, idx) =><><Text>{idx+1}. {el}{"\n\n"}</Text></>)}
+                    
+                    {cylinder.trackingStatus === 1 ? 
+                    <>
+                        <Text>Enter the Bill Id</Text>
+                        <TextInput 
+                            placeholder="enter billId"
+                            value = {billId}
+                            onChangeText = {setBillId}
+                        />
+                    </> : 
+                    <>
+                    </>}
+                    <Text>Click the submit button to move the cylinder to next stage</Text>
+                   <Button
+                        title = "Submit"
+                        onPress={handlePickupSubmit}>
+                            Submit
+                    </Button> 
+                </>
+            ) : <></>}
             <View>
                 <Button
                     title = "Get transaction history"
@@ -327,146 +389,8 @@ const CylinderScreen = ({navigation, route}) => {
                         Get transaction history
                 </Button>
             </View>
-            {/* {FormComponent} */}
-           {/* {transactionType === "output" ? (
-                <View>
-                <Text>Quantity Being Used</Text>
-                <TextInput
-                    keyboardType="numeric"
-                    value = {quantity}
-                    onChangeText={text => onChangeQuantity(text)}
-                    placeholder="Number"
-                    />
-                <Text>Company Name</Text>
-                <DropDown
-                    label={"Select"}
-                    mode={"outlined"}
-                    value={company}
-                    setValue={setCompany}
-                    list={companies}
-                    visible={showCompanyDropDown}
-                    showDropDown={() => setShowCompanyDropDown(true)}
-                    onDismiss={() => setShowCompanyDropDown(false)}
-                    />
             
-                <Text>Project Name or Number</Text>
-                <TextInput 
-                    placeholder="enter project name or number"
-                    value = {projectNumber}
-                    onChangeText = {setProjectNumber}
-                />
-
-                <Text>Material Provided to</Text>
-                <TextInput 
-                    placeholder="Material Provided to"
-                    value = {materialProvidedTo}
-                    onChangeText={setMaterialProvidedTo}
-                />
-
-                <Text>Is it billed?</Text>
-                <DropDown
-                    label={"Select"}
-                    mode={"outlined"}
-                    value={billed}
-                    setValue={setBilled}
-                    list={
-                        [
-                            {label : "YES", value : true},
-                            {label : "NO", value : false}
-                        ]
-                    }
-                    visible={showBilledDropDown}
-                    showDropDown={() => setShowBilledDropDown(true)}
-                    onDismiss={() => setShowBilledDropDown(false)}
-                    />
-
-                <Text>Invoice Number</Text>
-                <TextInput
-                    value = {invoiceNumber}
-                    onChangeText={setInvoiceNumber}
-                    placeholder="Number"
-                    />
-                <Button
-                    title = "Submit"
-                    onPress={handleOutputSubmit}>
-                        Submit
-                </Button>
-            </View>
-           ) : (<></>)} */}
-
-           {/* {transactionType === "input" ? (
-            <View>
-            <Text>Quantity Being Added</Text>
-            <TextInput
-                keyboardType="numeric"
-                value = {quantity}
-                onChangeText={text => onChangeQuantity(text)}
-                placeholder="Number"
-                />
-            <Text>Manufacturer Test Certificate Available</Text>
-            <DropDown
-                label={"Select"}
-                mode={"outlined"}
-                value={manufacturerCertificateAvailable}
-                setValue={setManufacturerCertificateAvailable}
-                list={
-                    [
-                        {label : "YES", value : "yes"},
-                        {label : "NO", value : "no"}
-                    ]
-                }
-                visible={showManufacturerCertificateDropDown}
-                showDropDown={() => setShowManufacturerCertificateDropDown(true)}
-                onDismiss={() => setShowManufacturerCertificateDropDown(false)}
-                />
-        
-            <Text>SVE tested material</Text>
-            <DropDown
-                label={"Select"}
-                mode={"outlined"}
-                value={sveTested}
-                setValue={setSveTested}
-                list={
-                    [
-                        {label : "YES", value : "yes"},
-                        {label : "NO", value : "no"}
-                    ]
-                }
-                visible={showSveTestedDropDown}
-                showDropDown={() => setShowSveTestedDropDown(true)}
-                onDismiss={() => setShowSveTestedDropDown(false)}
-                />
-
-                <Text>Is it billed?</Text>
-                <DropDown
-                    label={"Select"}
-                    mode={"outlined"}
-                    value={billed}
-                    setValue={setBilled}
-                    list={
-                        [
-                            {label : "YES", value : true},
-                            {label : "NO", value : false}
-                        ]
-                    }
-                    visible={showBilledDropDown}
-                    showDropDown={() => setShowBilledDropDown(true)}
-                    onDismiss={() => setShowBilledDropDown(false)}
-                    />
-
-                <Text>Invoice Number</Text>
-                <TextInput
-                    value = {invoiceNumber}
-                    onChangeText={setInvoiceNumber}
-                    placeholder="Number"
-                    />
-            <Button
-                title = "Submit"
-                onPress={handleInputSubmit}>
-                    Submit
-            </Button>
-        </View>
-           ) : (<></>)} */}
+           
             
 
         <Table borderStyle={{borderWidth: 1}}>

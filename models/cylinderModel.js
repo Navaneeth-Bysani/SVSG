@@ -77,6 +77,24 @@ const cylinderSchema = new mongoose.Schema({
     isDispatched: {
         type:Boolean,
         default: false
+    },
+
+    currentTrackId: {
+        type: mongoose.Schema.ObjectId,
+        ref : "tracking"
+    }, 
+
+    //                                                  status                   isDispatched
+    //0 - unfilled and undispatched                      empty                      False           
+    //1 - filled and ready to dispatch                   full                       False
+    //2 - filled and dispatched to client place          full                       True
+    //3 - filled and received at client place            full                       True   
+    //4 - empty and dispatched from client place         empty                      True
+    //0 - unfilled and undispatched
+    trackingStatus : {
+        type: Number,
+        enum: [0, 1, 2, 3, 4],
+        default: 0
     }
 });
 
