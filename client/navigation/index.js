@@ -11,7 +11,8 @@ import {
   AddCylinderScreen, 
   RegularLoginScreen, 
   AddClientScreen,
-  AddUserScreen
+  AddUserScreen,
+  ManageCylinder
 } from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
@@ -248,6 +249,14 @@ const AppNavigator = () => {
               component={AddUserScreen}
               options={{
                 title: "Add User Screen"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="manageCylinder"
+              component={ManageCylinder}
+              options={{
+                title: "Manage Cylinders"
               }}
             />
         </AdminTabs.Navigator>

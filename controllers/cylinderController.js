@@ -67,12 +67,7 @@ exports.createOne = catchAsync(async (req,res,next) => {
     }  
 });
 
-exports.getAll = catchAsync(async (req,res, next) => {
-    const data = await Cylinder.find();
-    res.status(200).json({
-        data
-    })
-});
+
 
 const format_cylinder_response = (data) => {
     const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
@@ -93,12 +88,20 @@ const format_cylinder_response = (data) => {
         grade : (data.status === "full" ? data.grade : "Not filled yet"),
         last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
         transaction_status : (data.isDispatched ? "Dispatched" : "In store"),
-        actions : data.currentTrackId.actions,
+        actions : data.currentTrackId?.actions,
         trackingStatus : data.trackingStatus
     };
 
     return formattedData;
 }
+
+exports.getAll = catchAsync(async (req,res, next) => {
+    const data = await Cylinder.find();
+    const formattedData = data.map(cylinder => format_cylinder_response(cylinder));
+    res.status(200).json({
+        data : formattedData
+    })
+});
 exports.getOne = catchAsync(async (req,res,next) => {
     const data = await Cylinder.findById(req.params.id).populate("currentTrackId");
     
@@ -400,7 +403,7 @@ exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
             action4 : tracking.actions.length > 3 ? tracking.actions[3] : "-"
         }
     });
-    
+
     const current_date_time = getIndianDateTimeFromTimeStamp(Date.now());
 
     const workbookName = `${cylinder.barcode}_${current_date_time.date}_${current_date_time.time}`;

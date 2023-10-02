@@ -43,7 +43,7 @@ const CylinderScreen = ({navigation, route}) => {
     const [companies, setCompanies] = useState([]);
 
     useEffect(()=> {
-        Alert.alert(JSON.stringify(cylinder.actions))
+        // Alert.alert(JSON.stringify(cylinder.actions))
         const getClients = async () => {
             try {
                 const data = await axios.get("/client", {
@@ -116,10 +116,7 @@ const CylinderScreen = ({navigation, route}) => {
         setQuantity(newText);
     }
 
-    // const companies = [
-    //     {label : "ABC company", value : "abc"},
-    //     {label : "XYZ enterprise", value : "xyz enterprise"}
-    // ]
+   
 
     const makeSubmitRequest = async (type, quantity, orderDetails) => {
 

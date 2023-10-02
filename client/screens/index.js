@@ -9,6 +9,7 @@ import AddCylinderScreen from "./AddCylinder";
 import RegularLoginScreen from "./RegularLoginScreen";
 import AddClientScreen from "./AddClientScreen";
 import AddUserScreen from "./AddUserScreen";
+import ManageCylinder from "./ManageCylinder";
 
 export {
     LoginScreen,
@@ -21,5 +22,6 @@ export {
     AddCylinderScreen,
     RegularLoginScreen,
     AddClientScreen,
-    AddUserScreen
+    AddUserScreen,
+    ManageCylinder
 }
