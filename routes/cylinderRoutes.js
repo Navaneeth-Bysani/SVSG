@@ -12,15 +12,16 @@ const {
     fillerEntryByBarcode, 
     testerEntry, 
     testerEntryByBarcode,
-    pickUpEntryByBarcode
+    pickUpEntryByBarcode,
+    getCylinderTransactionHistory
 } = require("../controllers/cylinderController");
 
 const {loggedInUser, protect, restrictTo} = require("../controllers/authController");
 const router = express.Router();
 
 router.get("/barcode/:barcode", getOneByBarCode);
-router.get("/report", protect, restrictTo("admin", "store"), getAllReport);
-// router.get("/material-report", protect, restrictTo("admin", "store"), getMaterialTransactionHistory);
+router.get("/report", protect, restrictTo("admin"), getAllReport);
+router.get("/cylinder-report", protect, restrictTo("admin"), getCylinderTransactionHistory);
 router.get("/:id", getOne);
 
 router.use(protect);

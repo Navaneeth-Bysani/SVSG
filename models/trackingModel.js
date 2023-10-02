@@ -11,7 +11,7 @@ const trackingSchema = new mongoose.Schema({
             type: String
         }
     ]
-})
+}, { timestamps: true })
 
 const trackingModel = mongoose.model("tracking", trackingSchema);
 module.exports = trackingModel;

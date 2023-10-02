@@ -43,7 +43,7 @@ const CylinderScreen = ({navigation, route}) => {
     const [companies, setCompanies] = useState([]);
 
     useEffect(()=> {
-
+        Alert.alert(JSON.stringify(cylinder.actions))
         const getClients = async () => {
             try {
                 const data = await axios.get("/client", {
@@ -242,7 +242,7 @@ const CylinderScreen = ({navigation, route}) => {
 
     const handleGetTransactionHistory = async() => {
         try {
-            await axios.get(`/material/material-report?barcode=${cylinder.barcode}`, {
+            await axios.get(`/cylinder/cylinder-report?barcode=${cylinder.barcode}`, {
                 headers: {
                     "Accept": 'application/json',
                     'Content-Type': 'multipart/form-data',
@@ -280,7 +280,7 @@ const CylinderScreen = ({navigation, route}) => {
             
             if(pickUpData.status === 200) {
                 Alert.alert("Cylinder pickup updated successfully");
-                // Alert.alert(JSON.stringify(pickUpData.data));
+                Alert.alert(JSON.stringify(pickUpData.data.fetchedCylinder.trackingStatus));
                 navigation.navigate("cylinder", {cylinder : pickUpData.data.fetchedCylinder});
                 setSelectedActionType("");
             } else  {
