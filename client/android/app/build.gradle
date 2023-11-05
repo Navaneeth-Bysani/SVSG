@@ -113,9 +113,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.navaneeth_bysani.sve'
+    namespace 'com.navaneeth_bysani.svsg'
     defaultConfig {
-        applicationId 'com.navaneeth_bysani.sve'
+        applicationId 'com.navaneeth_bysani.svsg'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,4 +1,4 @@
-package com.navaneeth_bysani.sve;
+package com.navaneeth_bysani.svsg;
 
 import android.app.Application;
 import android.content.res.Configuration;

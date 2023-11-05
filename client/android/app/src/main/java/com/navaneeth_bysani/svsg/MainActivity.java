@@ -1,4 +1,4 @@
-package com.navaneeth_bysani.sve;
+package com.navaneeth_bysani.svsg;
 
 import android.os.Build;
 import android.os.Bundle;

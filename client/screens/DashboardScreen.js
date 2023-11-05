@@ -34,6 +34,7 @@ const DashBoardScreen = ({navigation}) => {
         const cylinder = content.data.data;
         navigation.navigate("cylinder", {cylinder : cylinder});    
         } catch (error) {
+          Alert.alert("Something went wrong");
           console.error(error);
         }
     }

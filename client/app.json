@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "sve",
-    "slug": "sve",
+    "name": "svsg",
+    "slug": "svsg",
     "version": "1.0.0",
-    "scheme" : "com.navaneeth_bysani.sve",
+    "scheme": "com.navaneeth_bysani.svsg",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,14 +17,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "sve"
+      "bundleIdentifier": "svsg"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.navaneeth_bysani.sve"
+      "package": "com.navaneeth_bysani.svsg"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -52,11 +52,11 @@
           "css"
         ]
       },
-      "scheme" : "sve"
+      "scheme": "svsg"
     },
     "extra": {
       "eas": {
-        "projectId": "c385abf0-aedf-4524-8011-4f5ea1698e88"
+        "projectId": "60d1b606-a7c0-49f2-82ea-f99c1551e9e0"
       }
     },
     "owner": "navaneeth_bysani"
