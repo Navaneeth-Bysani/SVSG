@@ -1,5 +1,5 @@
 import {React, useEffect, useState} from 'react';
-import { Text, View, StyleSheet, Alert, Pressable } from 'react-native';
+import { Text, View, StyleSheet, Alert, Pressable, ScrollView } from 'react-native';
 import { Card } from 'react-native-elements';
 import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
@@ -57,7 +57,9 @@ const ManageCylinder = ({navigation}) => {
     
     return(
         <>
-            {cylinders.map((cylinder, idx) => <SingleCylinder cylinder={cylinder} key={idx} navigation={navigation}/>)}
+            <ScrollView>
+                {cylinders.map((cylinder, idx) => <SingleCylinder cylinder={cylinder} key={idx} navigation={navigation}/>)}
+            </ScrollView>
         </>
     )
 };

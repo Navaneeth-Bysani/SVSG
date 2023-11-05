@@ -10,6 +10,7 @@ const DocPicker = () => {
     // const [file, setFile] = useState({});
 
     const { authToken } = useAuthContext();
+    const [repeated_barcodes_info, set_repeated_barcodes_info] = useState("");
     
     const pickDocument = async () => {
         try {
@@ -34,19 +35,42 @@ const DocPicker = () => {
         }
     }
 
-    const postDocument = () => {
-        const url = "/material/excel/upload";
+    const postDocument = async () => {
+        const url = "/cylinder/excel/upload";
         const fileUri = doc.uri;
         const formData = new FormData();
         formData.append('document', doc);
-        Alert.alert("uploading?");
-        axios.post(url, formData, {
-            headers: {
-                "Accept": 'application/json',
-                'Content-Type': 'multipart/form-data',
-                "Authorization": `Bearer ${authToken}`,
-              }
-        }).catch(err => console.error(err));
+        
+        try {
+            const data = await axios.post(url, formData, {
+                headers: {
+                    "Accept": 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                    "Authorization": `Bearer ${authToken}`,
+                  }
+            });
+            Alert.alert("uploaded successfully");
+        } catch (error) {
+            console.error(error);
+            Alert.alert(error);
+        }
+        // axios.post(url, formData, {
+        //     headers: {
+        //         "Accept": 'application/json',
+        //         'Content-Type': 'multipart/form-data',
+        //         "Authorization": `Bearer ${authToken}`,
+        //       }
+        // }).then(data => {
+        //     Alert.alert(data);
+        //     const repeated_barcodes = data.repeated_barcodes;
+        //     // if(repeated_barcodes.length !== 0) {
+        //     //     set_repeated_barcodes_info(`Repeated barcodes:\n${repeated_barcodes.join(",")}`);
+        //     // }
+        //     Alert.alert("Cylinders created successfully");
+        // }).catch(err => {
+        //     console.error(err);
+        //     Alert.alert(JSON.stringify(err));
+        // });
     }
 
 
@@ -55,6 +79,10 @@ const DocPicker = () => {
             <Button title="Select Document" onPress={pickDocument} />
             <Text>{`${doc?.name}\n${doc?.size} bytes\n${doc?.uri}\n${doc?.type}`}</Text>
             <Button title="Upload" onPress={postDocument} />
+
+            <Text>
+                {repeated_barcodes_info}
+            </Text>
         </View>
     )
 

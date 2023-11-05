@@ -15,6 +15,11 @@ const AddCylinderScreen = ({navigation}) => {
     const [ manufacturer, setManufacturer] = useState("");
     const [ owner, setOwner] = useState("");
     const [ branch, setBranch] = useState("");
+    const [filling_pressure, setFillingPressure] = useState("");
+    const [tare_weight, set_tare_weight] = useState("");
+    const [test_due_date, set_test_due_date] = useState("");
+    const [minimum_thickness, set_minimum_thickness] = useState("");
+    const [usage, set_usage] = useState("");
 
     const handleSubmit = () => {
         const material = {
@@ -25,7 +30,12 @@ const AddCylinderScreen = ({navigation}) => {
             manufactured_date,
             manufacturer,
             owner,
-            branch
+            branch,
+            filling_pressure,
+            tare_weight,
+            test_due_date,
+            minimum_thickness,
+            usage
         };
         console.log(material);
         axios.post("/cylinder", material , {
@@ -68,14 +78,14 @@ const AddCylinderScreen = ({navigation}) => {
                 <Text>Serial Number</Text>
                 <TextInput  placeholder="Enter Serial Number" onChangeText={setSerialNumber} style={styles.inputStyle}/>
 
-                <Text>Product Code</Text>
+                <Text>Product</Text>
                 <TextInput  placeholder="Enter Product Code" onChangeText={setProductCode} style={styles.inputStyle}/>
 
                 <Text>Volume</Text>
                 <TextInput  placeholder="Enter Volume" onChangeText={setVolume} style={styles.inputStyle} />
 
                 <Text>Manufactured date</Text>
-                <TextInput  placeholder="manufactured date" style={styles.inputStyle} onChangeText={setManufacturedDate}/>
+                <TextInput  placeholder="YYYY-MM-DD" style={styles.inputStyle} onChangeText={setManufacturedDate}/>
                 
 
                 <Text>Manufacturer</Text>
@@ -87,7 +97,20 @@ const AddCylinderScreen = ({navigation}) => {
                 <Text>Branch</Text>
                 <TextInput  placeholder="branch" onChangeText={setBranch} style={styles.inputStyle}/>
 
+                <Text>Filling Pressure</Text>
+                <TextInput  placeholder="filling pressure" onChangeText={setFillingPressure} style={styles.inputStyle}/>
+
+                <Text>Tare Weight</Text>
+                <TextInput  placeholder="Tare weight" onChangeText={set_tare_weight} style={styles.inputStyle}/>
                 
+                <Text>Test Due Date</Text>
+                <TextInput  placeholder="YYYY-MM-DD" onChangeText={set_test_due_date} style={styles.inputStyle}/>
+                
+                <Text>Minimum Thickness</Text>
+                <TextInput  placeholder="Minimum Thickness" onChangeText={set_minimum_thickness} style={styles.inputStyle}/>
+                
+                <Text>Usage</Text>
+                <TextInput  placeholder="usage" onChangeText={set_usage} style={styles.inputStyle}/>
 
                 <Button
                     title = "Add Cylinder"

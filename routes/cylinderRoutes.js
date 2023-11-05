@@ -13,7 +13,9 @@ const {
     testerEntry, 
     testerEntryByBarcode,
     pickUpEntryByBarcode,
-    getCylinderTransactionHistory
+    getCylinderTransactionHistory,
+    uploadExcel,
+    createWithExcel
 } = require("../controllers/cylinderController");
 
 const {loggedInUser, protect, restrictTo} = require("../controllers/authController");
@@ -27,7 +29,7 @@ router.get("/:id", getOne);
 router.use(protect);
 
 
-// router.post("/excel/upload",uploadExcel, createWithExcel);
+router.post("/excel/upload",uploadExcel, createWithExcel);
 
 router.get("/", getAll);
 router.post("/", restrictTo("admin"), createOne);

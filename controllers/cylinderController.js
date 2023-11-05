@@ -42,16 +42,30 @@ exports.createOne = catchAsync(async (req,res,next) => {
         product_code, 
         volume, 
         manufactured_date, 
-        manufacturer 
+        manufacturer,
+        filling_pressure,
+        tare_weight,
+        test_due_date,
+        minimum_thickness,
+        usage,
+        owner,
+        branch 
     } = req.body;
 
     const data = {
-        barcode, 
+        barcode: barcode.toLowerCase(), 
         serial_number, 
         product_code, 
         volume, 
         manufactured_date, 
-        manufacturer 
+        manufacturer,
+        filling_pressure,
+        tare_weight,
+        test_due_date,
+        minimum_thickness,
+        usage,
+        owner,
+        branch
     };
 
     const newOne = await createOneEntity(data);
@@ -72,6 +86,8 @@ exports.createOne = catchAsync(async (req,res,next) => {
 const format_cylinder_response = (data) => {
     const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
     const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
+    const indian_test_due_date = getIndianDateTimeFromTimeStamp(data.test_due_date);
+
     console.log(data);
     const formattedData = {
         barcode : data.barcode,
@@ -84,12 +100,16 @@ const format_cylinder_response = (data) => {
         branch : data.branch,
         status : data.status,
         batch_number : data.batch_number || "Not assigned yet",
-        filling_pressure :  (data.status === "full" ? data.filling_pressure : "Not filled yet"),
+        filling_pressure :  data.filling_pressure,
         grade : (data.status === "full" ? data.grade : "Not filled yet"),
         last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
         transaction_status : (data.isDispatched ? "Dispatched" : "In store"),
         actions : data.currentTrackId?.actions,
-        trackingStatus : data.trackingStatus
+        trackingStatus : data.trackingStatus,
+        tare_weight: data.tare_weight,
+        test_due_date: `${indian_test_due_date.date}`,
+        minimum_thickness: data.minimum_thickness,
+        usage: data.usage
     };
 
     return formattedData;
@@ -102,6 +122,7 @@ exports.getAll = catchAsync(async (req,res, next) => {
         data : formattedData
     })
 });
+
 exports.getOne = catchAsync(async (req,res,next) => {
     const data = await Cylinder.findById(req.params.id).populate("currentTrackId");
     
@@ -128,7 +149,7 @@ exports.deleteOne = catchAsync(async (req,res,next) => {
 });
 
 exports.getOneByBarCode = catchAsync(async (req,res) => {
-    const barcode = req.params.barcode;
+    const barcode = req.params.barcode.toLowerCase();
     console.log(barcode);
     const data = await Cylinder.findOne({barcode}).populate("currentTrackId");
 
@@ -145,7 +166,7 @@ exports.getOneByBarCode = catchAsync(async (req,res) => {
 });
 
 exports.deleteOneByBarcode = catchAsync(async (req,res,next) => {
-    const barcode = req.params.barcode;
+    const barcode = req.params.barcode.toLowerCase();
     const deletedMaterial = await Cylinder.deleteOne({barcode});
 
     res.status(200).json({
@@ -173,6 +194,10 @@ exports.getAllReport = catchAsync(async (req,res,next) => {
         {key: "grade", header:"Grade"},
         {key: "batch_number", header:"Batch Number"},
         {key: "last_test_date", header:"Last Test Date"},
+        {key: "tare_weight", header: "Tare Weight"},
+        {key: "test_due_date", header: "Test Due Date"},
+        {key: "minimum_thickenss", header: "Minimum Thickness"},
+        {key: "usage", header : "Usage"}
     ];
 
     //1. create excel sheet
@@ -207,7 +232,11 @@ const fillerEntryHelper = async(cylinder, data, res) => {
             "message" : "Cylinder is already filled"
         })
     }
-    if(!data.filling_pressure || !data.grade || !data.batch_number) {
+    if(
+        // !data.filling_pressure || 
+        !data.grade || 
+        !data.batch_number
+    ) {
         console.log("Not sufficient information. Missing some fields");
         return res.status(400).json({
             "message" : "Missing few field entries"
@@ -232,19 +261,35 @@ const fillerEntryHelper = async(cylinder, data, res) => {
 
 exports.fillerEntry = catchAsync(async(req, res, next) => {
     const id = req.params.id;
-    const {filling_pressure, grade, batch_number} = req.body;
+    const {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    } = req.body;
 
     const cylinder = await Cylinder.findById(id);
-    const data = {filling_pressure, grade, batch_number};
+    const data = {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    };
     return await fillerEntryHelper(cylinder, data, res);
 });
 
 exports.fillerEntryByBarcode = catchAsync(async(req, res, next) => {
-    const barcode = req.params.barcode;
-    const {filling_pressure, grade, batch_number} = req.body;
+    const barcode = req.params.barcode.toLowerCase();
+    const {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    } = req.body;
 
     const cylinder = await Cylinder.findOne({barcode});
-    const data = {filling_pressure, grade, batch_number};
+    const data = {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    };
     return await fillerEntryHelper(cylinder, data, res);
 });
 
@@ -259,7 +304,7 @@ exports.testerEntry = catchAsync(async(req,res, next) => {
 });
 
 exports.testerEntryByBarcode = catchAsync(async(req, res, next) => {
-    const barcode = req.params.barcode;
+    const barcode = req.params.barcode.toLowerCase();
     const testUpdated = await Cylinder.findOneAndUpdate({barcode}, {last_test_date : Date.now()}, {new : true});
     res.status(200).json({
         "message" : "tested successfully",
@@ -289,7 +334,7 @@ exports.cylinderStatus = catchAsync(async(req,res,next) => {
 });
 
 exports.cylinderStatusByBarcode = catchAsync(async(req,res,next) => {
-    const barcode = req.params.barcode;
+    const barcode = req.params.barcode.toLowerCase();
 });
 
 exports.pickUpEntry = catchAsync(async(req,res,next) => {
@@ -297,7 +342,7 @@ exports.pickUpEntry = catchAsync(async(req,res,next) => {
 })
 
 exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
-    const barcode = req.params.barcode;
+    const barcode = req.params.barcode.toLowerCase();
     const {location} = req.body;
     console.log(req.body);
     const latitude = location.coords.latitude;
@@ -373,7 +418,7 @@ exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
     // let filter = {barcode : req.query.barcode, _id : req.query.materialId};
     let filter = {};
     if(req.query.barcode) {
-        filter = {barcode : req.query.barcode}
+        filter = {barcode : req.query.barcode.toLowerCase()}
     } else if(req.query.materialId) {
         filter = {_id : req.query.materialId}
     } else {
@@ -418,3 +463,103 @@ exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
         "message" : "email sent succesfully",
     })
 })
+
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null,'uploads/');
+    },
+    filename: (req,file,cb) => {
+      // user-3459923fdg-3334556474.jpeg
+      const ext = file.mimetype.split('/')[1];
+      cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+    }
+});
+
+const multerFilter = (req,file,cb) => {
+    console.log(file.mimetype);
+    // if(file.mimetype.startsWith('image')) {
+    //   cb(null, true)
+    // }else {
+    //   cb(new AppError('Not an image. Upload only image',400),false);
+    // }
+    console.log("here");
+    console.log(req.file);
+    cb(null, true);
+};
+
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter
+});
+
+exports.uploadExcel = upload.single('document');
+
+exports.createWithExcel = catchAsync(async(req,res,next) => {
+    console.log(req.headers);
+    console.log(req.file);
+    const filename = req.file.filename;
+
+    console.log(filename);
+    let repeated_barcodes = [];
+    let repeated_barcodes_data = await readXlsxFile(`uploads/${filename}`).then((rows) => {
+        // `rows` is an array of rows
+        // each row being an array of cells.
+        rows.shift();
+
+        let data = [];
+
+        rows.forEach(element => {
+            let obj = {
+                barcode : element[0],
+                serial_number: element[1],
+                product_code: element[2],
+                volume: element[3],
+                manufactured_date: element[4],
+                manufacturer: element[5],
+                owner : element[6],
+                branch : element[7],
+                filling_pressure : element[8],
+                tare_weight : element[9],
+                test_due_date : element[10],
+                minimum_thickness : element[11],
+                usage : element[12]
+            }
+
+            data.push(obj);
+        });
+
+        data.forEach(async (el) => {
+            try {
+                const existingCylinder = await Cylinder.findOne({barcode: el.barcode});
+                if(existingCylinder !== null) {
+                    // console.log(el.barcode);
+                    // console.log("here1");
+                    repeated_barcodes.push(el.barcode);
+                    // console.log(repeated_barcodes);
+                } else {
+                    // el.barcode = el.barcode.toLowerCase();
+                    await Cylinder.create(el);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        })
+    });
+    // console.log("here2");
+    // setTimeout(() => {
+
+    // }, 2000);
+    if(repeated_barcodes.length !== 0) {
+        console.log("Repeated few barcodes")
+        res.status(204).json({
+            "message" : "Few barcodes are repeated",
+            repeated_barcodes_message : repeated_barcodes_data
+        });
+        return;
+    }
+    
+    // console.log("No repeated barcodes");
+    res.status(201).json({
+        "message" : "created successfuly"
+    })
+});

@@ -7,7 +7,8 @@ const cylinderSchema = new mongoose.Schema({
     barcode : {
         type : String,
         required: true,
-        unique : true
+        unique : true,
+        lowercase: true
     },
 
     serial_number : {
@@ -95,6 +96,23 @@ const cylinderSchema = new mongoose.Schema({
         type: Number,
         enum: [0, 1, 2, 3, 4],
         default: 0
+    },
+
+    tare_weight : {
+        type: String,
+        default: ""
+    },
+
+    test_due_date: {
+        type: Date
+    },
+
+    minimum_thickness: {
+        type: String
+    },
+
+    usage: {
+        type: String
     }
 });
 
