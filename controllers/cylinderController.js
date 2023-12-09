@@ -143,7 +143,7 @@ exports.deleteOne = catchAsync(async (req,res,next) => {
     const id = req.params.id;
     const deleted = await Cylinder.findByIdAndDelete(id);
 
-    res.status(200).json({
+    res.status(204).json({
         "message" : "deleted successfully"
     })
 });
@@ -169,7 +169,7 @@ exports.deleteOneByBarcode = catchAsync(async (req,res,next) => {
     const barcode = req.params.barcode.toLowerCase();
     const deletedMaterial = await Cylinder.deleteOne({barcode});
 
-    res.status(200).json({
+    res.status(204).json({
         "message" : "deleted successfully"
     })
 });

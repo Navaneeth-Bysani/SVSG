@@ -14,6 +14,7 @@ const cookieParser = require("cookie-parser");
 
 
 const config = require("./utils/config");
+const permanentPackageRouter = require("./routes/permanentPackageRoutes");
 
 app.use(cookieParser());
 
@@ -27,5 +28,5 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/client", clientRouter);
-
+app.use("/api/v1/package/permanent", permanentPackageRouter)
 module.exports = app;

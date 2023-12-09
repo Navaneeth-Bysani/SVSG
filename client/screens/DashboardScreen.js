@@ -74,6 +74,7 @@ const DashBoardScreen = ({navigation}) => {
             {role === "admin" && <Button title = "Add Client" style = {styles.qrButton} onPress={() => navigation.navigate("addClient")}/>}
             {role === "admin" && <Button title = "Add User" style = {styles.qrButton} onPress={() => navigation.navigate("addUser")}/>}
             {role === "admin" && <Button title = "Manage Cylinders" style = {styles.qrButton} onPress={() => navigation.navigate("manageCylinder")}/>}
+            {role === "admin" && <Button title = "Add package" style = {styles.qrButton} onPress={() => navigation.navigate("addPackage")}/>}
             <Button title="Get Cylinders Report" style={styles.qrButton} onPress={() => getAllCylindersReport()}/>
             
             

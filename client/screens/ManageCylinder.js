@@ -35,7 +35,7 @@ const SingleCylinder = (props) => {
 };
 
 const ManageCylinder = ({navigation}) => {
-    const [cylinders, setCylinders] = useState([]);
+    const [cylinders, setCylinders] = useState();
     const { authToken } = useAuthContext();
     useEffect(() => {
         const getCylinders = async() => {
@@ -58,7 +58,9 @@ const ManageCylinder = ({navigation}) => {
     return(
         <>
             <ScrollView>
-                {cylinders.map((cylinder, idx) => <SingleCylinder cylinder={cylinder} key={idx} navigation={navigation}/>)}
+                {
+                cylinders?.length === 0 ? <Text>No cylinders as of now. Add some cylinders to view.</Text> :
+                cylinders?.map((cylinder, idx) => <SingleCylinder cylinder={cylinder} key={idx} navigation={navigation}/>)}
             </ScrollView>
         </>
     )

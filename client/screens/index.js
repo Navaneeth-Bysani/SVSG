@@ -10,6 +10,8 @@ import RegularLoginScreen from "./RegularLoginScreen";
 import AddClientScreen from "./AddClientScreen";
 import AddUserScreen from "./AddUserScreen";
 import ManageCylinder from "./ManageCylinder";
+import AddPackageScreen from "./AddPackage";
+import AddCylindersToPackageScreen from "./AddCylindersToPackage";
 
 export {
     LoginScreen,
@@ -23,5 +25,7 @@ export {
     RegularLoginScreen,
     AddClientScreen,
     AddUserScreen,
-    ManageCylinder
+    ManageCylinder,
+    AddPackageScreen,
+    AddCylindersToPackageScreen
 }

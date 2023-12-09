@@ -12,7 +12,9 @@ import {
   RegularLoginScreen, 
   AddClientScreen,
   AddUserScreen,
-  ManageCylinder
+  ManageCylinder,
+  AddPackageScreen,
+  AddCylindersToPackageScreen
 } from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
@@ -257,6 +259,22 @@ const AppNavigator = () => {
               component={ManageCylinder}
               options={{
                 title: "Manage Cylinders"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="addPackage"
+              component={AddPackageScreen}
+              options={{
+                title: "Add Package"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="addCylindersToPackage"
+              component={AddCylindersToPackageScreen}
+              options={{
+                title: "Add Cylinders to Package"
               }}
             />
         </AdminTabs.Navigator>
