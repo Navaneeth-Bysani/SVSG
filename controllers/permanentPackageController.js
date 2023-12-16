@@ -78,6 +78,7 @@ function getNextMonthFirstDayTimestamp() {
   }
 
 exports.updateCylindersofOneByBarcode = catchAsync(async (req,res,next) => {
+    console.log("Came till here");
     const barcode = req.params.barcode;
     const package = await PermanentPackage.findOne({barcode});
 

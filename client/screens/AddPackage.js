@@ -37,7 +37,7 @@ const AddPackageScreen = ({navigation}) => {
             }).then((data) => {
                 Alert.alert(`Permanent package has been created with barcode ${barcode}`);
     
-                navigation.navigate("addCylindersToPackage", {packageType});
+                navigation.navigate("addCylindersToPackage", {packageType, barcode});
             }).catch(error => {
                 console.error(error);
                 Alert.alert("something went wrong");

@@ -1,19 +1,25 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Button, TextInput, Text } from "react-native";
 import { Card } from 'react-native-elements';
-import { Button, TextInput } from "react-native-paper";
+// import { Button, TextInput } from "react-native-paper";
 import styles from "./AddCylinderToPackageCard.module.css";
-
+import { useState } from "react";
 
 const AddCylinderToPackageCard = (props) => {
+    const [barcode, setBarcode] = useState("");
 
     return (
     <Card title={props.barcode}>
         <TextInput
             style={styles.inputStyle}
             editable={props.isNew}
-            value={props.barcode}
+            value={barcode}
+            onChangeText={setBarcode}
         />
-        <Button>
+        <Text>{props.index}</Text>
+        <Button
+            title="Add"
+            onPress={() => props.addBarcodes(props.index, barcode)}
+        >
             Add
         </Button>
     </Card>
