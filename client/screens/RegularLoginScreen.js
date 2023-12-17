@@ -1,4 +1,17 @@
-import { View, Text, StyleSheet, Image, ImageBackground, TextInput, Button, Alert } from "react-native";
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    Image, 
+    ImageBackground, 
+    TextInput, 
+    Button, 
+    Alert,
+    Keyboard,
+    TouchableWithoutFeedback, 
+    TouchableOpacity,
+    SafeAreaView
+} from "react-native";
 import styles from "./RegularLoginScreen.module.css";
 import AuthButton from "./../components/AuthButton.js";
 import useAuthContext from "../hooks/useAuthContext";
@@ -38,31 +51,40 @@ const RegularLoginScreen = ({navigation}) => {
         }
     }
     return (
-        <View style={styles.container}>
-            <Text>Enter your email address</Text>
-            <TextInput 
-                    placeholder="enter email"
-                    value = {email}
-                    onChangeText = {setEmail}
-                />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.container}>
+                <SafeAreaView>
+                    <Text>Enter your email address</Text>
+                    <TextInput
+                            autoCapitalize="none"
+                            autoCompleteType="email"
+                            autoCorrect={false}
+                            keyboardType="email-address"
+                            placeholder="enter email"
+                            value = {email}
+                            onChangeText = {setEmail}
+                        />
 
-                <Text>Enter your password:</Text>
-                <TextInput 
-                    secureTextEntry = {true}
-                    placeholder="enter password"
-                    value = {password}
-                    onChangeText={setPassword}
-                />
+                        <Text>Enter your password:</Text>
+                        <TextInput 
+                            autoCapitalize="none"
+                            autoCompleteType="password"
+                            autoCorrect={false}
+                            secureTextEntry = {true}
+                            placeholder="enter password"
+                            value = {password}
+                            onChangeText={setPassword}
+                        />
 
-                <Button
-                    title = "Login"
-                    onPress={handleLogin}>
-                        Submit
-                </Button>
-
-                {/* <Text>{authToken}</Text>
-                <Text>{JSON.stringify(user)}</Text> */}
-        </View>
+                        <TouchableOpacity>
+                            <Button
+                                title = "Login"
+                                onPress={handleLogin}
+                            />
+                        </TouchableOpacity>
+                </SafeAreaView>
+            </View>
+        </TouchableWithoutFeedback>
     )
 }
 

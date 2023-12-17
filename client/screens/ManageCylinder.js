@@ -1,8 +1,9 @@
 import {React, useEffect, useState} from 'react';
-import { Text, View, StyleSheet, Alert, Pressable, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, Alert, Pressable, ScrollView, TouchableOpacity } from 'react-native';
 import { Card } from 'react-native-elements';
 import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
+import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; 
 
 const SingleCylinder = (props) => {
     return(
@@ -12,7 +13,7 @@ const SingleCylinder = (props) => {
             }}>
             <Card title={props.cylinder.barcode} elevation={7}>
                 <Text>
-                    Barcode: {props.cylinder.barcode} 
+                    Barcode: {props.cylinder.barcode.toUpperCase()} 
                 </Text>
                 <Text>
                     Serial Number: {props.cylinder.serial_number}
@@ -36,11 +37,45 @@ const SingleCylinder = (props) => {
 
 const ManageCylinder = ({navigation}) => {
     const [cylinders, setCylinders] = useState();
-    const { authToken } = useAuthContext();
+    const { authToken, user } = useAuthContext();
+    const [role, setRole] = useState("");
+    const [pageNumber, setPageNumber] = useState(1);
+    useEffect(() => {
+        const getRole = async () => {
+          try {
+            if(user) {
+              const res = await axios.post(`/user/getRole`, {
+                email: user?.email,
+              });
+              setRole(res.data.role);
+            }   
+          } catch (error) {
+            Alert.alert("something went wrong");
+            console.error(error);
+          }
+          
+        //   Alert.alert(res.data.role);
+        };
+        getRole();
+      }, []);
+    const getAllCylindersReport = async () => {
+        try {
+          await axios.get("/cylinder/report", {
+            headers: {
+                "Accept": 'application/json',
+                'Content-Type': 'multipart/form-data',
+                "Authorization": `Bearer ${authToken}`,
+              }
+        });
+          Alert.alert("Materials report sent to email succesfully");
+        } catch (error) {
+          console.error(error);
+        }
+    }
     useEffect(() => {
         const getCylinders = async() => {
             try {
-                const cylindersData = await axios.get("/cylinder", {
+                const cylindersData = await axios.get(`/cylinder?limit=10&pageNumber=${pageNumber}`, {
                     headers: {
                         Authorization: `Bearer ${authToken}`,
                         Accept: "application/json",
@@ -53,17 +88,78 @@ const ManageCylinder = ({navigation}) => {
             
         }
         getCylinders();
-    }, [])
+    }, [pageNumber])
     
     return(
         <>
             <ScrollView>
+                <View style={styles.headRow}>
+                    {(role === "admin") && <View style={styles.headRowItem}>
+                        <TouchableOpacity onPress={() => navigation.navigate("addcylinder")}>
+                            <Ionicons name="add" size={50} color="black" />
+                        </TouchableOpacity>
+                    </View>}
+                    
+                    {(role === "admin") && <View style={styles.headRowItem}>
+                        <TouchableOpacity onPress={() => navigation.navigate("addFile")}>
+                            <MaterialCommunityIcons name="microsoft-excel" size={50} color="black" />
+                        </TouchableOpacity>
+                    </View>}
+
+                    <View style={styles.headRowItem}>
+                        <TouchableOpacity onPress={() => getAllCylindersReport()}>
+                            <AntDesign name="book" size={50} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
                 {
-                cylinders?.length === 0 ? <Text>No cylinders as of now. Add some cylinders to view.</Text> :
-                cylinders?.map((cylinder, idx) => <SingleCylinder cylinder={cylinder} key={idx} navigation={navigation}/>)}
+                    cylinders?.length === 0 ? <Text>No cylinders as of now. Add some cylinders to view.</Text> :
+                    cylinders?.map((cylinder, idx) => <SingleCylinder cylinder={cylinder} key={idx} navigation={navigation}/>)
+                }
+                <View style={styles.pager}>
+                    <View style={styles.pagerItem}>
+                        <TouchableOpacity onPress={() => setPageNumber(pageNumber === 1 ? 1 : pageNumber-1)}>
+                            <AntDesign name="arrowleft" size={24} color="black" /> 
+                        </TouchableOpacity>
+                    </View>
+                    <View>
+                        <Text>{pageNumber}</Text>
+                    </View>
+                    <View style={styles.pagerItem}>
+                        <TouchableOpacity onPress={() => setPageNumber(pageNumber+1)}>
+                            <AntDesign name="arrowright" size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </ScrollView>
         </>
     )
 };
 
+const styles = StyleSheet.create({
+    headRow: {
+        flexDirection: "row",
+        width: "100%",
+        padding: 16,
+        alignItems: "center"
+    },
+    headRowItem: {
+        flex: 1,
+        borderColor: "black",
+        borderWidth: 2,
+        alignItems: "center",
+        height: 60,
+        margin: 10
+    },
+    pager: {
+        flexDirection: "row",
+        width: "100%",
+        alignItems: "center",
+        margin: 10
+    },
+    pagerItem: {
+        flex: 1,
+        alignItems: "center"
+    }
+})
 export default ManageCylinder;

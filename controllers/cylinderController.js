@@ -49,7 +49,9 @@ exports.createOne = catchAsync(async (req,res,next) => {
         minimum_thickness,
         usage,
         owner,
-        branch 
+        branch,
+        valve,
+        valve_gaurd 
     } = req.body;
 
     const data = {
@@ -65,7 +67,9 @@ exports.createOne = catchAsync(async (req,res,next) => {
         minimum_thickness,
         usage,
         owner,
-        branch
+        branch,
+        valve,
+        valve_gaurd
     };
 
     const newOne = await createOneEntity(data);
@@ -109,14 +113,20 @@ const format_cylinder_response = (data) => {
         tare_weight: data.tare_weight,
         test_due_date: `${indian_test_due_date.date}`,
         minimum_thickness: data.minimum_thickness,
-        usage: data.usage
+        usage: data.usage,
+        valve: data.valve,
+        valve_gaurd: data.valve_gaurd
     };
 
     return formattedData;
 }
 
 exports.getAll = catchAsync(async (req,res, next) => {
-    const data = await Cylinder.find();
+    const limit = req.query.limit;
+    const pageNumber = req.query.pageNumber;
+
+    const startIndex = limit*(pageNumber-1);
+    const data = await Cylinder.find().skip(startIndex).limit(limit);
     const formattedData = data.map(cylinder => format_cylinder_response(cylinder));
     res.status(200).json({
         data : formattedData

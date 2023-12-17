@@ -11,8 +11,8 @@ import * as Location from 'expo-location';
 const CylinderScreen = ({navigation, route}) => {
     const { user, authToken } = useAuthContext();
     const cylinder = route.params.cylinder;
-    const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status", "Tare Weight", "Test Due Date", "Minimum thickness", "Usage"];
-    const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status, cylinder.tare_weight, cylinder.test_due_date, cylinder.minimum_thickness, cylinder.usage];
+    const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status", "Tare Weight", "Test Due Date", "Minimum thickness", "Usage", "Valve", "Valve gaurd"];
+    const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status, cylinder.tare_weight, cylinder.test_due_date, cylinder.minimum_thickness, cylinder.usage, cylinder.valve, cylinder.valve_gaurd];
     
     const [role, setRole] = useState("");
     const [actionTypes, setActionTypes] = useState([]);
@@ -392,8 +392,8 @@ const CylinderScreen = ({navigation, route}) => {
 
         <Table borderStyle={{borderWidth: 1}}>
                 <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
                 </TableWrapper>
         </Table> 
         </View>

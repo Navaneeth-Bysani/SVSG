@@ -113,6 +113,13 @@ const cylinderSchema = new mongoose.Schema({
 
     usage: {
         type: String
+    },
+
+    valve: {
+        type: String
+    },
+    valve_gaurd: {
+        type: String
     }
 });
 

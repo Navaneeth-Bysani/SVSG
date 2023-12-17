@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, Alert, ScrollView, KeyboardAvoidingView } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity } from "react-native";
 import styles from "./Dashboard.module.css";
 import useAuthContext from "../hooks/useAuthContext"
 import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
+import { AntDesign, FontAwesome } from '@expo/vector-icons'; 
 
 const DashBoardScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -29,14 +30,17 @@ const DashBoardScreen = ({navigation}) => {
       }, []);
 
     const handleSearch = async () => {
-      try {        
+      try {
+        //search for cylinder        
         const content = await axios.get(`/cylinder/barcode/${barcode}`);
         const cylinder = content.data.data;
-        navigation.navigate("cylinder", {cylinder : cylinder});    
-        } catch (error) {
+        navigation.navigate("cylinder", {cylinder : cylinder});  
+        //if cylinder is not found, search for package
+        //fill code for that  
+      } catch (error) {
           Alert.alert("Something went wrong");
           console.error(error);
-        }
+      }
     }
     const getAllCylindersReport = async () => {
       try {
@@ -58,24 +62,59 @@ const DashBoardScreen = ({navigation}) => {
       // <KeyboardAvoidingView behavior={'padding'} style={styles1.container} enabled = {true}>
         <ScrollView>
         <View>
-            <Text>Username : {user?.name}</Text>
-            <Text>Role: {user?.role}</Text>
-            <Text>{authToken ? "Logged In" : "Logged out"}</Text>
-            
-            <View style = {styles.searchBox}>
+          <View style={styles1.container_top}>
+            <View style={styles1.card}>
+              <Text>{user?.name}</Text>
+              <Text>{user?.role}</Text>
+            </View>
+            <View style={styles1.buttonContainer}>
+              <TouchableOpacity onPress={() => logout()}>
+                  <AntDesign name="poweroff" size={30} color="black" />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles1.barcodeScanSection}>
+            <View style={styles1.barcodeInputSection}>
+              <View style={styles1.barcodeInput}>
+                <TextInput style={styles.inputStyle} placeholder="Enter barcode" onChangeText={setBarcode}/>
+              </View>
+              <View style={styles1.searchIcon}>
+                <TouchableOpacity onPress={handleSearch}>
+                  <AntDesign name="search1" size={40} color="white" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles1.scannerIcon}>
+              <TouchableOpacity onPress={() => navigation.navigate("qrscanner")}>
+                <AntDesign name="qrcode" size={40} color="black"/>
+              </TouchableOpacity>  
+            </View>
+          </View>
+          <View style={styles1.buttonGroup}>
+            <View style={styles1.spacing}>
+              <Button title="Cylinders" style={styles1.navBtns} onPress={() => navigation.navigate("manageCylinder")}/>
+            </View>
+            <View style={styles1.spacing}>
+              <Button title="Packages" style={styles1.navBtns}/>
+            </View>
+            <View style={styles1.spacing}>
+              <Button title="Users" style={styles1.navBtns}/>
+            </View>
+          </View>
+            {/* <View style = {styles.searchBox}>
               <TextInput style={styles.inputStyle} placeholder="Enter barcode" onChangeText={setBarcode}/>
               <Button title = "search" onPress={handleSearch}/>
-            </View>
+            </View> */}
             
-            <Button  title = "logout" style = {styles.qrButton} onPress = {() => logout()} />
-            <Button title = "QR Scanning" style = {styles.qrButton} onPress={() => navigation.navigate("qrscanner")}/>
-            {role === "admin" && <Button title = "Add Many Cylinders" style = {styles.qrButton} onPress={() => navigation.navigate("addFile")}/>}
+            {/* <Button title = "QR Scanning" style = {styles.qrButton} onPress={() => navigation.navigate("qrscanner")}/> */}
+            {/* <Button /> */}
+            {/* {role === "admin" && <Button title = "Add Many Cylinders" style = {styles.qrButton} onPress={() => navigation.navigate("addFile")}/>}
             {role === "admin" && <Button title = "Add Cylinder" style = {styles.qrButton} onPress={() => navigation.navigate("addcylinder")}/>}
             {role === "admin" && <Button title = "Add Client" style = {styles.qrButton} onPress={() => navigation.navigate("addClient")}/>}
             {role === "admin" && <Button title = "Add User" style = {styles.qrButton} onPress={() => navigation.navigate("addUser")}/>}
             {role === "admin" && <Button title = "Manage Cylinders" style = {styles.qrButton} onPress={() => navigation.navigate("manageCylinder")}/>}
-            {role === "admin" && <Button title = "Add package" style = {styles.qrButton} onPress={() => navigation.navigate("addPackage")}/>}
-            <Button title="Get Cylinders Report" style={styles.qrButton} onPress={() => getAllCylindersReport()}/>
+            {role === "admin" && <Button title = "Add package" style = {styles.qrButton} onPress={() => navigation.navigate("addPackage")}/>} */}
+            {/* <Button title="Get Cylinders Report" style={styles.qrButton} onPress={() => getAllCylindersReport()}/> */}
             
             
 
@@ -90,6 +129,64 @@ const DashBoardScreen = ({navigation}) => {
 const styles1 = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  container_top: {
+    flexDirection: "row",
+    width: "100%"
+  },
+  card: {
+    flex: 3,
+    padding: 16,
+  },
+  buttonContainer: {
+    flex: 1,
+    padding: 10,
+    alignItems: "center",
+    margin: 4
+  },
+  barcodeScanSection: {
+    flexDirection: "row",
+    width: "100%",
+    marginLeft: 16
+  },
+  barcodeInput: {
+    flex: 4,
+    paddingRight: 0,
+    height: 40,
+    borderWidth: 0,
+    borderColor: 'transparent',
+    width: "100%"
+  },
+  scannerIcon: {
+    flex: 1,
+  },
+  barcodeInputSection: {
+    flexDirection: "row",
+    width:"100%",
+    flex: 3,
+    borderWidth: 2,
+    borderRadius: 4
+  },
+  searchIcon: {
+    flex: 1,
+    backgroundColor: "blue",
+    alignItems: "center"
+  },
+
+  buttonGroup: {
+    // width: "100%",
+    // marginTop: 50,
+    // flexDirection: 'column',
+    // justifyContent: 'space-around'
+    padding: 20
+  },
+  navBtns: {
+    // margin: 50,
+    width: "100%",
+    marginVertical: 50
+  },
+  spacing: {
+    padding: 10
   }
 });
 

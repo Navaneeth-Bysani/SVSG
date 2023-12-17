@@ -1,8 +1,8 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
-  LoginScreen, 
-  HomeScreen, 
+  // LoginScreen, 
+  // HomeScreen, 
   DashBoardScreen, 
   QRCodeScanner, 
   CylinderScreen, 
@@ -68,13 +68,13 @@ const AppNavigator = () => {
                 },
               }}
             >
-              <AuthStack.Screen
+              {/* <AuthStack.Screen
                 name="Home"
                 component={LoginScreen}
                 options={{
                   title: "Login Screen",
                 }}
-              />
+              /> */}
 
             <AuthStack.Screen
                 name="regularLogin"
@@ -101,20 +101,20 @@ const AppNavigator = () => {
               },
             }}
           >
-            <MainTabs.Screen
+            {/* <MainTabs.Screen
               name="home"
               component={HomeScreen}
               options={{
                 title: "Home"
               }}
-            />
-            <MainTabs.Screen
+            /> */}
+            {/* <MainTabs.Screen
               name="login"
               component={LoginScreen}
               options={{
                 title: "Login"
               }}
-            />
+            /> */}
 
             <MainTabs.Screen
               name="dashboard"
@@ -155,6 +155,14 @@ const AppNavigator = () => {
                 title: "Add File Screen"
               }}
             />
+
+            <MainTabs.Screen
+              name="manageCylinder"
+              component={ManageCylinder}
+              options={{
+                title: "Manage Cylinders"
+              }}
+            />
           </MainTabs.Navigator>
 
           
@@ -175,6 +183,14 @@ const AppNavigator = () => {
             },
           }}
         >
+           <AdminTabs.Screen
+              name="dashboard"
+              component={DashBoardScreen}
+              options={{
+                title: "Dashboard"
+              }}
+            />
+            
           <AdminTabs.Screen
             name="addcylinder"
             component={AddCylinderScreen}
@@ -183,28 +199,22 @@ const AppNavigator = () => {
             }}
           />
 
-          <AdminTabs.Screen
+          {/* <AdminTabs.Screen
               name="home"
               component={HomeScreen}
               options={{
                 title: "Home"
               }}
-            />
-            <AdminTabs.Screen
+            /> */}
+            {/* <AdminTabs.Screen
               name="login"
               component={LoginScreen}
               options={{
                 title: "Login"
               }}
-            />
+            /> */}
 
-            <AdminTabs.Screen
-              name="dashboard"
-              component={DashBoardScreen}
-              options={{
-                title: "Dashboard"
-              }}
-            />
+           
 
             <AdminTabs.Screen
               name="qrscanner"

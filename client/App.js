@@ -9,8 +9,8 @@ export default function App() {
   return (
     <AuthContextProvider>
       <PaperProvider>
-      <AppNavigator />
-    </PaperProvider>
+        <AppNavigator />
+      </PaperProvider>
     </AuthContextProvider>
     
   );
