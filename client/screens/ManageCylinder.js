@@ -118,7 +118,7 @@ const ManageCylinder = ({navigation}) => {
                 }
                 <View style={styles.pager}>
                     <View style={styles.pagerItem}>
-                        <TouchableOpacity onPress={() => setPageNumber(pageNumber === 1 ? 1 : pageNumber-1)}>
+                        <TouchableOpacity onPress={() => setPageNumber(pageNumber === 1 ? 1 : pageNumber-1)} disabled={pageNumber === 1}>
                             <AntDesign name="arrowleft" size={24} color="black" /> 
                         </TouchableOpacity>
                     </View>

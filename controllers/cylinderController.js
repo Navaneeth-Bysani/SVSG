@@ -36,6 +36,7 @@ const createOneEntity = async(data) => {
 }
 
 exports.createOne = catchAsync(async (req,res,next) => {
+    console.log("here");
     const {
         barcode, 
         serial_number, 
@@ -73,7 +74,7 @@ exports.createOne = catchAsync(async (req,res,next) => {
     };
 
     const newOne = await createOneEntity(data);
-
+    console.log(newOne);
     if(newOne) {
         res.status(201).json({
             newOne
@@ -207,7 +208,9 @@ exports.getAllReport = catchAsync(async (req,res,next) => {
         {key: "tare_weight", header: "Tare Weight"},
         {key: "test_due_date", header: "Test Due Date"},
         {key: "minimum_thickenss", header: "Minimum Thickness"},
-        {key: "usage", header : "Usage"}
+        {key: "usage", header : "Usage"},
+        {key: "valve", header: "valve"},
+        {key: "valve_gaurd", header: "valve gaurd"}
     ];
 
     //1. create excel sheet
@@ -505,20 +508,25 @@ const upload = multer({
 exports.uploadExcel = upload.single('document');
 
 exports.createWithExcel = catchAsync(async(req,res,next) => {
-    console.log(req.headers);
-    console.log(req.file);
+    
     const filename = req.file.filename;
 
-    console.log(filename);
-    let repeated_barcodes = [];
-    let repeated_barcodes_data = await readXlsxFile(`uploads/${filename}`).then((rows) => {
+    let repeated_barcodes = "";
+    const increaseYearBy5 = (date) => {
+        const new_date = new Date(date);
+        new_date.setFullYear(new_date.getFullYear()+5);
+        return new_date;
+    }
+
+    let repeated_length = 0;
+    let repeated_barcodes_data = await readXlsxFile(`uploads/${filename}`).then(async (rows) => {
         // `rows` is an array of rows
         // each row being an array of cells.
         rows.shift();
 
         let data = [];
 
-        rows.forEach(element => {
+        const promises = rows.map(async element => {
             let obj = {
                 barcode : element[0],
                 serial_number: element[1],
@@ -530,46 +538,64 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
                 branch : element[7],
                 filling_pressure : element[8],
                 tare_weight : element[9],
-                test_due_date : element[10],
-                minimum_thickness : element[11],
-                usage : element[12]
+                minimum_thickness : element[10],
+                usage : element[11] || "",
+                valve: element[12] || "",
+                valve_guard: element[13] || "",
+                test_due_date: increaseYearBy5(element[4])
             }
-
             data.push(obj);
-        });
+            console.log(obj);
+            const cylinderData = await (Cylinder.findOne({barcode: obj.barcode}));
+            return (cylinderData);
+        })
 
+        const repeated_cylinders = await Promise.all(promises);
+        const repeated_cylinders_data = [];
+        repeated_cylinders.forEach(element => {
+            if(element != null) {
+                repeated_cylinders_data.push(element.barcode);
+                repeated_length = repeated_length + 1;
+            }
+        })
+        
+        repeated_barcodes = repeated_cylinders_data.join(", ");
+        console.log(repeated_cylinders_data);
+        
         data.forEach(async (el) => {
             try {
-                const existingCylinder = await Cylinder.findOne({barcode: el.barcode});
-                if(existingCylinder !== null) {
-                    // console.log(el.barcode);
-                    // console.log("here1");
-                    repeated_barcodes.push(el.barcode);
-                    // console.log(repeated_barcodes);
+                // const existingCylinder = await Cylinder.findOne({barcode: el.barcode});
+                // console.log("here");
+                // console.log(repeated_cylinders_data.includes(el.barcode));
+                if(repeated_cylinders_data.includes(el.barcode.toLowerCase())) {
+                    //Leave it
                 } else {
-                    // el.barcode = el.barcode.toLowerCase();
                     await Cylinder.create(el);
                 }
+                // if(existingCylinder !== null) {
+                //     repeated_cylinders_data.push(el.barcode);
+                // } else {
+                //     await Cylinder.create(el);
+                // }
             } catch (error) {
                 console.log(error);
             }
         })
     });
-    // console.log("here2");
-    // setTimeout(() => {
-
-    // }, 2000);
     if(repeated_barcodes.length !== 0) {
-        console.log("Repeated few barcodes")
-        res.status(204).json({
+        console.log("Repeated few barcodes");
+        res.status(201).json({
             "message" : "Few barcodes are repeated",
-            repeated_barcodes_message : repeated_barcodes_data
+            repeated_barcodes_message : repeated_barcodes,
+            repeated_barcodes_num: repeated_length
         });
         return;
     }
     
     // console.log("No repeated barcodes");
     res.status(201).json({
-        "message" : "created successfuly"
+        "message" : "created successfuly",
+        repeated_barcodes_num: 0,
+        repeated_barcodes_message: ""
     })
 });

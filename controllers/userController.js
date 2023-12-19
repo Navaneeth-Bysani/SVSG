@@ -3,7 +3,7 @@ const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const Email = require("./../utils/email");
 
-const roles = ["admin", "store"];
+const roles = ["admin", "filler", "tester", "pickup"];
 
 exports.addUser = catchAsync(async (req,res,next) => {
     const {email, role} = req.body;
@@ -30,11 +30,20 @@ exports.addUser = catchAsync(async (req,res,next) => {
 
 exports.changeRole = catchAsync(async (req,res,next) => {
     const {newRole} = req.body;
-    const id = req.params.id;
+    const {email} = req.body;
+
+    const user = await User.findOne({email});
+
+    if(user.role === "admin") {
+        res.status(400).json({
+            "message" : "Can't change the role of admin directly"
+        });
+        return;
+    }
     if(!roles.includes(newRole)) {
         return next (new AppError("give some role among : admin, store", 400));
     }
-    const updatedUser = await User.findByIdAndUpdate(id, {role : newRole}, {new : true});
+    const updatedUser = await User.findByIdAndUpdate(user._id, {role : newRole}, {new : true});
 
     if(!updatedUser) {
         return next (new AppError("user doesn't exist", 404));
@@ -50,11 +59,16 @@ exports.changeRole = catchAsync(async (req,res,next) => {
 exports.getAllUsers = catchAsync(async (req,res,next) => {
     const {role} = req.query;
 
+    const limit = req.query.limit;
+    const pageNumber = req.query.pageNumber;
+
+    const startIndex = limit*(pageNumber-1);
+
     let filterOptions = {};
     if(role) {
         filterOptions.role = role;
     }
-    const users = await User.find(filterOptions);
+    const users = await User.find(filterOptions).skip(startIndex).limit(limit);
 
     res.status(200).json({
         users
@@ -89,4 +103,24 @@ exports.addUserManual = catchAsync(async(req,res,next) => {
     res.status(200).json({
         message : "user added successfully"
     })
+});
+
+exports.deleteUser = catchAsync(async(req, res) => {
+    const user = await User.findOne({email: req.params.email});
+    if(user?.role === "admin") {
+        res.status(400).json({
+            "message:" : "Can't delete an admin user directly"
+        });
+        return;
+    }
+
+    if(user?._id === req.user._id) {
+        res.status(400).json({
+            "message" : "You can't delete yourselves"
+        });
+        return;
+    }
+    const deletedUser = await User.findOneAndDelete({email : req.params.email});
+    
+    res.status(204);
 })

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { Button, View, Alert, Text } from 'react-native';
+import { Button, View, Alert, Text, StyleSheet, Linking, ScrollView } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
 
-const DocPicker = () => {
+const DocPicker = ({navigation}) => {
     const [ doc, setDoc ] = useState();
     // const [file, setFile] = useState({});
 
     const { authToken } = useAuthContext();
     const [repeated_barcodes_info, set_repeated_barcodes_info] = useState("");
+    const [repeated_barcodes_num, set_repeated_barcodes_num] = useState(0);
     
     const pickDocument = async () => {
         try {
@@ -48,45 +49,83 @@ const DocPicker = () => {
                     'Content-Type': 'multipart/form-data',
                     "Authorization": `Bearer ${authToken}`,
                   }
-            });
-            Alert.alert("uploaded successfully");
+            })
+            .catch(err => console.error(err));
+
+            set_repeated_barcodes_info(data.data.repeated_barcodes_message);
+            set_repeated_barcodes_num(data.data.repeated_barcodes_num);
+            if(data.data.repeated_barcodes_num === 0) {
+                Alert.alert("uploaded successfully");
+                setDoc(null);
+                navigation.navigate("dashboard");
+            } else {
+                Alert.alert("Few barcodes repeated");
+            }
         } catch (error) {
             console.error(error);
             Alert.alert(error);
         }
-        // axios.post(url, formData, {
-        //     headers: {
-        //         "Accept": 'application/json',
-        //         'Content-Type': 'multipart/form-data',
-        //         "Authorization": `Bearer ${authToken}`,
-        //       }
-        // }).then(data => {
-        //     Alert.alert(data);
-        //     const repeated_barcodes = data.repeated_barcodes;
-        //     // if(repeated_barcodes.length !== 0) {
-        //     //     set_repeated_barcodes_info(`Repeated barcodes:\n${repeated_barcodes.join(",")}`);
-        //     // }
-        //     Alert.alert("Cylinders created successfully");
-        // }).catch(err => {
-        //     console.error(err);
-        //     Alert.alert(JSON.stringify(err));
-        // });
     }
 
-
+    const handleLinkPress = () => {
+        // Define the URL you want to open
+        const url = 'https://docs.google.com/spreadsheets/d/1aX1PdQYkfHQweBO89_V24ZdJEs0l3zre3FaISJUbA6A/edit?usp=sharing';
+    
+        // Open the URL using the Linking module
+        Linking.openURL(url).catch((err) => console.error('An error occurred', err));
+    };
+    
     return (        
-        <View>
-            <Button title="Select Document" onPress={pickDocument} />
-            <Text>{`${doc?.name}\n${doc?.size} bytes\n${doc?.uri}\n${doc?.type}`}</Text>
-            <Button title="Upload" onPress={postDocument} />
+        <View style={styles.container}>
+            <ScrollView>
+                <View>
+                    <Text style={styles.heading1}>Download the excel template</Text>
+                    <Text>Download the excel template to fill data from below link.</Text>
+                    <Text style={styles.link} onPress={handleLinkPress}>
+                        Click here to download
+                    </Text>
+                </View>
+                <View style={styles.uploadSection}>
+                    <Button title="Select Document" onPress={pickDocument} />
+                </View>
 
-            <Text>
-                {repeated_barcodes_info}
-            </Text>
+                <Text>{`File name: ${doc ? doc.name : ""}`}</Text>
+                <Text>{`File size: ${doc ? doc.size : "0"} bytes`}</Text>
+                <Text>{`File path: ${doc ? doc.uri : ""}`}</Text>
+                <Text>{`File type: ${doc ? doc.type : ""}`}</Text>
+                <Button title="Upload" onPress={postDocument} disabled={doc ? false : true}/>
+
+                <Text>
+                    {repeated_barcodes_info.length != "" ? `Repeated barcodes. ${repeated_barcodes_num}\n` : ""}
+                    {repeated_barcodes_info}
+                </Text>
+            </ScrollView>
+            
         </View>
     )
 
 }
+
+const styles = StyleSheet.create({
+    container: {
+        padding: 16,
+    },
+
+    heading1: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 10
+    },
+
+    link: {
+        color: 'blue',
+        textDecorationLine: 'underline',
+    },
+
+    uploadSection: {
+        marginTop: 10
+    }
+})
 
 
 export default DocPicker;

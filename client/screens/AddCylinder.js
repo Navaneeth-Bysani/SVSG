@@ -36,7 +36,7 @@ const AddCylinderScreen = ({navigation}) => {
             padTo2Digits(manufactured_date.getDate()),
           ].join('-');
 
-        const test_due_date = manufactured_date;
+        const test_due_date = new Date(manufactured_date);
         //Fixed 5 years increment
         test_due_date.setFullYear(test_due_date.getFullYear() + 5);
         

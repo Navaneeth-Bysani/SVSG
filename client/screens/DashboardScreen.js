@@ -95,10 +95,10 @@ const DashBoardScreen = ({navigation}) => {
               <Button title="Cylinders" style={styles1.navBtns} onPress={() => navigation.navigate("manageCylinder")}/>
             </View>
             <View style={styles1.spacing}>
-              <Button title="Packages" style={styles1.navBtns}/>
+              <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("addPackage")}/>
             </View>
             <View style={styles1.spacing}>
-              <Button title="Users" style={styles1.navBtns}/>
+              <Button title="Users" style={styles1.navBtns} onPress={() => navigation.navigate("addUser")}/>
             </View>
           </View>
             {/* <View style = {styles.searchBox}>

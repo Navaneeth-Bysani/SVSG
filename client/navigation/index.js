@@ -152,7 +152,7 @@ const AppNavigator = () => {
               name="addFile"
               component={AddFileScreen}
               options={{
-                title: "Add File Screen"
+                title: "Add bulk cylinders"
               }}
             />
 
@@ -244,7 +244,7 @@ const AppNavigator = () => {
               name="addFile"
               component={AddFileScreen}
               options={{
-                title: "Add File Screen"
+                title: "Add bulk cylinders"
               }}
             />
 
@@ -260,7 +260,7 @@ const AppNavigator = () => {
               name="addUser"
               component={AddUserScreen}
               options={{
-                title: "Add User Screen"
+                title: "Manage User"
               }}
             />
 
