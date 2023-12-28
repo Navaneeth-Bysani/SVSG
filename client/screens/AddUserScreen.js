@@ -11,6 +11,7 @@ import axios from "./../utils/axios";
 import { Card } from 'react-native-elements';
 import { AntDesign } from '@expo/vector-icons'; 
 
+import Loader from "../components/Loader";
 
 const SingleUserCard = (props) => {
     return(
@@ -49,6 +50,9 @@ const AddUserScreen = ({navigation}) => {
     const [roleChange, setRoleChange] = useState([]);
     const [showRoleChangeDropDown, setShowRoleChangeDropDown] = useState(false);
     
+
+    const [loading, setLoading] = useState(false);
+
     const handleSubmit = () => {
         if(password != passwordConfirm) {
             Alert.alert("Password and confirm password are not matching");
@@ -62,33 +66,42 @@ const AddUserScreen = ({navigation}) => {
             role
         };
         console.log(user);
+        setLoading(true);
         axios.post("/user/addUserManual", user , {
             headers: {
                 Authorization: `Bearer ${authToken}`,
                 Accept: "application/json",
             },
         }).then((data) => {
+            setLoading(false);
             Alert.alert(`User has been created with email ${email}`);
 
             navigation.navigate("dashboard");
         }).catch(error => {
+            setLoading(false);
             console.error(error);
             Alert.alert("something went wrong");
         })
     }
 
     const deleteUser = () => {
+        setLoading(true);
         axios.delete(`/user/${deleteUserEmail}`, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
                 Accept: "application/json",
             },
         }).then(data => {
+            setLoading(false);
             Alert.alert(`${deleteUserEmail} deleted successfully`);
-        }).catch(err => Alert.alert("Something went wrong"));
+        }).catch(err => {
+            setLoading(false);
+            Alert.alert("Something went wrong")
+        });
     }
     
     const changeRole = () => {
+        setLoading(true);
         axios.patch("/user/changeRole", {
             email: changeRoleEmail,
             newRole: roleChange
@@ -99,8 +112,12 @@ const AddUserScreen = ({navigation}) => {
             }
         })
         .then(data => {
+            setLoading(false);
             navigation.navigate("dashboard");
-        }).catch(err => Alert.alert("something went wrong"));
+        }).catch(err => {
+            setLoading(false);
+            Alert.alert("something went wrong")
+        });
     }
 
     useEffect(() => {
@@ -166,6 +183,7 @@ const AddUserScreen = ({navigation}) => {
         <View style={stylesText.container}>
             <ScrollView>
                 <View>
+                    <Loader loading={loading} />
                     <Text>Email (case sensitive)</Text>
                     <TextInput  placeholder="Enter Email" onChangeText={setEmail} style={stylesText.inputField}/>
 

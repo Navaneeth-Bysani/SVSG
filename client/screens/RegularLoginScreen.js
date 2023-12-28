@@ -17,6 +17,7 @@ import AuthButton from "./../components/AuthButton.js";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState} from "react";
 import axios from "./../utils/axios";
+import Loader from "../components/Loader.js";
 
 const RegularLoginScreen = ({navigation}) => {
     const [email, setEmail] = useState("");
@@ -24,12 +25,14 @@ const RegularLoginScreen = ({navigation}) => {
 
     const { login, authToken, user } = useAuthContext();
 
-    
+    const [loading, setLoading] = useState(false);
+
     // if(user && authToken) {
     //     navigation.navigate("Home");
     // }
     const handleLogin =  async () => {
         try {
+            setLoading(true);
             const loginResponse = await axios.post("/auth/regular-login", {
                 email, password
             });
@@ -37,22 +40,18 @@ const RegularLoginScreen = ({navigation}) => {
             const authToken = loginResponse.data.jwt;
 
             await login(data, authToken);
-            // Alert.alert(`${loginResponse.status}`);
-            // if(loginResponse.status === 200) {
-                // navigation.navigate("dashboard")
-            // }
-            // if(userContext && authTokenContext){
-            //     navigation.navigate("dashboard")
-            // }
+            setLoading(false);
 
         } catch (error) {
             Alert.alert("Something went wrong");
             console.error(error);
+            setLoading(false);
         }
     }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={styles.container}>
+                <Loader loading={loading}/>
                 <SafeAreaView>
                     <Text>Enter your email address</Text>
                     <TextInput

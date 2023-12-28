@@ -4,6 +4,7 @@ import useAuthContext from "../hooks/useAuthContext"
 import {useState} from "react";
 import axios from "../utils/axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Loader from "../components/Loader";
 
 const AddCylinderScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -25,6 +26,9 @@ const AddCylinderScreen = ({navigation}) => {
     const [valve_gaurd, set_valve_gaurd] = useState("");
 
     const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const [loading, setLoading] = useState(false);
+
     const handleSubmit = () => {
         function padTo2Digits(num) {
             return num.toString().padStart(2, '0');
@@ -64,16 +68,19 @@ const AddCylinderScreen = ({navigation}) => {
             valve_gaurd
         };
         console.log(material);
+        setLoading(true);
         axios.post("/cylinder", material , {
             headers: {
                 Authorization: `Bearer ${authToken}`,
                 Accept: "application/json",
             },
         }).then((data) => {
+            setLoading(false);
             Alert.alert(`Material has been created with barcode ${data.data.newOne.barcode}`);
 
             navigation.navigate("dashboard");
         }).catch(error => {
+            setLoading(false);
             console.error(error);
             Alert.alert("something went wrong");
         })
@@ -103,6 +110,7 @@ const AddCylinderScreen = ({navigation}) => {
         <ScrollView>
         <View style={stylesText.container}>
             {/* <ScrollView> */}
+                <Loader loading={loading}/>
                 <Text>barcode (case sensitive)</Text>
                 <TextInput  placeholder="Enter Barcode" onChangeText={setBarcode} style={stylesText.inputField}/>
 

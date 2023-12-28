@@ -4,6 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
+import Loader from '../components/Loader';
 
 const DocPicker = ({navigation}) => {
     const [ doc, setDoc ] = useState();
@@ -13,6 +14,9 @@ const DocPicker = ({navigation}) => {
     const [repeated_barcodes_info, set_repeated_barcodes_info] = useState("");
     const [repeated_barcodes_num, set_repeated_barcodes_num] = useState(0);
     
+
+    const [loading, setLoading] = useState(false);
+
     const pickDocument = async () => {
         try {
             let result = await DocumentPicker.getDocumentAsync({ type: ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], copyToCacheDirectory: true }).then(response => {
@@ -43,14 +47,18 @@ const DocPicker = ({navigation}) => {
         formData.append('document', doc);
         
         try {
+            setLoading(true);
             const data = await axios.post(url, formData, {
                 headers: {
                     "Accept": 'application/json',
                     'Content-Type': 'multipart/form-data',
                     "Authorization": `Bearer ${authToken}`,
                   }
+            }).catch(err => {
+                setLoading(false);
+                console.error(err);
             })
-            .catch(err => console.error(err));
+            setLoading(false);
 
             set_repeated_barcodes_info(data.data.repeated_barcodes_message);
             set_repeated_barcodes_num(data.data.repeated_barcodes_num);
@@ -64,6 +72,7 @@ const DocPicker = ({navigation}) => {
         } catch (error) {
             console.error(error);
             Alert.alert(error);
+            setLoading(false);
         }
     }
 
@@ -79,6 +88,7 @@ const DocPicker = ({navigation}) => {
         <View style={styles.container}>
             <ScrollView>
                 <View>
+                    <Loader loading={loading} />
                     <Text style={styles.heading1}>Download the excel template</Text>
                     <Text>Download the excel template to fill data from below link.</Text>
                     <Text style={styles.link} onPress={handleLinkPress}>

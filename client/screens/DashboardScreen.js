@@ -1,15 +1,19 @@
-import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity, ActivityIndicator } from "react-native";
 import styles from "./Dashboard.module.css";
 import useAuthContext from "../hooks/useAuthContext"
 import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
 import { AntDesign, FontAwesome } from '@expo/vector-icons'; 
+import Loader from "./../components/Loader";
 
 const DashBoardScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
 
     const [role, setRole] = useState([]);
     const [barcode, setBarcode] = useState("");
+
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         const getRole = async () => {
           try {
@@ -31,15 +35,18 @@ const DashBoardScreen = ({navigation}) => {
 
     const handleSearch = async () => {
       try {
+        setLoading(true);
         //search for cylinder        
         const content = await axios.get(`/cylinder/barcode/${barcode}`);
         const cylinder = content.data.data;
+        setLoading(false);
         navigation.navigate("cylinder", {cylinder : cylinder});  
         //if cylinder is not found, search for package
         //fill code for that  
       } catch (error) {
           Alert.alert("Something went wrong");
           console.error(error);
+          setLoading(false);
       }
     }
     const getAllCylindersReport = async () => {
@@ -58,10 +65,9 @@ const DashBoardScreen = ({navigation}) => {
     }
 
     return (
-      // <ScrollView>
-      // <KeyboardAvoidingView behavior={'padding'} style={styles1.container} enabled = {true}>
         <ScrollView>
         <View>
+          <Loader loading={loading}/>
           <View style={styles1.container_top}>
             <View style={styles1.card}>
               <Text>{user?.name}</Text>
@@ -106,23 +112,6 @@ const DashBoardScreen = ({navigation}) => {
                 </>
             }
           </View>
-            {/* <View style = {styles.searchBox}>
-              <TextInput style={styles.inputStyle} placeholder="Enter barcode" onChangeText={setBarcode}/>
-              <Button title = "search" onPress={handleSearch}/>
-            </View> */}
-            
-            {/* <Button title = "QR Scanning" style = {styles.qrButton} onPress={() => navigation.navigate("qrscanner")}/> */}
-            {/* <Button /> */}
-            {/* {role === "admin" && <Button title = "Add Many Cylinders" style = {styles.qrButton} onPress={() => navigation.navigate("addFile")}/>}
-            {role === "admin" && <Button title = "Add Cylinder" style = {styles.qrButton} onPress={() => navigation.navigate("addcylinder")}/>}
-            {role === "admin" && <Button title = "Add Client" style = {styles.qrButton} onPress={() => navigation.navigate("addClient")}/>}
-            {role === "admin" && <Button title = "Add User" style = {styles.qrButton} onPress={() => navigation.navigate("addUser")}/>}
-            {role === "admin" && <Button title = "Manage Cylinders" style = {styles.qrButton} onPress={() => navigation.navigate("manageCylinder")}/>}
-            {role === "admin" && <Button title = "Add package" style = {styles.qrButton} onPress={() => navigation.navigate("addPackage")}/>} */}
-            {/* <Button title="Get Cylinders Report" style={styles.qrButton} onPress={() => getAllCylindersReport()}/> */}
-            
-            
-
         </View>
         </ScrollView>
         // </KeyboardAvoidingView>

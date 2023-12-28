@@ -3,6 +3,7 @@ import styles from "./AddCylinder.module.css";
 import useAuthContext from "../hooks/useAuthContext"
 import {useState} from "react";
 import axios from "../utils/axios";
+import Loader from "../components/Loader";
 
 const AddClientScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -32,6 +33,7 @@ const AddClientScreen = ({navigation}) => {
     return (
         <ScrollView>
         <View style={stylesText.container}>
+            <Loader loading={loading}/>
             {/* <ScrollView> */}
                 <Text>Name</Text>
                 <TextInput  placeholder="Enter Client Name" onChangeText={setName} style={styles.inputStyle}/>

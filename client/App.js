@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Appearance } from 'react-native';
 import { AuthContextProvider } from "./contexts/AuthContext";
 import { LoginScreen, HomeScreen } from './screens';
 import AppNavigator from "./navigation";
 import { Provider as PaperProvider } from "react-native-paper";
+import { useEffect } from 'react';
 
 export default function App() {
   return (
@@ -15,6 +16,9 @@ export default function App() {
     
   );
 }
+
+// eas build --profile preview
+
 
 const styles = StyleSheet.create({
   container: {

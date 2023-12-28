@@ -6,7 +6,6 @@
     "scheme": "com.navaneeth_bysani.svsg",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -58,6 +57,10 @@
       "eas": {
         "projectId": "60d1b606-a7c0-49f2-82ea-f99c1551e9e0"
       }
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#C2185B",
+      "translucent": false
     },
     "owner": "navaneeth_bysani"
   }
