@@ -121,9 +121,13 @@ exports.loggedInUser = catchAsync(async (req, res, next) => {
   next();
 });
 
+function hasCommonElement(arr1, arr2) {
+  return arr1.some(element => arr2.indexOf(element) !== -1);
+}
+
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!hasCommonElement(req.user.role, roles)) {
       return next(
         new AppError("You do not have permission to perform this action", 403)
       );

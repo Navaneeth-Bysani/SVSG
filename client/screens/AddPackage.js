@@ -74,6 +74,7 @@ const AddPackageScreen = ({navigation}) => {
                 visible={showDropDown}
                 showDropDown={() => setShowDropDown(true)}
                 onDismiss={() => setShowDropDown(false)}
+                style={{ backgroundColor: 'white' }}
         />
         {packageType !== "" ? (
             <>

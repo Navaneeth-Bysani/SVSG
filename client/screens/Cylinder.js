@@ -72,31 +72,49 @@ const CylinderScreen = ({navigation, route}) => {
         const getRole = async () => {
           try {
             if(user) {
-              const res = await axios.post("/user/getRole", {
-                email: user?.email,
-              });
-            //   setRole(res.data.role);
-            const role = res.data.role;
+                const res = await axios.post("/user/getRole", {
+                    email: user?.email,
+                });
+                //   setRole(res.data.role);
+                const role = res.data.role;
 
-            let actions = [];
-            
-            if(role === "admin") {
-                actions = [
-                    {label : "Filling",  value : "filler"},
-                    {label : "Testing",  value : "tester"},
-                    {label : "Pickup",  value : "pickup"}
-                ];
+                
+                if(role.includes("admin")) {
+                    let actions = [
+                        {label : "Testing",  value : "tester"},
+                        {label : "Filling",  value : "filler"},
+                        {label : "Pickup",  value : "pickup"}
+                    ];
+                    setActionTypes(actions);
+
+                    return;
+                }
+                if(role.length === 1) {
+                    setSelectedActionType(role[0]);
+                    return;
+                }
+
+
+                let actions = [];
+                if(role.includes("tester")) {
+                    actions.push({label : "Testing",  value : "tester"});
+                }
+
+                if(role.includes("filler")) {
+                    actions.push({label : "Filling",  value : "filler"});
+                }
+
+                if(role.includes("pickup")) {
+                    actions.push({label : "Pickup",  value : "pickup"});
+                }
+
                 setActionTypes(actions);
-            } else {
-                setSelectedActionType(role);
-            }
             }   
           } catch (error) {
             Alert.alert("something went wrong");
             console.error(error);
           }
           
-        //   Alert.alert(res.data.role);
         };
         getRole();
       }, []);
@@ -308,6 +326,7 @@ const CylinderScreen = ({navigation, route}) => {
                         visible={showDropDown}
                         showDropDown={() => setShowDropDown(true)}
                         onDismiss={() => setShowDropDown(false)}
+                        style={{ backgroundColor: 'white' }}
                         />
                 </View>
                 </>

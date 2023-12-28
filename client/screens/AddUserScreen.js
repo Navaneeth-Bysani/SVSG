@@ -1,4 +1,6 @@
-import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, ScrollView, Alert, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, ScrollView, Alert, TouchableOpacity} from "react-native";
+import Checkbox from 'expo-checkbox';
+
 import DropDown from "react-native-paper-dropdown";
 
 import styles from "./AddCylinder";
@@ -21,7 +23,7 @@ const SingleUserCard = (props) => {
                     email: {props.user.email} 
                 </Text>
                 <Text>
-                    role: {props.user.role} 
+                    role: {props.user.role.join(", ")} 
                 </Text>
             </Card>
         </>
@@ -35,7 +37,7 @@ const AddUserScreen = ({navigation}) => {
     const [ password, setPasword] = useState("");
     const [ passwordConfirm, setPasswordConfirm] = useState("");
     const [ name, setName] = useState("");
-    const [ role, setRole] = useState("store");
+    const [ role, setRole] = useState([]);
     const [showRoleDropDown, setShowRoleDropDown] = useState(false);
 
     const [pageNumber, setPageNumber] = useState(1);
@@ -44,7 +46,7 @@ const AddUserScreen = ({navigation}) => {
     const [deleteUserEmail, setDeleteUserEmail] = useState("");
 
     const [changeRoleEmail, setChangeRoleEmail] = useState("");
-    const [roleChange, setRoleChange] = useState("");
+    const [roleChange, setRoleChange] = useState([]);
     const [showRoleChangeDropDown, setShowRoleChangeDropDown] = useState(false);
     
     const handleSubmit = () => {
@@ -112,6 +114,53 @@ const AddUserScreen = ({navigation}) => {
         }).catch(err => console.error(err));
     }, [pageNumber]);
     
+    const checkboxData = [
+        {label: "Admin", value: "admin"},
+        {label: "Filler", value: "filler"},
+        {label: "Tester", value: "tester"},
+        {label: "Pickup", value: "pickup"}
+    ];
+
+    const handleCheckboxChange = (item) => {
+        // Check if the item is already selected
+        const isSelected = role.includes(item);
+    
+        if(item === "admin") {
+            if(isSelected) {
+                setRole([]);
+            } else {
+                setRole(["admin"]);
+            }
+            return;
+        }
+
+        // Update the selected items based on the checkbox state
+        if (isSelected) {
+          setRole(role.filter((selectedItem) => selectedItem !== item));
+        } else {
+          setRole([...role, item]);
+        }
+    };
+
+    const handleRoleUpdateCheckboxChange = (item) => {
+        const isSelected = roleChange.includes(item);
+    
+        if(item === "admin") {
+            if(isSelected) {
+                setRoleChange([]);
+            } else {
+                setRoleChange(["admin"]);
+            }
+            return;
+        }
+
+        // Update the selected items based on the checkbox state
+        if (isSelected) {
+          setRoleChange(roleChange.filter((selectedItem) => selectedItem !== item));
+        } else {
+          setRoleChange([...roleChange, item]);
+        }
+    }
     return (
         <ScrollView>
         <View style={stylesText.container}>
@@ -123,25 +172,18 @@ const AddUserScreen = ({navigation}) => {
                     <Text>Name</Text>
                     <TextInput  placeholder="Enter Name" onChangeText={setName} style={stylesText.inputField}/>
 
-                    <Text>Role</Text>
-                    <DropDown
-                        label={"Select"}
-                        mode={"outlined"}
-                        value={role}
-                        setValue={setRole}
-                        list={
-                            [
-                                {label : "Admin", value : "admin"},
-                                {label : "Filler", value : "filler"},
-                                {label : "Tester", value : "tester"},
-                                {label : "Pickup", value : "pickup"}
-                            ]
-                        }
-                        visible={showRoleDropDown}
-                        showDropDown={() => setShowRoleDropDown(true)}
-                        onDismiss={() => setShowRoleDropDown(false)}
-                        style={stylesText.inputField}
-                        />
+                    <Text>Role (Select the roles you want to assign)</Text>
+                    {checkboxData.map((checkboxItem) => (
+                        <View key={checkboxItem.value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5}}>
+                            <Checkbox
+                                disabled={role.includes("admin") && checkboxItem.value !== "admin"}
+                                value={role.includes(checkboxItem.value)}
+                                onValueChange={(value) => handleCheckboxChange(checkboxItem.value)}
+                                style={{marginRight: 10}}
+                            />
+                        <Text>{checkboxItem.label}</Text>
+                        </View>
+                    ))}
 
                     <Text>Password</Text>
                     <TextInput  placeholder="enter the password" onChangeText={setPasword} style={stylesText.inputField} />
@@ -178,24 +220,19 @@ const AddUserScreen = ({navigation}) => {
                     <Text style={stylesText.heading1}>Change User role</Text>
 
                     <TextInput  placeholder="Enter user's email" style={stylesText.inputField} onChangeText={setChangeRoleEmail}/>
-                    <DropDown
-                        label={"Select"}
-                        mode={"outlined"}
-                        value={roleChange}
-                        setValue={setRoleChange}
-                        list={
-                            [
-                                {label : "Admin", value : "admin"},
-                                {label : "Filler", value : "filler"},
-                                {label : "Tester", value : "tester"},
-                                {label : "Pickup", value : "pickup"}
-                            ]
-                        }
-                        visible={showRoleChangeDropDown}
-                        showDropDown={() => setShowRoleChangeDropDown(true)}
-                        onDismiss={() => setShowRoleChangeDropDown(false)}
-                        style={stylesText.dropdownStyling}
-                        />
+
+                    <Text>Select the Role you want to give among the following</Text>
+                    {checkboxData.map((checkboxItem) => (
+                        <View key={checkboxItem.value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5}}>
+                            <Checkbox
+                                disabled={roleChange.includes("admin") && checkboxItem.value !== "admin"}
+                                value={roleChange.includes(checkboxItem.value)}
+                                onValueChange={(value) => handleRoleUpdateCheckboxChange(checkboxItem.value)}
+                                style={{marginRight: 10}}
+                            />
+                        <Text>{checkboxItem.label}</Text>
+                        </View>
+                    ))}  
                     <Button title="change role" onPress={changeRole}/>
                 </View >
 
@@ -226,7 +263,8 @@ const stylesText = StyleSheet.create({
         alignItems: "center",
         height: 50,
         padding: 10,
-        marginBottom: 10
+        marginBottom: 10,
+        backgroundColor: "white"
     },
     pager: {
         flexDirection: "row",
@@ -247,7 +285,8 @@ const stylesText = StyleSheet.create({
         marginTop: 100
     },
     dropdownStyling: {
-        marginBottom: 30
+        marginBottom: 30,
+        backgroundColor: "white"
     }
 });
 

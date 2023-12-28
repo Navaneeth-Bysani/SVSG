@@ -8,7 +8,7 @@ import { AntDesign, FontAwesome } from '@expo/vector-icons';
 const DashBoardScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
 
-    const [role, setRole] = useState("store");
+    const [role, setRole] = useState([]);
     const [barcode, setBarcode] = useState("");
     useEffect(() => {
         const getRole = async () => {
@@ -65,7 +65,7 @@ const DashBoardScreen = ({navigation}) => {
           <View style={styles1.container_top}>
             <View style={styles1.card}>
               <Text>{user?.name}</Text>
-              <Text>{user?.role}</Text>
+              <Text>{user?.role.join(", ")}</Text>
             </View>
             <View style={styles1.buttonContainer}>
               <TouchableOpacity onPress={() => logout()}>
@@ -97,9 +97,14 @@ const DashBoardScreen = ({navigation}) => {
             <View style={styles1.spacing}>
               <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("addPackage")}/>
             </View>
-            <View style={styles1.spacing}>
-              <Button title="Users" style={styles1.navBtns} onPress={() => navigation.navigate("addUser")}/>
-            </View>
+            {
+              role.includes("admin") ? 
+                <View style={styles1.spacing}>
+                  <Button title="Users" style={styles1.navBtns} onPress={() => navigation.navigate("addUser")}/>
+                </View> : 
+                <>
+                </>
+            }
           </View>
             {/* <View style = {styles.searchBox}>
               <TextInput style={styles.inputStyle} placeholder="Enter barcode" onChangeText={setBarcode}/>

@@ -295,7 +295,7 @@ const AppNavigator = () => {
     let content;
     if(isLoggedIn) {
       content = <MainUserTabsNavigator />
-      if(role === "admin") {
+      if(role.includes("admin")) {
         content = <AdminTabsNavigator />
       }
     } else {

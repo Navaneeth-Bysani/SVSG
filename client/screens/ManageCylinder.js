@@ -94,13 +94,13 @@ const ManageCylinder = ({navigation}) => {
         <>
             <ScrollView>
                 <View style={styles.headRow}>
-                    {(role === "admin") && <View style={styles.headRowItem}>
+                    {(role.includes("admin")) && <View style={styles.headRowItem}>
                         <TouchableOpacity onPress={() => navigation.navigate("addcylinder")}>
                             <Ionicons name="add" size={50} color="black" />
                         </TouchableOpacity>
                     </View>}
                     
-                    {(role === "admin") && <View style={styles.headRowItem}>
+                    {(role.includes("admin")) && <View style={styles.headRowItem}>
                         <TouchableOpacity onPress={() => navigation.navigate("addFile")}>
                             <MaterialCommunityIcons name="microsoft-excel" size={50} color="black" />
                         </TouchableOpacity>

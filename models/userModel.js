@@ -10,11 +10,11 @@ const userSchema = new Schema(
     name: {
       type: String,
     },
-    role: {
+    role: [{
       type: String,
       enum: ["admin", "filler", "tester", "pickup"],
       required: true,
-    },
+    }],
     picture: String,
     isSignedUp : {
       type : Boolean,

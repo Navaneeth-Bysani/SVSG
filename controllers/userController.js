@@ -28,21 +28,37 @@ exports.addUser = catchAsync(async (req,res,next) => {
     });
 });
 
+function isSubarray(subarray, array) {
+    const subarraySet = new Set(subarray);
+    const arraySet = new Set(array);
+  
+    for (const element of subarraySet) {
+      if (!arraySet.has(element)) {
+        return false;
+      }
+    }
+  
+    return true;
+}
+
 exports.changeRole = catchAsync(async (req,res,next) => {
     const {newRole} = req.body;
     const {email} = req.body;
 
     const user = await User.findOne({email});
 
-    if(user.role === "admin") {
+    if(user.role.includes("admin")) {
         res.status(400).json({
             "message" : "Can't change the role of admin directly"
         });
         return;
     }
-    if(!roles.includes(newRole)) {
+    
+
+    if(!isSubarray(newRole, roles)){
         return next (new AppError("give some role among : admin, store", 400));
     }
+
     const updatedUser = await User.findByIdAndUpdate(user._id, {role : newRole}, {new : true});
 
     if(!updatedUser) {
@@ -107,7 +123,7 @@ exports.addUserManual = catchAsync(async(req,res,next) => {
 
 exports.deleteUser = catchAsync(async(req, res) => {
     const user = await User.findOne({email: req.params.email});
-    if(user?.role === "admin") {
+    if(user.role.includes("admin")) {
         res.status(400).json({
             "message:" : "Can't delete an admin user directly"
         });
