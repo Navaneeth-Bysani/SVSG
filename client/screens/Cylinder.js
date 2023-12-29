@@ -7,10 +7,11 @@ import { Button, TextInput } from "react-native-paper";
 import axios from "../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
 import * as Location from 'expo-location';
+import Loader from "./../components/Loader";
 
 const CylinderScreen = ({navigation, route}) => {
     const { user, authToken } = useAuthContext();
-    const cylinder = route.params.cylinder;
+    const [cylinder, setCylinder] = useState(route.params.cylinder);
     const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status", "Tare Weight", "Test Due Date", "Minimum thickness", "Usage", "Valve", "Valve gaurd"];
     const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status, cylinder.tare_weight, cylinder.test_due_date, cylinder.minimum_thickness, cylinder.usage, cylinder.valve, cylinder.valve_gaurd];
     
@@ -42,8 +43,10 @@ const CylinderScreen = ({navigation, route}) => {
     const [showBilledDropDown, setShowBilledDropDown] = useState(false);
     const [companies, setCompanies] = useState([]);
 
+
+    const [loading, setLoading] = useState(false);
+
     useEffect(()=> {
-        // Alert.alert(JSON.stringify(cylinder.actions))
         const getClients = async () => {
             try {
                 const data = await axios.get("/client", {
@@ -119,6 +122,18 @@ const CylinderScreen = ({navigation, route}) => {
         getRole();
       }, []);
 
+    useEffect(() => {
+        axios
+        .get(`/cylinder/barcode/${cylinder.barcode}`)
+        .then((data) => {
+            setCylinder(data.data.data);
+        })
+        .catch(err => {
+            console.error(err);
+        });
+
+    }, []);
+
     const onChangeQuantity = (text) => {
         let newText = '';
         let numbers = '0123456789';
@@ -141,6 +156,7 @@ const CylinderScreen = ({navigation, route}) => {
         try {
 
             const newQuantity = 1*quantity;
+            setLoading(true);
             const data = await axios.patch(`/material/barcode/store/${materialBarcode}`, {
                 type,
                 quantity : newQuantity,
@@ -153,12 +169,13 @@ const CylinderScreen = ({navigation, route}) => {
                 },
             }
             );
-
+            setLoading(false);
             const resData = data.data;
             if(data.status === 200) {
                 navigation.navigate("transactionSuccess", {data : resData})
             }
         } catch(error) {
+            setLoading(false);
             console.error(error);
         }
     }
@@ -192,18 +209,21 @@ const CylinderScreen = ({navigation, route}) => {
 
     const handleTestedSubmit =  async() => {
         try {
+            setLoading(true);
             const testedRespone = await axios.patch(`/cylinder/tester/barcode/${cylinder.barcode}`, {}, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
                   Accept: "application/json",
                 },
             });
+            setLoading(false);
             if(testedRespone.status === 200) {
                 Alert.alert("Test date updated successfully");
                 navigation.navigate("cylinder", {cylinder : testedRespone.data.data});
                 setSelectedActionType("");
             }
         } catch (error) {
+            setLoading(false);
             Alert.alert("Something went wrong!");
             console.error(error);
         }
@@ -217,6 +237,7 @@ const CylinderScreen = ({navigation, route}) => {
         };
 
         try {
+            setLoading(true);
             const updated = await axios.patch(`/cylinder/filler/barcode/${cylinder.barcode}`, body, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
@@ -224,21 +245,23 @@ const CylinderScreen = ({navigation, route}) => {
                 },
             });
     
+            setLoading(false);
             if(updated.status === 200) {
                 Alert.alert("Cylinder filling entry marked successfully");
-                navigation.navigate("cylinder", {cylinder : updated.data.updated});
+                // navigation.navigate("cylinder", {cylinder : updated.data.updated});
+                setCylinder(updated.data.updated);
                 setSelectedActionType("");
             } else  {
                 Alert.alert("Something went wrong");
             }
-        } catch (error) {    
+        } catch (error) {   
+            setLoading(false); 
             Alert.alert("Either the cylinder is already full or something went wrong");
             console.error(error);
         }
         
     }
     const handleInputSubmit = async () => {
-        // Alert.alert(`${transactionType}-${quantity}-${manufacturerCertificateAvailable} -${sveTested}`);
         
         try {
             const orderDetails = {
@@ -286,6 +309,7 @@ const CylinderScreen = ({navigation, route}) => {
                 location
             };
 
+            setLoading(true);
             const pickUpData = await axios.patch(`/cylinder/pickup/barcode/${cylinder.barcode}`, body , {
                     headers: {
                         "Accept": 'application/json',
@@ -293,11 +317,11 @@ const CylinderScreen = ({navigation, route}) => {
                     }
             });
             
+            setLoading(false);
             if(pickUpData.status === 200) {
                 Alert.alert("Cylinder pickup updated successfully");
-                Alert.alert(JSON.stringify(pickUpData.data.fetchedCylinder.trackingStatus));
-                navigation.navigate("cylinder", {cylinder : pickUpData.data.fetchedCylinder});
                 setSelectedActionType("");
+                setCylinder(pickUpData.data.cylinder);
             } else  {
                 Alert.alert("Something went wrong");
             }
@@ -311,8 +335,8 @@ const CylinderScreen = ({navigation, route}) => {
 
     return (
         <ScrollView>
+        <Loader loading={loading}/>
         <View style={styles.container}>
-            
             {actionTypes.length != 0 ? (
                 <>
                 <Text>Select Action Type</Text>
@@ -376,8 +400,8 @@ const CylinderScreen = ({navigation, route}) => {
             {selectedActionType === "pickup" && cylinder.trackingStatus === 0 ? <Text>Cylinder is empty, fill it first to dispatch</Text> : <></>}
             {selectedActionType === "pickup" && cylinder.trackingStatus !== 0 ? (
                 <>
-                    
-                    {cylinder.actions?.map((el, idx) =><><Text>{idx+1}. {el}{"\n\n"}</Text></>)}
+                    <Text>The current tracking status for this cylinder</Text>
+                    {cylinder.actions?.map((el, idx) =><Text key={idx}>{idx+1}. {`Cylinder ${el.action} at ${el.date} and ${el.time} by ${el.performedBy} from (${el.latitude},${el.longitude})`}{"\n\n"}</Text>)}
                     
                     {cylinder.trackingStatus === 1 ? 
                     <>
@@ -390,12 +414,15 @@ const CylinderScreen = ({navigation, route}) => {
                     </> : 
                     <>
                     </>}
+                    
                     <Text>Click the submit button to move the cylinder to next stage</Text>
                    <Button
                         title = "Submit"
                         onPress={handlePickupSubmit}>
                             Submit
                     </Button> 
+
+                    
                 </>
             ) : <></>}
             <View>
@@ -415,6 +442,10 @@ const CylinderScreen = ({navigation, route}) => {
                     <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
                 </TableWrapper>
         </Table> 
+
+        <View>
+            <Text>Current transaction status</Text>
+        </View>
         </View>
 
 
@@ -430,7 +461,12 @@ const styles = StyleSheet.create({
     wrapper: { flexDirection: 'row' },
     title: { flex: 1, backgroundColor: '#f6f8fa' },
     row: {  height: 28  },
-    text: { textAlign: 'center' }
+    text: { textAlign: 'center' },
+    mapContainer: { flex: 1 },
+    map: {
+        width: '100%',
+        height: '100%',
+    }
 });
 
 export default CylinderScreen;

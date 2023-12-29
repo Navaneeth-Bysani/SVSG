@@ -378,6 +378,15 @@ exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
 
     const currentDate = getIndianDateTimeFromTimeStamp(Date.now());
 
+    const trackingData = {
+        date: currentDate.date,
+        time: currentDate.time,
+        performedBy: req.user.email,
+        latitude: latitude,
+        longitude: longitude,
+        action: ""
+    }
+
     if(trackingStatus === 1) {
         const billId = req.body.billId;
         if(!billId) {
@@ -385,10 +394,13 @@ exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
                 "message" : "Bad request, need billId"
             })
         }
-        const trackingString = `Cylinder dispatched with ${billId} at ${currentDate.date}, ${currentDate.time} by ${req.user.email} from (${latitude},${longitude})`;
+        // const trackingString = `Cylinder dispatched with bill id - ${billId} at ${currentDate.date}, ${currentDate.time} by ${req.user.email} from (${latitude},${longitude})`;
+        
+        trackingData.action = "dispatched";
         const tracking = await Tracking.create({
             cylinderId : cylinder._id,
-            actions: [trackingString]
+            billId: billId,
+            actions: [trackingData]
         });
         cylinder.currentTrackId = tracking._id;
         cylinder.isDispatched = true;
@@ -396,36 +408,44 @@ exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
         await cylinder.save();
     } else if(trackingStatus === 2) {
         const tracking = await Tracking.findById(cylinder.currentTrackId);
-        const trackingString = `Cylinder reached the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
-        tracking.actions.push(trackingString);
+        // const trackingString = `Cylinder reached the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        trackingData.action = "arrived at destination";
+        tracking.actions.push(trackingData);
         await tracking.save();
         cylinder.trackingStatus = 3;
         await cylinder.save();
     } else if(trackingStatus === 3) {
         const tracking = await Tracking.findById(cylinder.currentTrackId);
-        const trackingString = `Cylinder picked up from the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
-        tracking.actions.push(trackingString);
+        // const trackingString = `Cylinder picked up from the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        trackingData.action = "picked up from destination"
+        tracking.actions.push(trackingData);
         await tracking.save();
         cylinder.status = "empty";
         cylinder.trackingStatus = 4;
         await cylinder.save();
     } else if(trackingStatus === 4) {
         const tracking = await Tracking.findById(cylinder.currentTrackId);
-        const trackingString = `Cylinder reached SVSG at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
-        tracking.actions.push(trackingString);
+        // const trackingString = `Cylinder reached SVSG at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        trackingData.action = "reached SVSG";
+        tracking.actions.push(trackingData);
         await tracking.save();
         cylinder.isDispatched = false;
         cylinder.trackingStatus = 0;
+        cylinder.currentTrackId = null;
         await cylinder.save();
     }
 
-    const fetchedCylinder = await Cylinder.findOne(cylinder._id).populate("currentTrackId");
+    const fetchedCylinder = await Cylinder.findById(cylinder._id).populate("currentTrackId");
+
     return res.status(200).json({
         "message" : "updated cylinder",
-        fetchedCylinder
+        cylinder: format_cylinder_response(fetchedCylinder)
     })
 })
 
+const format_trackings = (el) => {
+    return `Cylinder ${el.action} at ${el.date} and ${el.time} by ${el.performedBy} from (${el.latitude},${el.longitude})`
+}
 exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
     // console.log(req.query);
     // let filter = {barcode : req.query.barcode, _id : req.query.materialId};
@@ -455,10 +475,10 @@ exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
        
         return {
             sno : idx+1,
-            action1 : tracking.actions.length > 0 ? tracking.actions[0] : "-",
-            action2 : tracking.actions.length > 1 ? tracking.actions[1] : "-",
-            action3 : tracking.actions.length > 2 ? tracking.actions[2] : "-",
-            action4 : tracking.actions.length > 3 ? tracking.actions[3] : "-"
+            action1 : tracking.actions.length > 0 ? format_trackings(tracking.actions[0]) : "-",
+            action2 : tracking.actions.length > 1 ? format_trackings(tracking.actions[1]) : "-",
+            action3 : tracking.actions.length > 2 ? format_trackings(tracking.actions[2]) : "-",
+            action4 : tracking.actions.length > 3 ? format_trackings(tracking.actions[3]) : "-"
         }
     });
 
