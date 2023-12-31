@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, ImageBackground, Pressable, ScrollView, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable, ScrollView, Alert, Linking } from "react-native";
 import stylesModule from "./Cylinder.module.css";
 import { Table, Row, Rows, TableWrapper, Col } from 'react-native-table-component';
 import DropDown from "react-native-paper-dropdown";
@@ -333,6 +333,36 @@ const CylinderScreen = ({navigation, route}) => {
 
     }
 
+    const generateGoogleMapsLink = (locations) => {
+        if (!locations || locations.length === 0) {
+          // Handle the case when the array is empty or undefined
+          return 'https://www.google.com/maps';
+        }
+      
+        if (locations.length === 1) {
+          // If there is only one location, generate a link pointing to that location
+          const singleLocation = locations[0];
+          const { latitude, longitude } = singleLocation;
+          return `https://www.google.com/maps/@?api=1&map_action=map&center=${latitude},${longitude}&zoom=15`;
+        }
+      
+        // If there are multiple locations, generate a link with directions
+        const origin = locations[0];
+        const destination = locations[locations.length - 1];
+        const waypoints = locations.slice(1, -1);
+      
+        const originStr = `${origin.latitude},${origin.longitude}`;
+        const destinationStr = `${destination.latitude},${destination.longitude}`;
+        const waypointsStr = waypoints.map(wp => `${wp.latitude},${wp.longitude}`).join('|');
+      
+        return `https://www.google.com/maps/dir/?api=1&origin=${originStr}&destination=${destinationStr}&waypoints=${waypointsStr}`;
+    }
+    const handleLinkPress = (url) => {
+        // Define the URL you want to open
+    
+        // Open the URL using the Linking module
+        Linking.openURL(url).catch((err) => console.error('An error occurred', err));
+    };
     return (
         <ScrollView>
         <Loader loading={loading}/>
@@ -402,7 +432,10 @@ const CylinderScreen = ({navigation, route}) => {
                 <>
                     <Text>The current tracking status for this cylinder</Text>
                     {cylinder.actions?.map((el, idx) =><Text key={idx}>{idx+1}. {`Cylinder ${el.action} at ${el.date} and ${el.time} by ${el.performedBy} from (${el.latitude},${el.longitude})`}{"\n\n"}</Text>)}
-                    
+                    {/* https://www.google.com/maps/dir/?api=1&origin=37.7749,-122.4194&destination=34.0522,-118.2437&waypoints=41.8781,-87.6298|40.7128,-74.0060 */}
+                    {cylinder.actions !== 0 ? <Text style={styles.link} onPress={() => handleLinkPress(generateGoogleMapsLink(cylinder.actions))}>
+                        Open in maps
+                    </Text> : <></>}
                     {cylinder.trackingStatus === 1 ? 
                     <>
                         <Text>Enter the Bill Id</Text>
@@ -466,7 +499,11 @@ const styles = StyleSheet.create({
     map: {
         width: '100%',
         height: '100%',
-    }
+    },
+    link: {
+        color: 'blue',
+        textDecorationLine: 'underline',
+    } 
 });
 
 export default CylinderScreen;

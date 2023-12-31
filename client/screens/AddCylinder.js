@@ -40,16 +40,6 @@ const AddCylinderScreen = ({navigation}) => {
             padTo2Digits(manufactured_date.getDate()),
           ].join('-');
 
-        const test_due_date = new Date(manufactured_date);
-        //Fixed 5 years increment
-        test_due_date.setFullYear(test_due_date.getFullYear() + 5);
-        
-        const formatted_test_due_date = [
-            test_due_date.getFullYear(),
-            padTo2Digits(test_due_date.getMonth() + 1),
-            padTo2Digits(test_due_date.getDate()),
-          ].join('-');
-
         const material = {
             barcode,
             serial_number,
@@ -61,7 +51,6 @@ const AddCylinderScreen = ({navigation}) => {
             branch,
             filling_pressure,
             tare_weight,
-            test_due_date: formatted_test_due_date,
             minimum_thickness,
             usage,
             valve,

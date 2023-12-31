@@ -17,6 +17,12 @@ const getIndianDateTimeFromTimeStamp = (timestamp) => {
     return {date, time};
 }
 
+const increaseYearBy5 = (date) => {
+    const new_date = new Date(date);
+    new_date.setFullYear(new_date.getFullYear()+5);
+    return new_date;
+}
+
 const createOneEntity = async(data) => {
     try {
         if(!data.owner) {
@@ -34,6 +40,8 @@ const createOneEntity = async(data) => {
         return null;
     }
 }
+
+
 
 exports.createOne = catchAsync(async (req,res,next) => {
     console.log("here");
@@ -64,7 +72,7 @@ exports.createOne = catchAsync(async (req,res,next) => {
         manufacturer,
         filling_pressure,
         tare_weight,
-        test_due_date,
+        test_due_date : req.body.test_due_date ? test_due_date : increaseYearBy5(manufactured_date),
         minimum_thickness,
         usage,
         owner,
@@ -532,11 +540,7 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
     const filename = req.file.filename;
 
     let repeated_barcodes = "";
-    const increaseYearBy5 = (date) => {
-        const new_date = new Date(date);
-        new_date.setFullYear(new_date.getFullYear()+5);
-        return new_date;
-    }
+    
 
     let repeated_length = 0;
     let repeated_barcodes_data = await readXlsxFile(`uploads/${filename}`).then(async (rows) => {
