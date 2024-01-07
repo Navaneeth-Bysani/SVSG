@@ -3,8 +3,8 @@ const PermanentPackage = require("./../models/permanentPackageModel");
 const Cylinder = require("./../models/cylinderModel");
 
 exports.createOne = catchAsync(async(req, res, next) => {
-    const {barcode, serial_number, test_date} = req.body;
-    const permanentPackageData = {barcode, serial_number, test_date};
+    const {barcode, serial_number, test_date, number_of_cylinders} = req.body;
+    const permanentPackageData = {barcode : barcode.toLowerCase(), serial_number, test_date, number_of_cylinders};
     const permanentPackage = await PermanentPackage.create(permanentPackageData);
 
     res.status(201).json({
@@ -43,7 +43,7 @@ exports.getOneByBarCode = catchAsync(async (req,res) => {
 });
 
 exports.deleteOneByBarcode = catchAsync(async (req,res,next) => {
-    const barcode = req.params.barcode;
+    const barcode = req.params.barcode.toLowerCase();
     await PermanentPackage.deleteOne({barcode});
 
     res.status(204).json({
@@ -79,7 +79,7 @@ function getNextMonthFirstDayTimestamp() {
 
 exports.updateCylindersofOneByBarcode = catchAsync(async (req,res,next) => {
     console.log("Came till here");
-    const barcode = req.params.barcode;
+    const barcode = req.params.barcode.toLowerCase();
     const package = await PermanentPackage.findOne({barcode});
 
     const cylinders = req.body.cylinders || package.cylinders;

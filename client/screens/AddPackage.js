@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, ScrollView, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, TextInput, ScrollView, Alert, TouchableOpacity } from "react-native";
 import DropDown from "react-native-paper-dropdown";
 import styles from "./AddCylinder.module.css";
 import useAuthContext from "../hooks/useAuthContext"
 import {useState} from "react";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from "../utils/axios";
+import Loader from "../components/Loader";
 
 const AddPackageScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -13,8 +15,12 @@ const AddPackageScreen = ({navigation}) => {
 
     const [ barcode, setBarcode ] = useState("");
     const [ serial_number, setSerialNumber] = useState("");
-    const [ test_date, set_test_date ] = useState("");
+    const [ test_date, set_test_date ] = useState(new Date());
+    const [ noOfCylinders, setNoOfCylinders] = useState(0);
 
+    const [ showDatePicker, setShowDatePicker] = useState(false);
+
+    const [ loading, setLoading ] = useState(false);
 
     const packageTypes = [
         {label : "Permanent", value : "permanent"},
@@ -22,13 +28,24 @@ const AddPackageScreen = ({navigation}) => {
     ];
 
     const handleSubmit = () => {
+        function padTo2Digits(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        const formatted_test_date = [
+            test_date.getFullYear(),
+            padTo2Digits(test_date.getMonth() + 1),
+            padTo2Digits(test_date.getDate()),
+        ].join('-');
         const packageData = {
             barcode,
             serial_number,
-            test_date
+            test_date : formatted_test_date,
+            number_of_cylinders : noOfCylinders
         };
         console.log(packageData);
         if(packageType === "permanent") {
+            setLoading(true);
             axios.post("/package/permanent", packageData , {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -36,10 +53,11 @@ const AddPackageScreen = ({navigation}) => {
                 },
             }).then((data) => {
                 Alert.alert(`Permanent package has been created with barcode ${barcode}`);
-    
-                navigation.navigate("addCylindersToPackage", {packageType, barcode});
+                setLoading(false);
+                navigation.navigate("addCylindersToPackage", {packageType, barcode, noOfCylinders});
             }).catch(error => {
                 console.error(error);
+                setLoading(false);
                 Alert.alert("something went wrong");
             })
         }
@@ -62,9 +80,14 @@ const AddPackageScreen = ({navigation}) => {
         setFun(text);
     }
     
+    const datePicked = (event, date) => {
+        setShowDatePicker(false);
+        set_test_date(date);
+    }
     return (
         <ScrollView>
         <View style={stylesText.container}>
+        <Loader loading={loading}/>
         <DropDown
                 label={"Select"}
                 mode={"outlined"}
@@ -81,13 +104,37 @@ const AddPackageScreen = ({navigation}) => {
             
 
                 <Text>barcode (case sensitive)</Text>
-                <TextInput  placeholder="Enter Barcode" onChangeText={setBarcode} style={styles.inputStyle}/>
+                <TextInput  placeholder="Enter Barcode" onChangeText={setBarcode} style={stylesText.inputField}/>
 
                 <Text>Serial Number</Text>
-                <TextInput  placeholder="Enter Serial Number" onChangeText={setSerialNumber} style={styles.inputStyle}/>
+                <TextInput  placeholder="Enter Serial Number" onChangeText={setSerialNumber} style={stylesText.inputField}/>
 
                 <Text>Test date</Text>
-                <TextInput  placeholder="Enter Test Date in YYYY-MM-DD format" onChangeText={set_test_date} style={styles.inputStyle}/>
+                {showDatePicker && <DateTimePicker mode="date" value={test_date} onChange={datePicked} display="default" is24Hour={true}/>}
+                <TouchableOpacity onPress={() => setShowDatePicker(!showDatePicker)}>
+                    <TextInput  placeholder="Select Date" style={stylesText.inputField} editable={false} value={test_date.toDateString()}/>
+                </TouchableOpacity>
+
+                {
+                    packageType === "permanent" ? 
+                    (<>
+                        <Text>Number of cylinders</Text>
+                        <TextInput  
+                            placeholder="Enter number of cylinders" 
+                            onChangeText={(text) => {
+                                // Allow only numeric input
+                                const numericValue = text.replace(/[^0-9]/g, '');
+                                setNoOfCylinders(1*numericValue);
+                            }} 
+                            style={stylesText.inputField}
+                            keyboardType="numeric"
+                        />
+                    </>)
+                    : 
+                    <>
+                    </>
+                }
+               
 
                 <Button
                     title = "Add Package"
@@ -115,7 +162,15 @@ const stylesText = StyleSheet.create({
     wrapper: { flexDirection: 'row' },
     title: { flex: 1, backgroundColor: '#f6f8fa' },
     row: {  height: 28  },
-    text: { textAlign: 'center' }
+    text: { textAlign: 'center' },
+    inputField: {
+        borderWidth: 2,
+        borderRadius: 4,
+        alignItems: "center",
+        height: 50,
+        padding: 10,
+        marginBottom: 10
+    }
 });
 
 export default AddPackageScreen;

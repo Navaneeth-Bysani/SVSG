@@ -23,16 +23,10 @@ export default function QRCodeScanner({navigation}) {
       // Alert.alert(data);
       const content = await axios.get(`/cylinder/barcode/${data}`);
       const cylinder = content.data.data;
-      navigation.navigate("cylinder", {cylinder : cylinder});
-
-
-    
-      
-      
-        
-      } catch (error) {
-        console.error(error);
-      }
+      navigation.navigate("cylinder", {cylinder : cylinder});  
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (hasPermission === null) {

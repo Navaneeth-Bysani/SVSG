@@ -1,97 +1,128 @@
 import { View, StyleSheet, Text, TextInput, Button, ScrollView, Alert } from "react-native";
 import {useState, useEffect} from "react";
-import styles from "./AddCylinder.module.css";
-import AddCylinderToPackageCard from "../components/AddCylinderToPackageCard";
 import useAuthContext from "../hooks/useAuthContext"
 import axios from "../utils/axios";
-
-const validateNumber = (text, setFun) => {
-    let newText = '';
-    let numbers = '0123456789';
-
-    for (var i=0; i < text.length; i++) {
-        if(numbers.indexOf(text[i]) > -1 ) {
-            newText = newText + text[i];
-        }
-        else {
-            Alert.alert("please enter numbers only");
-        }
-    }
-
-    setFun(1*text);
-}
+import DropDown from "react-native-paper-dropdown";
+import Loader from "../components/Loader";
+import ScanMultipleQR from "../components/ScanMultipleQR";
 
 const AddCylindersToPackage = ({navigation, route}) => {
-    const [noCylinders, setNoOfCylinders] = useState(0);
-    const [finalNoCylinders, setFinalNoCylinders] = useState(0);
-    const packageType = route.params.packageType;
+    
+
+    // Extracting route params
+    const {packageType, barcode, noOfCylinders} = route.params;
+
+    // Related to drop down window
+    const [inputType, setInputType] = useState("");
+    const [showDropDown, setShowDropDown] = useState(false);
+
+    // Related to loading
+    const [loading, setLoading] = useState(false);
+
+    // Setting necessary state variables
     const [cylinders, setCylinders] = useState([]);
 
-    const {user, authToken, logout} = useAuthContext();
+    // Auth context for authorization
+    const {authToken} = useAuthContext();
+
     useEffect(() => {
-        if(route.params.packageType === "temporary") {
-            setFinalNoCylinders(15);
-        }
-        setCylinders([]);
-    }, [])
-
-    const addBarcodes = (index, barcode) => {
-        if(index >= finalNoCylinders) {
-            Alert.alert("out of range");
-        }
-        const temp = [...cylinders];
-        temp[index].barcode = barcode;
-        setCylinders(temp);
-    }
-
-    const cylindersAdded = () => {
-        setFinalNoCylinders(noCylinders);
-        setCylinders(Array(noCylinders).fill({barcode:""}));
-    }
+        // Update the cylinders array when noOfCylinders changes
+        const newCylinders = Array.from({ length: noOfCylinders }, (_, index) => "");
+        setCylinders(newCylinders);
+    }, [noOfCylinders]);
 
     const addCylinders = () => {
-        // Alert.alert(route.params.barcode);
-        // axios.patch(`/package/permananet/barcode/cylinders/${route.params.barcode}`, {cylinders, number_of_cylinders: noCylinders}, {
-        //     headers: {
-        //         Authorization: `Bearer ${authToken}`,
-        //         Accept: "application/json",
-        //     }
-        // }).then(() => {
-        //     Alert.alert("Cylinders added succesfully");
-        // }).catch((err) => {
-        //     console.error(err);
-        //     Alert.alert("Something went wrong");
-        // })
-        Alert.alert(cylinders.map(cylinder => cylinder.barcode).join(","));
+        Alert.alert(barcode);
+        setLoading(true);
+        axios.patch(`/package/permanent/barcode/cylinders/${barcode}`, {cylinders, number_of_cylinders: noOfCylinders}, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                Accept: "application/json",
+            }
+        }).then(() => {
+            setLoading(false);
+            Alert.alert("Cylinders added succesfully");
+        }).catch((err) => {
+            console.error(err);
+            setLoading(false);
+            Alert.alert("Something went wrong");
+        })
+    }
+
+    const inputTypes = [
+        {label: "Scan QR", value: "qr"},
+        {label: "Enter Barcodes", value: "manual"}
+    ]
+
+    const barcodeChanged = (index, value) => {
+        setCylinders((prevCylinders) => {
+            const newCylinders = [...prevCylinders];
+            newCylinders[index] = value;
+            return newCylinders;
+        });
+    }
+
+    const addScannedCylinder = (barcode, idx) => {
+        setCylinders((prevCylinders) => {
+            const temp = [...prevCylinders];
+            temp[idx] = barcode;
+            return temp;
+        });
     }
     return (
         <View style={stylesText.container}>
             <ScrollView>
-                {
-                    packageType === "permanent" ? (
+                <Loader loading={loading}/>
+                <Text>{`Taking input for ${noOfCylinders}`}</Text>
+                <View>
+                    <Text>How do you want to enter the data</Text>
+                    <View>
+                        <DropDown
+                            label={"Select"}
+                            mode={"outlined"}
+                            value={inputType}
+                            setValue={setInputType}
+                            list={inputTypes}
+                            visible={showDropDown}
+                            showDropDown={() => setShowDropDown(true)}
+                            onDismiss={() => setShowDropDown(false)}
+                            style={{ backgroundColor: 'white' }}
+                            />
+                    </View>
+                </View>
+                <View>
+                    {
+                        inputType === "manual" ? (<View>
+                                <Text>Cylinder data</Text>
+                                {cylinders.map((el, idx) => (
+                                    <View key={idx}>
+                                        <Text>{`Cylinder ${idx+1}`}</Text>
+                                        <TextInput  placeholder="Enter Barcode" onChangeText={(data) => barcodeChanged(idx, data)} style={stylesText.inputField}/>   
+                                    </View>
+                                ))}
+                                <Button title="Add Barcodes" onPress={addCylinders}>
+                                    Add Barcodes
+                                </Button>
+                            </View>
+                         ):( <></>)
+                    }
+                    {
+                        inputType === "qr" ? (
                         <>
-                            <Text>Number of cylinder</Text>
-                            <TextInput  placeholder="Enter Number of Cylinders" onChangeText={(text) => validateNumber(text, setNoOfCylinders)} style={styles.inputStyle}/>
-                            <Button
-                                title={"Add"}
-                                onPress={cylindersAdded}
-                            >
-                                Add
-                            </Button>
-                            {cylinders.map((cylinder, idx) => (
-                                <AddCylinderToPackageCard key={idx} barcode={cylinder.barcode} index={idx} addBarcodes={addBarcodes} />
-                            ))}
-
-                            {cylinders.length !== 0 ? 
-                            (<Button
-                                title="submit"
+                            <ScanMultipleQR 
+                                noOfItems={noOfCylinders} 
+                                setItems={addScannedCylinder}
+                                style={{ width : 100, height : 100}}
+                            />
+                            {cylinders.map((cylinder, idx) => <Text key={idx}>{cylinder}</Text>)}
+                            <Button 
+                                title="Add Cylinders"
                                 onPress={addCylinders}
-                            >
-                                submit
-                            </Button>) : <></>}
-                        </>
-                    ) : <></>
-                }
+                            />
+                         </>
+                        ) : (<></>)
+                    }
+                </View>
             </ScrollView>
         </View>
     )
@@ -103,7 +134,15 @@ const stylesText = StyleSheet.create({
     wrapper: { flexDirection: 'row' },
     title: { flex: 1, backgroundColor: '#f6f8fa' },
     row: {  height: 28  },
-    text: { textAlign: 'center' }
+    text: { textAlign: 'center' },
+    inputField: {
+        borderWidth: 2,
+        borderRadius: 4,
+        alignItems: "center",
+        height: 50,
+        padding: 10,
+        marginBottom: 10
+    }
 });
 
 export default AddCylindersToPackage;
