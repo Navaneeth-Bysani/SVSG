@@ -5,6 +5,7 @@ const cors = require("cors");
 app.use(express.json());
 
 const cylinderRouter = require("./routes/cylinderRoutes");
+const duraCylinderRouter = require("./routes/duraCylinderRoutes");
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const orderRouter = require("./routes/orderRoutes");
@@ -24,9 +25,11 @@ app.get("/api/v1", (req,res,next) => {
     res.status(200);
 })
 app.use("/api/v1/cylinder", cylinderRouter);
+app.use("/api/v1/duracylinder", duraCylinderRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/client", clientRouter);
-app.use("/api/v1/package/permanent", permanentPackageRouter)
+app.use("/api/v1/package/permanent", permanentPackageRouter);
+
 module.exports = app;
