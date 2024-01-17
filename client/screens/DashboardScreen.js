@@ -101,6 +101,9 @@ const DashBoardScreen = ({navigation}) => {
               <Button title="Cylinders" style={styles1.navBtns} onPress={() => navigation.navigate("manageCylinder")}/>
             </View>
             <View style={styles1.spacing}>
+              <Button title="Dura Cylinders" style={styles1.navBtns} onPress={() => navigation.navigate("manageDuraCylinder")}/>
+            </View>
+            <View style={styles1.spacing}>
               <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("addPackage")}/>
             </View>
             {

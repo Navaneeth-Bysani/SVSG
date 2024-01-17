@@ -14,7 +14,11 @@ import {
   AddUserScreen,
   ManageCylinder,
   AddPackageScreen,
-  AddCylindersToPackageScreen
+  AddCylindersToPackageScreen,
+  ManageDuraCylinder,
+  DuraCylinderScreen,
+  AddDuraCylinderScreen,
+  AddDuraCylinderFileScreen
 } from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
@@ -141,6 +145,14 @@ const AppNavigator = () => {
             />
 
             <MainTabs.Screen
+              name="duracylinder"
+              component={DuraCylinderScreen}
+              options={{
+                title: "Dura Cylinder"
+              }}
+            />
+
+            <MainTabs.Screen
               name="transactionSuccess"
               component={TransactionSuccessScreen}
               options={{
@@ -157,10 +169,26 @@ const AppNavigator = () => {
             />
 
             <MainTabs.Screen
+              name="addDuraFile"
+              component={AddDuraCylinderFileScreen}
+              options={{
+                title: "Add bulk dura cylinders"
+              }}
+            />
+
+            <MainTabs.Screen
               name="manageCylinder"
               component={ManageCylinder}
               options={{
                 title: "Manage Cylinders"
+              }}
+            />
+
+            <MainTabs.Screen
+              name="manageDuraCylinder"
+              component={ManageDuraCylinder}
+              options={{
+                title: "Manage Dura Cylinders"
               }}
             />
           </MainTabs.Navigator>
@@ -199,6 +227,14 @@ const AppNavigator = () => {
             }}
           />
 
+        <AdminTabs.Screen
+            name="addDuraCylinder"
+            component={AddDuraCylinderScreen}
+            options={{
+              title: "Add Dura Cylinder"
+            }}
+          />
+
           {/* <AdminTabs.Screen
               name="home"
               component={HomeScreen}
@@ -233,6 +269,14 @@ const AppNavigator = () => {
             />
 
             <AdminTabs.Screen
+              name="duracylinder"
+              component={DuraCylinderScreen}
+              options={{
+                title: "Dura Cylinder"
+              }}
+            />
+
+            <AdminTabs.Screen
               name="transactionSuccess"
               component={TransactionSuccessScreen}
               options={{
@@ -245,6 +289,14 @@ const AppNavigator = () => {
               component={AddFileScreen}
               options={{
                 title: "Add bulk cylinders"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="addDuraFile"
+              component={AddDuraCylinderFileScreen}
+              options={{
+                title: "Add bulk dura cylinders"
               }}
             />
 
@@ -269,6 +321,14 @@ const AppNavigator = () => {
               component={ManageCylinder}
               options={{
                 title: "Manage Cylinders"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="manageDuraCylinder"
+              component={ManageDuraCylinder}
+              options={{
+                title: "Manage Dura Cylinders"
               }}
             />
 

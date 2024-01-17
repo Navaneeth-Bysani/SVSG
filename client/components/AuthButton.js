@@ -27,7 +27,6 @@ const AuthButton = () => {
 
       });
       useEffect(() => {
-        // console.log({ response });
         if (response?.type === "success") {
           setToken(response.authentication.accessToken);
           getUserInformation(response.authentication.accessToken);

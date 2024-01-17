@@ -191,6 +191,7 @@ exports.getOneByBarCode = catchAsync(async (req,res) => {
     const data = await DuraCylinder.findOne({barcode}).populate("currentTrackId");
 
     if(!data) {
+        console.log("Not found");
         res.status(404).json({
             "message" : "Unable to find anything with this barcode"
         })
@@ -576,8 +577,8 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
 
         const promises = rows.map(async element => {
             let obj = {
-                barcode : element[0],
-                serial_number: element[1],
+                barcode : element[0].toLowerCase(),
+                serial_number: element[1].toLowerCase(),
                 product_code: element[2],
                 volume: element[3],
                 manufactured_date: element[4],
@@ -596,8 +597,7 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
                 pressure_gauge: element[16],
                 make: element[17],
                 frame: element[18],
-                adaptor: element[19] 
-                
+                adaptor: element[19]
             }
             data.push(obj);
             console.log(obj);

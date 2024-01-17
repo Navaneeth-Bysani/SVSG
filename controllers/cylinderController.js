@@ -44,7 +44,6 @@ const createOneEntity = async(data) => {
 
 
 exports.createOne = catchAsync(async (req,res,next) => {
-    console.log("here");
     const {
         barcode, 
         serial_number, 
@@ -82,7 +81,6 @@ exports.createOne = catchAsync(async (req,res,next) => {
     };
 
     const newOne = await createOneEntity(data);
-    console.log(newOne);
     if(newOne) {
         res.status(201).json({
             newOne
@@ -101,7 +99,6 @@ const format_cylinder_response = (data) => {
     const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
     const indian_test_due_date = getIndianDateTimeFromTimeStamp(data.test_due_date);
 
-    console.log(data);
     const formattedData = {
         barcode : data.barcode,
         serial_number :  data.serial_number,
@@ -169,7 +166,6 @@ exports.deleteOne = catchAsync(async (req,res,next) => {
 
 exports.getOneByBarCode = catchAsync(async (req,res) => {
     const barcode = req.params.barcode.toLowerCase();
-    console.log(barcode);
     const data = await Cylinder.findOne({barcode}).populate("currentTrackId");
 
     if(!data) {
@@ -223,9 +219,7 @@ exports.getAllReport = catchAsync(async (req,res,next) => {
 
     //1. create excel sheet
     const workbookName = `Cylinders_Report_${Date.now()}_${req.user._id}`;
-    console.log(workbookName);
     const excelFilePath = await createExcel(workbookName, headers, data);
-    console.log(excelFilePath);
     //2. send that excel sheet as email
     const Emailer = new Email(req.user, "some url");
 
@@ -365,10 +359,8 @@ exports.pickUpEntry = catchAsync(async(req,res,next) => {
 exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
     const barcode = req.params.barcode.toLowerCase();
     const {location} = req.body;
-    console.log(req.body);
     const latitude = location.coords.latitude;
     const longitude = location.coords.longitude;
-    console.log(latitude, longitude);
 
     const cylinder = await Cylinder.findOne({barcode});
     if(!cylinder) {
@@ -455,7 +447,6 @@ const format_trackings = (el) => {
     return `Cylinder ${el.action} at ${el.date} and ${el.time} by ${el.performedBy} from (${el.latitude},${el.longitude})`
 }
 exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
-    // console.log(req.query);
     // let filter = {barcode : req.query.barcode, _id : req.query.materialId};
     let filter = {};
     if(req.query.barcode) {
@@ -469,7 +460,6 @@ exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
     }
     const cylinder = await Cylinder.findOne(filter);
     const trackings = await Tracking.find({cylinderId : cylinder._id}).sort("createdAt");
-    console.log(trackings);
     const headers = [
         {key: "sno", header: "Serial Number", width : 10},
         {key: "action1", header: "Action-1", width : 100},
@@ -478,7 +468,6 @@ exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
         {key: "action4", header: "Action-4", width : 100},
 
     ];
-    // console.log(orders);
     const modifiedOrders = trackings.map((tracking, idx) => {
        
         return {
@@ -517,14 +506,6 @@ const multerStorage = multer.diskStorage({
 });
 
 const multerFilter = (req,file,cb) => {
-    console.log(file.mimetype);
-    // if(file.mimetype.startsWith('image')) {
-    //   cb(null, true)
-    // }else {
-    //   cb(new AppError('Not an image. Upload only image',400),false);
-    // }
-    console.log("here");
-    console.log(req.file);
     cb(null, true);
 };
 
@@ -552,8 +533,8 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
 
         const promises = rows.map(async element => {
             let obj = {
-                barcode : element[0],
-                serial_number: element[1],
+                barcode : element[0].toLowerCase(),
+                serial_number: element[1].toLowerCase(),
                 product_code: element[2],
                 volume: element[3],
                 manufactured_date: element[4],
@@ -569,7 +550,6 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
                 test_due_date: increaseYearBy5(element[4])
             }
             data.push(obj);
-            console.log(obj);
             const cylinderData = await (Cylinder.findOne({barcode: obj.barcode}));
             return (cylinderData);
         })

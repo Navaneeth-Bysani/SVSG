@@ -20,7 +20,6 @@ const createToken = (id, role) => {
 exports.login = async (req, res, next) => {
   try{
     const { token } = req.body;
-    console.log(token);
     if (!token) {
       return res.status(400).json({
         status: 'fail',
@@ -38,7 +37,6 @@ exports.login = async (req, res, next) => {
       }
     )
 
-    console.log(response?.data);
     
     const { email, name, picture } = response?.data;
     let currentUser = await User.findOne({ email });
@@ -62,7 +60,6 @@ exports.login = async (req, res, next) => {
     }
 
     const jwt_token = createToken(currentUser._id, currentUser.role);
-    console.log(jwt_token);
     const userInfo = {
       name,
       email,
@@ -140,7 +137,6 @@ exports.restrictTo = (...roles) => {
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
   let token;
-  console.log(req.headers);
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -178,7 +174,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 exports.regularLogin = catchAsync(async (req,res,next) => {
-  console.log("In login");
   const { email, password } = req.body;
 
   // 1) Check if email and password exist

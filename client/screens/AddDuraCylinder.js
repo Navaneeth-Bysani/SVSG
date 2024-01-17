@@ -6,7 +6,7 @@ import axios from "../utils/axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Loader from "../components/Loader";
 
-const AddCylinderScreen = ({navigation}) => {
+const AddDuraCylinderScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
 
     const [ barcode, setBarcode] = useState("");
@@ -24,6 +24,12 @@ const AddCylinderScreen = ({navigation}) => {
     const [usage, set_usage] = useState("");
     const [valve, set_valve] = useState("");
     const [valve_gaurd, set_valve_gaurd] = useState("");
+    const [trv, setTrv] = useState("");
+    const [level_gauge, set_level_gauge] = useState("");
+    const [pressure_gauge, set_pressure_gauge] = useState("");
+    const [make, setMake] = useState("");
+    const [frame, setFrame] = useState("");
+    const [adaptor, setAdaptor] = useState("");
 
     const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -58,7 +64,7 @@ const AddCylinderScreen = ({navigation}) => {
         };
         console.log(material);
         setLoading(true);
-        axios.post("/cylinder", material , {
+        axios.post("/duracylinder", material , {
             headers: {
                 Authorization: `Bearer ${authToken}`,
                 Accept: "application/json",
@@ -148,6 +154,24 @@ const AddCylinderScreen = ({navigation}) => {
                 <Text>Valve gaurd</Text>
                 <TextInput  placeholder="Valve gaurd" onChangeText={set_valve_gaurd} style={stylesText.inputField}/>
 
+                <Text>TRV</Text>
+                <TextInput  placeholder="TRV" onChangeText={setTrv} style={stylesText.inputField}/>
+
+                <Text>Level Gauge</Text>
+                <TextInput  placeholder="Level gauge" onChangeText={set_level_gauge} style={stylesText.inputField}/>
+
+                <Text>Pressure gauge</Text>
+                <TextInput  placeholder="Pressure Gauge" onChangeText={set_pressure_gauge} style={stylesText.inputField}/>
+
+                <Text>Make</Text>
+                <TextInput  placeholder="Make" onChangeText={setMake} style={stylesText.inputField}/>
+
+                <Text>Frame</Text>
+                <TextInput  placeholder="Frame" onChangeText={setFrame} style={stylesText.inputField}/>
+
+                <Text>Adaptor</Text>
+                <TextInput  placeholder="Adaptor" onChangeText={setAdaptor} style={stylesText.inputField}/>
+
                 <Button
                     title = "Add Cylinder"
                     onPress={handleSubmit}>
@@ -178,4 +202,4 @@ const stylesText = StyleSheet.create({
     }
 });
 
-export default AddCylinderScreen;
+export default AddDuraCylinderScreen;
