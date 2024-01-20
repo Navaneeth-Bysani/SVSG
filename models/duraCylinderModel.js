@@ -17,37 +17,10 @@ const duraCylinderSchema = new mongoose.Schema({
         unique: true
     },
 
-    product_code: {
-        type: String,
-        required: true
-    },
-
     volume: {
         type: String,
         required: true
     },
-
-    manufactured_date: {
-        type: Date,
-        required: true
-    },
-
-    manufacturer: {
-        type: String,
-        required: true
-    },
-
-
-    // other details. To be entered while creating for first time only
-
-    owner : {
-        type : String
-    },
-
-    branch : {
-        type: String
-    },
-
     
     // entered by filler login while filling
 
@@ -55,10 +28,6 @@ const duraCylinderSchema = new mongoose.Schema({
         type: String,
         enum: ["full", "empty"],
         default : "empty"
-    },
-
-    filling_pressure: {
-        type: String
     },
 
     grade: {
@@ -108,19 +77,7 @@ const duraCylinderSchema = new mongoose.Schema({
         type: Date
     },
 
-    minimum_thickness: {
-        type: String
-    },
-
-    usage: {
-        type: String
-    },
-
     valve: {
-        type: String
-    },
-
-    valve_gaurd: {
         type: String
     },
 
@@ -147,8 +104,11 @@ const duraCylinderSchema = new mongoose.Schema({
 
     adaptor: {
         type: String
-    }
+    },
 
+    service: {
+        type: String
+    }
 });
 
 const duraCylinderModel = mongoose.model("duracylinder", duraCylinderSchema);

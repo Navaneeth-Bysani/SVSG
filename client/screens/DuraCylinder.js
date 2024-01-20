@@ -12,8 +12,8 @@ import Loader from "./../components/Loader";
 const DuraCylinderScreen = ({navigation, route}) => {
     const { user, authToken } = useAuthContext();
     const [cylinder, setCylinder] = useState(route.params.cylinder);
-    const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status", "Tare Weight", "Test Due Date", "Minimum thickness", "Usage", "Valve", "Valve gaurd", "TRV", "Level Gauge", "Pressure Gauge", "Make", "Frame", "Adaptor"];
-    const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status, cylinder.tare_weight, cylinder.test_due_date, cylinder.minimum_thickness, cylinder.usage, cylinder.valve, cylinder.valve_gaurd, cylinder.trv, cylinder.level_gauge, cylinder.pressure_gauge, cylinder.make, cylinder.frame, cylinder.adaptor];
+    const tableTitle = ["Barcode", "Serial Number", "Capacity", "Status", "Batch Number", "Grade", "Last Test Date", "Transaction Status", "Weight", "Test Due Date", "Valves", "TRV", "Level Gauge", "Pressure Gauge", "Make", "Frame", "Adaptor", "Service"];
+    const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.volume, cylinder.status, cylinder.batch_number, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status, cylinder.tare_weight, cylinder.test_due_date, cylinder.valve, cylinder.trv, cylinder.level_gauge, cylinder.pressure_gauge, cylinder.make, cylinder.frame, cylinder.adaptor, cylinder.service];
     
     const [role, setRole] = useState("");
     const [actionTypes, setActionTypes] = useState([]);
@@ -27,9 +27,6 @@ const DuraCylinderScreen = ({navigation, route}) => {
     const [materialBarcode, setMaterialBarcode] = useState(cylinder.barcode);
     const [transactionType, setTransactionType] = useState("");
     const [quantity, setQuantity] = useState("");
-    const [company, setCompany] = useState("");
-    const [projectNumber, setProjectNumber] = useState("");
-    const [materialProvidedTo, setMaterialProvidedTo] = useState("");
     const [manufacturerCertificateAvailable, setManufacturerCertificateAvailable] = useState(false);
     const [sveTested, setSveTested] = useState(false);
     const [billed, setBilled] = useState(false);
@@ -46,30 +43,6 @@ const DuraCylinderScreen = ({navigation, route}) => {
 
     const [loading, setLoading] = useState(false);
 
-    // useEffect(()=> {
-    //     const getClients = async () => {
-    //         try {
-    //             const data = await axios.get("/client", {
-    //                 headers: {
-    //                     Authorization: `Bearer ${authToken}`,
-    //                     Accept: "application/json",
-    //                 }
-    //             });
-    //             const companies_data = data.data.clients.map(el => {
-    //                 return {
-    //                     label : el.name,
-    //                     value : el._id
-    //                 }
-    //             });
-    //             setCompanies(companies_data);
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-            
-    //     };
-
-    //     getClients();
-    // }, [])
 
     useEffect(() => {
         const getRole = async () => {
@@ -190,23 +163,6 @@ const DuraCylinderScreen = ({navigation, route}) => {
         setSveTested("")
     }
 
-    const handleOutputSubmit = async () => {
-       try {
-            const orderDetails = {
-                company_name : company,
-                project_name : projectNumber,
-                material_provided_to : materialProvidedTo,
-                billed: billed,
-                invoice_no : invoiceNumber
-            };
-            await makeSubmitRequest("output", quantity, orderDetails) 
-            nullifyVariables();
-       } catch (error) {
-            console.error(error)
-       }
-        
-    }
-
     const handleTestedSubmit =  async() => {
         try {
             setLoading(true);
@@ -231,7 +187,6 @@ const DuraCylinderScreen = ({navigation, route}) => {
 
     const handleFillerSubmit = async() => {
         const body = {
-            // filling_pressure : fillingPressure,
             grade : grade,
             batch_number : batchNumber
         };
@@ -471,14 +426,11 @@ const DuraCylinderScreen = ({navigation, route}) => {
 
         <Table borderStyle={{borderWidth: 1}}>
                 <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
                 </TableWrapper>
         </Table> 
 
-        <View>
-            <Text>Current transaction status</Text>
-        </View>
         </View>
 
 

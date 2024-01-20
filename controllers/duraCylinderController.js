@@ -48,49 +48,33 @@ exports.createOne = catchAsync(async (req,res,next) => {
     const {
         barcode, 
         serial_number, 
-        product_code, 
         volume, 
-        manufactured_date, 
-        manufacturer,
-        filling_pressure,
         tare_weight,
         test_due_date,
-        minimum_thickness,
-        usage,
-        owner,
-        branch,
         valve,
-        valve_gaurd,
         trv,
         level_gauge,
         pressure_gauge,
         make,
         frame,
-        adaptor 
+        adaptor,
+        service 
     } = req.body;
 
     const data = {
         barcode: barcode.toLowerCase(), 
         serial_number, 
-        product_code, 
         volume, 
-        manufactured_date, 
-        manufacturer,
-        filling_pressure,
         tare_weight,
-        test_due_date : req.body.test_due_date ? test_due_date : increaseYearBy5(manufactured_date),
-        minimum_thickness,
-        usage,
-        owner,
-        branch,
+        test_due_date,
         valve,
-        valve_gaurd,
         trv,
         level_gauge,
         pressure_gauge,
         make,
         frame,
-        adaptor
+        adaptor,
+        service 
     };
 
     const newOne = await createOneEntity(data);
@@ -109,7 +93,6 @@ exports.createOne = catchAsync(async (req,res,next) => {
 
 
 const format_dura_cylinder_response = (data) => {
-    const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
     const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
     const indian_test_due_date = getIndianDateTimeFromTimeStamp(data.test_due_date);
 
@@ -117,15 +100,9 @@ const format_dura_cylinder_response = (data) => {
     const formattedData = {
         barcode : data.barcode,
         serial_number :  data.serial_number,
-        product_code :  data.product_code,
         volume : data.volume,
-        manufactured_date : `${indian_manufactured_date.date}`,
-        manufacturer : data.manufacturer,
-        owner : data.owner,
-        branch : data.branch,
         status : data.status,
         batch_number : data.batch_number || "Not assigned yet",
-        filling_pressure :  data.filling_pressure,
         grade : (data.status === "full" ? data.grade : "Not filled yet"),
         last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
         transaction_status : (data.isDispatched ? "Dispatched" : "In store"),
@@ -133,16 +110,14 @@ const format_dura_cylinder_response = (data) => {
         trackingStatus : data.trackingStatus,
         tare_weight: data.tare_weight,
         test_due_date: `${indian_test_due_date.date}`,
-        minimum_thickness: data.minimum_thickness,
-        usage: data.usage,
         valve: data.valve,
-        valve_gaurd: data.valve_gaurd,
         trv: data.trv,
         level_gauge: data.level_gauge,
         pressure_gauge: data.pressure_gauge,
         make: data.make,
         frame: data.frame,
-        adaptor: data.adaptor
+        adaptor: data.adaptor,
+        service: data.service
     };
 
     return formattedData;
@@ -220,30 +195,22 @@ exports.getAllReport = catchAsync(async (req,res,next) => {
 
     const headers = [
         {key: "barcode", header: "Barcode"},
-        {key: "serial_number", header : "Serial Number"},
-        {key: "product_code", header: "Product code"},
-        {key: "volume", header: "Volume"},
-        {key: "manufactured_date", header:"Manufactured Date"},
-        {key: "manufacturer", header:"Manufacturer"},
-        {key: "owner", header:"Owner"},
-        {key: "branch", header:"Branch"},
+        {key: "serial_number", header : "Dura Cylinder Serial Number"},
+        {key: "volume", header: "Capacity"},
         {key: "status", header:"Status"},
-        {key: "filling_pressure", header:"Filling Pressure"},
         {key: "grade", header:"Grade"},
         {key: "batch_number", header:"Batch Number"},
         {key: "last_test_date", header:"Last Test Date"},
-        {key: "tare_weight", header: "Tare Weight"},
+        {key: "tare_weight", header: "Weight"},
         {key: "test_due_date", header: "Test Due Date"},
-        {key: "minimum_thickenss", header: "Minimum Thickness"},
-        {key: "usage", header : "Usage"},
-        {key: "valve", header: "Valve"},
-        {key: "valve_gaurd", header: "Valve gaurd"},
+        {key: "valve", header: "Valves"},
         {key: "trv", header: "TRV"},
         {key: "level_gauge", header: "Level Gauge"},
         {key: "pressure_gauge", header: "Pressure Gauge"},
         {key: "make", header: "Make"},
         {key: "frame", header: "Frame"},
-        {key: "adaptor", header: "Adaptor"}
+        {key: "adaptor", header: "Adaptor"},
+        {key: "service", header: "Service"}
     ];
 
     //1. create excel sheet
@@ -375,17 +342,7 @@ const cylinderStatusHelper = async(cylinder, res) => {
         })
     }
 }
-exports.cylinderStatus = catchAsync(async(req,res,next) => {
-    const id = req.params.id;
-});
 
-exports.cylinderStatusByBarcode = catchAsync(async(req,res,next) => {
-    const barcode = req.params.barcode.toLowerCase();
-});
-
-exports.pickUpEntry = catchAsync(async(req,res,next) => {
-    const id = req.params.id;
-})
 
 exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
     const barcode = req.params.barcode.toLowerCase();
@@ -579,25 +536,17 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
             let obj = {
                 barcode : element[0].toLowerCase(),
                 serial_number: element[1].toLowerCase(),
-                product_code: element[2],
-                volume: element[3],
-                manufactured_date: element[4],
-                manufacturer: element[5],
-                owner : element[6],
-                branch : element[7],
-                filling_pressure : element[8],
-                tare_weight : element[9],
-                minimum_thickness : element[10],
-                usage : element[11] || "",
-                valve: element[12] || "",
-                valve_guard: element[13] || "",
-                test_due_date: increaseYearBy5(element[4]),
-                trv: element[14],
-                level_gauge: element[15],
-                pressure_gauge: element[16],
-                make: element[17],
-                frame: element[18],
-                adaptor: element[19]
+                volume: element[2],
+                tare_weight : element[3],
+                valve: element[4] || "",
+                test_due_date: element[5],
+                trv: element[6],
+                level_gauge: element[7],
+                pressure_gauge: element[8],
+                make: element[9],
+                frame: element[10],
+                adaptor: element[11],
+                service: element[12]
             }
             data.push(obj);
             console.log(obj);
@@ -619,19 +568,11 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
         
         data.forEach(async (el) => {
             try {
-                // const existingDuraCylinder = await DuraCylinder.findOne({barcode: el.barcode});
-                // console.log("here");
-                // console.log(repeated_cylinders_data.includes(el.barcode));
                 if(repeated_cylinders_data.includes(el.barcode.toLowerCase())) {
                     //Leave it
                 } else {
                     await DuraCylinder.create(el);
                 }
-                // if(existingDuraCylinder !== null) {
-                //     repeated_cylinders_data.push(el.barcode);
-                // } else {
-                //     await DuraCylinder.create(el);
-                // }
             } catch (error) {
                 console.log(error);
             }
@@ -647,7 +588,6 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
         return;
     }
     
-    // console.log("No repeated barcodes");
     res.status(201).json({
         "message" : "created successfuly",
         repeated_barcodes_num: 0,

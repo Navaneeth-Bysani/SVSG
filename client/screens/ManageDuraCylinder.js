@@ -19,15 +19,11 @@ const SingleDuraCylinder = (props) => {
                     Serial Number: {props.cylinder.serial_number}
                 </Text>
                 <Text>
-                    Product code: {props.cylinder.product_code}
-                </Text>
-                <Text>
-                    Volume: {props.cylinder.volume}
+                    Capacity: {props.cylinder.volume}
                 </Text>
                 <Text>
                     Status: {props.cylinder.status}
-                </Text>
-                
+                </Text>    
             </Card> 
             </Pressable>
                    
