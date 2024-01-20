@@ -11,25 +11,17 @@ const AddDuraCylinderScreen = ({navigation}) => {
 
     const [ barcode, setBarcode] = useState("");
     const [ serial_number, setSerialNumber] = useState("");
-    const [ product_code, setProductCode] = useState("");
     const [ volume, setVolume] = useState("");
-    const [ manufactured_date, setManufacturedDate] = useState(new Date());
-    const [ manufacturer, setManufacturer] = useState("");
-    const [ owner, setOwner] = useState("");
-    const [ branch, setBranch] = useState("");
-    const [filling_pressure, setFillingPressure] = useState("");
     const [tare_weight, set_tare_weight] = useState("");
-    // const [test_due_date, set_test_due_date] = useState("");
-    const [minimum_thickness, set_minimum_thickness] = useState("");
-    const [usage, set_usage] = useState("");
+    const [test_due_date, set_test_due_date] = useState(new Date());;
     const [valve, set_valve] = useState("");
-    const [valve_gaurd, set_valve_gaurd] = useState("");
     const [trv, setTrv] = useState("");
     const [level_gauge, set_level_gauge] = useState("");
     const [pressure_gauge, set_pressure_gauge] = useState("");
     const [make, setMake] = useState("");
     const [frame, setFrame] = useState("");
     const [adaptor, setAdaptor] = useState("");
+    const [service, setService] = useState("");
 
     const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -40,29 +32,27 @@ const AddDuraCylinderScreen = ({navigation}) => {
             return num.toString().padStart(2, '0');
         }
 
-        const formatted_manufactured_date = [
-            manufactured_date.getFullYear(),
-            padTo2Digits(manufactured_date.getMonth() + 1),
-            padTo2Digits(manufactured_date.getDate()),
+        const formatted_test_due_date = [
+            test_due_date.getFullYear(),
+            padTo2Digits(test_due_date.getMonth() + 1),
+            padTo2Digits(test_due_date.getDate()),
           ].join('-');
 
         const material = {
             barcode,
             serial_number,
-            product_code,
             volume,
-            manufactured_date: formatted_manufactured_date,
-            manufacturer,
-            owner,
-            branch,
-            filling_pressure,
+            test_due_date: formatted_test_due_date,
             tare_weight,
-            minimum_thickness,
-            usage,
             valve,
-            valve_gaurd
+            trv,
+            level_gauge,
+            pressure_gauge,
+            make,
+            frame,
+            adaptor,
+            service
         };
-        console.log(material);
         setLoading(true);
         axios.post("/duracylinder", material , {
             headers: {
@@ -99,7 +89,7 @@ const AddDuraCylinderScreen = ({navigation}) => {
 
     const datePicked = (event, date) => {
         setShowDatePicker(false);
-        setManufacturedDate(date);
+        set_test_due_date(date);
     }
     return (
         <ScrollView>
@@ -112,47 +102,23 @@ const AddDuraCylinderScreen = ({navigation}) => {
                 <Text>Serial Number</Text>
                 <TextInput  placeholder="Enter Serial Number" onChangeText={setSerialNumber} style={stylesText.inputField}/>
 
-                <Text>Product</Text>
-                <TextInput  placeholder="Enter Product Code" onChangeText={setProductCode} style={stylesText.inputField}/>
+                <Text>Capacity</Text>
+                <TextInput  placeholder="Enter Capacity" onChangeText={setVolume} style={stylesText.inputField} />
 
-                <Text>Volume</Text>
-                <TextInput  placeholder="Enter Volume" onChangeText={setVolume} style={stylesText.inputField} />
-
-                <Text>Manufactured date</Text>
-                {showDatePicker && <DateTimePicker mode="date" value={manufactured_date} onChange={datePicked} display="default" is24Hour={true}/>}
+                <Text>Test Due date</Text>
+                {showDatePicker && <DateTimePicker mode="date" value={test_due_date} onChange={datePicked} display="default" is24Hour={true}/>}
                 <TouchableOpacity onPress={() => setShowDatePicker(!showDatePicker)}>
-                    <TextInput  placeholder="Select Date" style={stylesText.inputField} editable={false} value={manufactured_date.toDateString()}/>
+                    <TextInput  placeholder="Select Date" style={stylesText.inputField} editable={false} value={test_due_date.toDateString()}/>
                 </TouchableOpacity>
 
-                <Text>Manufacturer</Text>
-                <TextInput  placeholder="manufacturer"  onChangeText={setManufacturer} style={stylesText.inputField}/>
-
-                <Text>Owner</Text>
-                <TextInput  placeholder="owner" onChangeText={setOwner} style={stylesText.inputField}/>
-                
-                <Text>Branch</Text>
-                <TextInput  placeholder="branch" onChangeText={setBranch} style={stylesText.inputField}/>
-
-                <Text>Filling Pressure</Text>
-                <TextInput  placeholder="filling pressure" onChangeText={setFillingPressure} style={stylesText.inputField}/>
-
-                <Text>Tare Weight</Text>
-                <TextInput  placeholder="Tare weight" onChangeText={set_tare_weight} style={stylesText.inputField}/>
+                <Text>Weight</Text>
+                <TextInput  placeholder="Weight" onChangeText={set_tare_weight} style={stylesText.inputField}/>
                 
                 {/* <Text>Test Due Date</Text>
                 <TextInput  placeholder="YYYY-MM-DD" onChangeText={set_test_due_date} style={stylesText.inputField}/> */}
                 
-                <Text>Minimum Thickness</Text>
-                <TextInput  placeholder="Minimum Thickness" onChangeText={set_minimum_thickness} style={stylesText.inputField}/>
-                
-                <Text>Usage</Text>
-                <TextInput  placeholder="Usage" onChangeText={set_usage} style={stylesText.inputField}/>
-
-                <Text>Valve</Text>
-                <TextInput  placeholder="Valve" onChangeText={set_valve} style={stylesText.inputField}/>
-
-                <Text>Valve gaurd</Text>
-                <TextInput  placeholder="Valve gaurd" onChangeText={set_valve_gaurd} style={stylesText.inputField}/>
+                <Text>Valves</Text>
+                <TextInput  placeholder="Valves" onChangeText={set_valve} style={stylesText.inputField}/>
 
                 <Text>TRV</Text>
                 <TextInput  placeholder="TRV" onChangeText={setTrv} style={stylesText.inputField}/>
@@ -172,10 +138,13 @@ const AddDuraCylinderScreen = ({navigation}) => {
                 <Text>Adaptor</Text>
                 <TextInput  placeholder="Adaptor" onChangeText={setAdaptor} style={stylesText.inputField}/>
 
+                <Text>Service</Text>
+                <TextInput  placeholder="Service" onChangeText={setService} style={stylesText.inputField}/>
+
                 <Button
-                    title = "Add Cylinder"
+                    title = "Add Dura Cylinder"
                     onPress={handleSubmit}>
-                        Add Cylinder
+                        Add Dura Cylinder
                 </Button>
 
             {/* </ScrollView> */}

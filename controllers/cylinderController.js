@@ -344,17 +344,8 @@ const cylinderStatusHelper = async(cylinder, res) => {
         })
     }
 }
-exports.cylinderStatus = catchAsync(async(req,res,next) => {
-    const id = req.params.id;
-});
 
-exports.cylinderStatusByBarcode = catchAsync(async(req,res,next) => {
-    const barcode = req.params.barcode.toLowerCase();
-});
 
-exports.pickUpEntry = catchAsync(async(req,res,next) => {
-    const id = req.params.id;
-})
 
 exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
     const barcode = req.params.barcode.toLowerCase();

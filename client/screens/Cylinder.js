@@ -476,9 +476,6 @@ const CylinderScreen = ({navigation, route}) => {
                 </TableWrapper>
         </Table> 
 
-        <View>
-            <Text>Current transaction status</Text>
-        </View>
         </View>
 
 
