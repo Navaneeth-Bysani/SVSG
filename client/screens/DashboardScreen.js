@@ -5,6 +5,7 @@ import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
 import { AntDesign, FontAwesome } from '@expo/vector-icons'; 
 import Loader from "./../components/Loader";
+import handleErrors from "../utils/handleErrors";
 
 const DashBoardScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -44,9 +45,8 @@ const DashBoardScreen = ({navigation}) => {
         //if cylinder is not found, search for package
         //fill code for that  
       } catch (error) {
-          Alert.alert("Something went wrong");
-          console.error(error);
           setLoading(false);
+          handleErrors(error);
       }
     }
     const getAllCylindersReport = async () => {
