@@ -524,8 +524,8 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
 
         const promises = rows.map(async element => {
             let obj = {
-                barcode : element[0].toLowerCase(),
-                serial_number: element[1].toLowerCase(),
+                barcode : `${element[0]}`.toLowerCase(),
+                serial_number: `${element[1]}`.toLowerCase(),
                 product_code: element[2],
                 volume: element[3],
                 manufactured_date: element[4],
