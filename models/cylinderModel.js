@@ -33,18 +33,21 @@ const cylinderSchema = new mongoose.Schema({
 
     manufacturer: {
         type: String,
-        required: true
+        required: true,
+        default: "N/A"
     },
 
 
     // other details. To be entered while creating for first time only
 
     owner : {
-        type : String
+        type : String,
+        default: "SVSG"
     },
 
     branch : {
-        type: String
+        type: String,
+        default: "Hosakote"
     },
 
     
@@ -108,11 +111,13 @@ const cylinderSchema = new mongoose.Schema({
     },
 
     minimum_thickness: {
-        type: String
+        type: String,
+        default: ""
     },
 
     usage: {
-        type: String
+        type: String,
+        default: ""
     },
 
     valve: {
