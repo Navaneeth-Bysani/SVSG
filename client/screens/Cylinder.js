@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable, ScrollView, Alert, Linking } from "react-native";
-import stylesModule from "./Cylinder.module.css";
 import { Table, Row, Rows, TableWrapper, Col } from 'react-native-table-component';
 import DropDown from "react-native-paper-dropdown";
 import {useState, useEffect} from "react";
@@ -8,6 +7,7 @@ import axios from "../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
 import * as Location from 'expo-location';
 import Loader from "./../components/Loader";
+import getUserRoles from "../utils/getUserRoles";
 
 const CylinderScreen = ({navigation, route}) => {
     const { user, authToken } = useAuthContext();
@@ -15,7 +15,6 @@ const CylinderScreen = ({navigation, route}) => {
     const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status", "Tare Weight", "Test Due Date", "Minimum thickness", "Usage", "Valve", "Valve gaurd"];
     const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status, cylinder.tare_weight, cylinder.test_due_date, cylinder.minimum_thickness, cylinder.usage, cylinder.valve, cylinder.valve_gaurd];
     
-    const [role, setRole] = useState("");
     const [actionTypes, setActionTypes] = useState([]);
     const [selectedActionType, setSelectedActionType] = useState("");
 
@@ -72,16 +71,8 @@ const CylinderScreen = ({navigation, route}) => {
     }, [])
 
     useEffect(() => {
-        const getRole = async () => {
-          try {
-            if(user) {
-                const res = await axios.post("/user/getRole", {
-                    email: user?.email,
-                });
-                //   setRole(res.data.role);
-                const role = res.data.role;
-
-                
+        if(user) {
+            getUserRoles(user.email).then(role => {
                 if(role.includes("admin")) {
                     let actions = [
                         {label : "Testing",  value : "tester"},
@@ -96,35 +87,29 @@ const CylinderScreen = ({navigation, route}) => {
                     setSelectedActionType(role[0]);
                     return;
                 }
-
-
                 let actions = [];
                 if(role.includes("tester")) {
                     actions.push({label : "Testing",  value : "tester"});
                 }
-
                 if(role.includes("filler")) {
                     actions.push({label : "Filling",  value : "filler"});
                 }
-
                 if(role.includes("pickup")) {
                     actions.push({label : "Pickup",  value : "pickup"});
                 }
-
                 setActionTypes(actions);
-            }   
-          } catch (error) {
-            Alert.alert("something went wrong");
-            console.error(error);
-          }
-          
-        };
-        getRole();
+            });
+        }        
       }, []);
 
     useEffect(() => {
         axios
-        .get(`/cylinder/barcode/${cylinder.barcode}`)
+        .get(`/cylinder/barcode/${cylinder.barcode}`, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                Accept: "application/json",
+            },
+        })
         .then((data) => {
             setCylinder(data.data.data);
         })

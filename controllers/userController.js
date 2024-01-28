@@ -95,14 +95,13 @@ exports.getAllUsers = catchAsync(async (req,res,next) => {
 exports.getUserRole = catchAsync(async (req, res, next) => {
     const email = req.body.email;
     if (!email) {
-      return next(new AppError("Invalid data", 404));
+      return next(new AppError("Invalid data", 400));
     }
     const user = await User.findOne({ email });
     if (!user) {
-      return next(new AppError("Student not found", 404));
+      return next(new AppError("User not found", 404));
     }
     req.user = user;
-    // req.user.save({validate});
     let role = req.user.role;
     res.status(200).json({ status: "success", role });
 });

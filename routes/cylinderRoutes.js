@@ -21,12 +21,13 @@ const {
 const {loggedInUser, protect, restrictTo} = require("../controllers/authController");
 const router = express.Router();
 
+router.use(protect);
+
 router.get("/barcode/:barcode", getOneByBarCode);
 router.get("/report", protect, restrictTo("admin"), getAllReport);
 router.get("/cylinder-report", protect, restrictTo("admin"), getCylinderTransactionHistory);
 router.get("/:id", getOne);
 
-router.use(protect);
 
 
 router.post("/excel/upload",uploadExcel, createWithExcel);

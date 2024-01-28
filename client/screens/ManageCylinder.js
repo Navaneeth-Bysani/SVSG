@@ -4,6 +4,7 @@ import { Card } from 'react-native-elements';
 import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
 import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; 
+import getUserRoles from '../utils/getUserRoles';
 
 const SingleCylinder = (props) => {
     return(
@@ -40,24 +41,12 @@ const ManageCylinder = ({navigation}) => {
     const { authToken, user } = useAuthContext();
     const [role, setRole] = useState("");
     const [pageNumber, setPageNumber] = useState(1);
+
     useEffect(() => {
-        const getRole = async () => {
-          try {
-            if(user) {
-              const res = await axios.post(`/user/getRole`, {
-                email: user?.email,
-              });
-              setRole(res.data.role);
-            }   
-          } catch (error) {
-            Alert.alert("something went wrong");
-            console.error(error);
-          }
-          
-        //   Alert.alert(res.data.role);
-        };
-        getRole();
-      }, []);
+        if(user) {
+          getUserRoles(user.email).then(role => setRole(role));
+        }
+    }, []);
     const getAllCylindersReport = async () => {
         try {
           await axios.get("/cylinder/report", {

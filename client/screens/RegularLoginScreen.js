@@ -13,7 +13,6 @@ import {
     SafeAreaView
 } from "react-native";
 import styles from "./RegularLoginScreen.module.css";
-import AuthButton from "./../components/AuthButton.js";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState} from "react";
 import axios from "./../utils/axios";
@@ -27,9 +26,6 @@ const RegularLoginScreen = ({navigation}) => {
 
     const [loading, setLoading] = useState(false);
 
-    // if(user && authToken) {
-    //     navigation.navigate("Home");
-    // }
     const handleLogin =  async () => {
         try {
             setLoading(true);
@@ -43,9 +39,19 @@ const RegularLoginScreen = ({navigation}) => {
             setLoading(false);
 
         } catch (error) {
-            Alert.alert("Something went wrong");
-            console.error(error);
             setLoading(false);
+            switch (error.response?.status) {
+                case 400:
+                    Alert.alert("Email or Password is missing");
+                    break;
+                case 401:
+                    Alert.alert("Incorrect email or password");
+                    break;
+                default:
+                    Alert.alert("Something went wrong");
+                    console.error(error);
+                    break;
+            }
         }
     }
     return (

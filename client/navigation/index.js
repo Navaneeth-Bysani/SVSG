@@ -24,6 +24,7 @@ import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
 import {Alert} from "react-native";
+import getUserRoles from "../utils/getUserRoles";
 
 const AppNavigator = () => {
 
@@ -44,20 +45,8 @@ const AppNavigator = () => {
     }, [user, authToken]);
 
     useEffect(() => {
-      const getRole = async () => {
-        try {
-          const res = await axios.post("/user/getRole", {
-            email: user.email,
-          });
-          setRole(res.data.role);
-        } catch (error) {
-          Alert.alert("Something went wrong");
-          console.error(error);
-        }
-        
-      };
-      if (isLoggedIn) {
-        getRole();
+      if (isLoggedIn && user) {
+        getUserRoles(user.email).then(role => setRole(role));
       }
     }, [isLoggedIn]);
 

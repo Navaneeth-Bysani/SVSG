@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button, Alert, ScrollView } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import axios from "./../utils/axios";
+import useAuthContext from "../hooks/useAuthContext";
 
 export default function QRCodeScanner({navigation}) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
 
+  const {authToken} = useAuthContext();
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -21,7 +23,12 @@ export default function QRCodeScanner({navigation}) {
       let res;
       setScanned(true);
       // Alert.alert(data);
-      const content = await axios.get(`/cylinder/barcode/${data}`);
+      const content = await axios.get(`/cylinder/barcode/${data}`, {
+        headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: "application/json",
+        },
+      });
       const cylinder = content.data.data;
       navigation.navigate("cylinder", {cylinder : cylinder});  
     } catch (error) {

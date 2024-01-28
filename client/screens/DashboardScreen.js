@@ -6,6 +6,7 @@ import axios from "./../utils/axios";
 import { AntDesign, FontAwesome } from '@expo/vector-icons'; 
 import Loader from "./../components/Loader";
 import handleErrors from "../utils/handleErrors";
+import getUserRoles from "../utils/getUserRoles";
 
 const DashBoardScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -16,29 +17,21 @@ const DashBoardScreen = ({navigation}) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const getRole = async () => {
-          try {
-            if(user) {
-              const res = await axios.post("/user/getRole", {
-                email: user?.email,
-              });
-              setRole(res.data.role);
-            }   
-          } catch (error) {
-            Alert.alert("something went wrong");
-            console.error(error);
-          }
-          
-        //   Alert.alert(res.data.role);
-        };
-        getRole();
-      }, []);
+        if(user) {
+          getUserRoles(user.email).then(role => setRole(role));
+        }
+    }, []);
 
     const handleSearch = async () => {
       try {
         setLoading(true);
         //search for cylinder        
-        const content = await axios.get(`/cylinder/barcode/${barcode}`);
+        const content = await axios.get(`/cylinder/barcode/${barcode}`, {
+          headers: {
+              Authorization: `Bearer ${authToken}`,
+              Accept: "application/json",
+          },
+      });
         const cylinder = content.data.data;
         setLoading(false);
         navigation.navigate("cylinder", {cylinder : cylinder});  
@@ -47,20 +40,6 @@ const DashBoardScreen = ({navigation}) => {
       } catch (error) {
           setLoading(false);
           handleErrors(error);
-      }
-    }
-    const getAllCylindersReport = async () => {
-      try {
-        await axios.get("/cylinder/report", {
-          headers: {
-              "Accept": 'application/json',
-              'Content-Type': 'multipart/form-data',
-              "Authorization": `Bearer ${authToken}`,
-            }
-      });
-        Alert.alert("Materials report sent to email succesfully");
-      } catch (error) {
-        console.error(error);
       }
     }
 
