@@ -1,12 +1,13 @@
 const catchAsync = require("../utils/catchAsync");
 const PermanentPackage = require("./../models/permanentPackageModel");
 const Cylinder = require("./../models/cylinderModel");
+const {format_permanent_package_response} = require("./../utils/formatters/responseFormatters");
 
 exports.createOne = catchAsync(async(req, res, next) => {
-    const {barcode, serial_number, test_date, number_of_cylinders} = req.body;
-    const permanentPackageData = {barcode : barcode.toLowerCase(), serial_number, test_date, number_of_cylinders};
+    const {barcode, serial_number, last_test_date, number_of_cylinders, working_pressure, valves, manifold, wheels, service} = req.body;
+    const permanentPackageData = {barcode : barcode.toLowerCase(), serial_number, last_test_date, number_of_cylinders, working_pressure, valves, manifold, wheels, service};
     const permanentPackage = await PermanentPackage.create(permanentPackageData);
-
+    
     res.status(201).json({
         "message" : "permanent package created successfully"
     });
@@ -16,13 +17,13 @@ exports.getAll = catchAsync(async(req, res, next) => {
     const limit = req.query.limit;
     const pageNumber = req.query.pageNumber;
 
-    const startIndex = limit*pageNumber;
+    const startIndex = limit*(pageNumber-1);
     // console.log(limit, pageNumber, startIndex);
-    const packages = await PermanentPackage.find().skip(startIndex).limit(limit);
-    console.log(packages);
+    const data = await PermanentPackage.find().skip(startIndex).limit(limit).populate({path:"cylinders", select:"barcode"});
+    console.log(data);
     res.status(200).json({
         "message" : "fetched successfully",
-        packages
+        data: data.map(item => format_permanent_package_response(item))
     })
 })
 
@@ -38,7 +39,7 @@ exports.getOneByBarCode = catchAsync(async (req,res) => {
     }
 
     res.status(200).json({
-        data : data
+        data : format_permanent_package_response(data)
     })
 });
 
@@ -141,11 +142,30 @@ exports.updateCylindersofOneByBarcode = catchAsync(async (req,res,next) => {
 })
 
 exports.updateOneByBarcode = catchAsync(async(req,res,next) => {
-    const {working_pressure, valves, manifold, wheels, service, test_date} = req.body;
+    const {working_pressure, valves, manifold, wheels, service, last_test_date} = req.body;
     const barcode = req.params.barcode;
-    const updateBody = {working_pressure, valves, manifold, wheels, service, test_date};
+    const updateBody = {working_pressure, valves, manifold, wheels, service, last_test_date};
     const updatedPackage = await PermanentPackage.findOneAndUpdate({barcode}, updateBody, {new: true});
     res.status(200).json({
         updatedPackage
     })
-})
+});
+
+exports.testerEntry = catchAsync(async(req,res, next) => {
+    const id = req.params.id;
+    const testUpdated = await Cylinder.findByIdAndUpdate(id, {last_test_date : Date.now()}, {new: true});
+
+    res.status(200).json({
+        "message" : "tested successfully",
+        data : format_cylinder_response(testUpdated)
+    })
+});
+
+exports.testerEntryByBarcode = catchAsync(async(req, res, next) => {
+    const barcode = req.params.barcode.toLowerCase();
+    const testUpdated = await PermanentPackage.findOneAndUpdate({barcode}, {last_test_date : Date.now()}, {new : true});
+    res.status(200).json({
+        "message" : "tested successfully",
+        data : format_cylinder_response(testUpdated)
+    })
+});

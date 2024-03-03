@@ -22,7 +22,7 @@ const permanentPackageSchema = new mongoose.Schema({
         default : "empty"
     },
 
-    test_date : {
+    last_test_date : {
         type: Date
     },
 

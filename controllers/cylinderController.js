@@ -5,23 +5,25 @@ const multer = require("multer");
 const readXlsxFile = require('read-excel-file/node')
 const createExcel = require("../utils/createExcel");
 const Email = require("../utils/email");
-const moment = require("moment-timezone");
+// const moment = require("moment-timezone");
 const Tracking = require("./../models/trackingModel");
+const {format_cylinder_response} = require("./../utils/formatters/responseFormatters");
+const {getIndianDateTimeFromTimeStamp, increaseYearBy5} = require("./../utils/formatters/dateTimeFormatters");
 
-const getIndianDateTimeFromTimeStamp = (timestamp) => {
-    const indianTime = moment(timestamp).tz("Asia/Kolkata");
+// const getIndianDateTimeFromTimeStamp = (timestamp) => {
+//     const indianTime = moment(timestamp).tz("Asia/Kolkata");
 
-    const date = indianTime.format("DD-MM-YYYY");
-    const time = indianTime.format("HH:mm:ss");
+//     const date = indianTime.format("DD-MM-YYYY");
+//     const time = indianTime.format("HH:mm:ss");
 
-    return {date, time};
-}
+//     return {date, time};
+// }
 
-const increaseYearBy5 = (date) => {
-    const new_date = new Date(date);
-    new_date.setFullYear(new_date.getFullYear()+5);
-    return new_date;
-}
+// const increaseYearBy5 = (date) => {
+//     const new_date = new Date(date);
+//     new_date.setFullYear(new_date.getFullYear()+5);
+//     return new_date;
+// }
 
 const createOneEntity = async(data) => {
     try {
@@ -94,38 +96,38 @@ exports.createOne = catchAsync(async (req,res,next) => {
 
 
 
-const format_cylinder_response = (data) => {
-    const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
-    const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
-    const indian_test_due_date = getIndianDateTimeFromTimeStamp(data.test_due_date);
+// const format_cylinder_response = (data) => {
+//     const indian_manufactured_date = getIndianDateTimeFromTimeStamp(data.manufactured_date);
+//     const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
+//     const indian_test_due_date = getIndianDateTimeFromTimeStamp(data.test_due_date);
 
-    const formattedData = {
-        barcode : data.barcode,
-        serial_number :  data.serial_number,
-        product_code :  data.product_code,
-        volume : data.volume,
-        manufactured_date : `${indian_manufactured_date.date}`,
-        manufacturer : data.manufacturer,
-        owner : data.owner,
-        branch : data.branch,
-        status : data.status,
-        batch_number : data.batch_number || "Not assigned yet",
-        filling_pressure :  data.filling_pressure,
-        grade : (data.status === "full" ? data.grade : "Not filled yet"),
-        last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
-        transaction_status : (data.isDispatched ? "Dispatched" : "In store"),
-        actions : data.currentTrackId?.actions,
-        trackingStatus : data.trackingStatus,
-        tare_weight: data.tare_weight,
-        test_due_date: `${indian_test_due_date.date}`,
-        minimum_thickness: data.minimum_thickness,
-        usage: data.usage,
-        valve: data.valve,
-        valve_gaurd: data.valve_gaurd
-    };
+//     const formattedData = {
+//         barcode : data.barcode,
+//         serial_number :  data.serial_number,
+//         product_code :  data.product_code,
+//         volume : data.volume,
+//         manufactured_date : `${indian_manufactured_date.date}`,
+//         manufacturer : data.manufacturer,
+//         owner : data.owner,
+//         branch : data.branch,
+//         status : data.status,
+//         batch_number : data.batch_number || "Not assigned yet",
+//         filling_pressure :  data.filling_pressure,
+//         grade : (data.status === "full" ? data.grade : "Not filled yet"),
+//         last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
+//         transaction_status : (data.isDispatched ? "Dispatched" : "In store"),
+//         actions : data.currentTrackId?.actions,
+//         trackingStatus : data.trackingStatus,
+//         tare_weight: data.tare_weight,
+//         test_due_date: `${indian_test_due_date.date}`,
+//         minimum_thickness: data.minimum_thickness,
+//         usage: data.usage,
+//         valve: data.valve,
+//         valve_gaurd: data.valve_gaurd
+//     };
 
-    return formattedData;
-}
+//     return formattedData;
+// }
 
 exports.getAll = catchAsync(async (req,res, next) => {
     const limit = req.query.limit;

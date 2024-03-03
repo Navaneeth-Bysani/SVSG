@@ -5,6 +5,11 @@ import {useState, useEffect} from "react";
 import axios from "./../utils/axios";
 import { AntDesign, FontAwesome } from '@expo/vector-icons'; 
 import Loader from "./../components/Loader";
+import handleErrors from "../utils/handleErrors";
+import getUserRoles from "../utils/getUserRoles";
+import getCylinderFromBarcode from "../utils/cylinderHelpers/getCylinderFromBarcode";
+import getDuraCylinderFromBarcode from "../utils/duraCylinderHelpers/getDuraCylinderFromBarcode";
+import getPermanentPackageFromBarcode from "../utils/packageHelpers/getPermanentPackageFromBarcode";
 
 const DashBoardScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -15,52 +20,35 @@ const DashBoardScreen = ({navigation}) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const getRole = async () => {
-          try {
-            if(user) {
-              const res = await axios.post("/user/getRole", {
-                email: user?.email,
-              });
-              setRole(res.data.role);
-            }   
-          } catch (error) {
-            Alert.alert("something went wrong");
-            console.error(error);
-          }
-          
-        //   Alert.alert(res.data.role);
-        };
-        getRole();
-      }, []);
+        if(user) {
+          getUserRoles(user.email).then(role => setRole(role));
+        }
+    }, []);
 
     const handleSearch = async () => {
       try {
         setLoading(true);
-        //search for cylinder        
-        const content = await axios.get(`/cylinder/barcode/${barcode}`);
-        const cylinder = content.data.data;
+        
+        const response = await axios.get(`/resource/${barcode}`, {
+          headers: {
+              Authorization: `Bearer ${authToken}`,
+              Accept: "application/json",
+          }
+        });
+        const resource = response.data.resource;
+        if(resource.type === "cylinder") {
+          navigation.navigate("cylinder", {cylinder : resource.data});
+        } else if(resource.type === "duraCylinder") {
+          navigation.navigate("duracylinder", {cylinder : resource.data});
+        } else if(resource.type === "permanentPackage") {
+          Alert.alert("Permanent package page not added yet");
+        }
         setLoading(false);
-        navigation.navigate("cylinder", {cylinder : cylinder});  
         //if cylinder is not found, search for package
         //fill code for that  
       } catch (error) {
-          Alert.alert("Something went wrong");
-          console.error(error);
           setLoading(false);
-      }
-    }
-    const getAllCylindersReport = async () => {
-      try {
-        await axios.get("/cylinder/report", {
-          headers: {
-              "Accept": 'application/json',
-              'Content-Type': 'multipart/form-data',
-              "Authorization": `Bearer ${authToken}`,
-            }
-      });
-        Alert.alert("Materials report sent to email succesfully");
-      } catch (error) {
-        console.error(error);
+          handleErrors(error);
       }
     }
 
@@ -104,10 +92,10 @@ const DashBoardScreen = ({navigation}) => {
               <Button title="Dura Cylinders" style={styles1.navBtns} onPress={() => navigation.navigate("manageDuraCylinder")}/>
             </View>
             <View style={styles1.spacing}>
-              <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("addPackage")}/>
+              <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("managePackage")}/>
             </View>
             {
-              role.includes("admin") ? 
+              role?.includes("admin") ? 
                 <View style={styles1.spacing}>
                   <Button title="Users" style={styles1.navBtns} onPress={() => navigation.navigate("addUser")}/>
                 </View> : 

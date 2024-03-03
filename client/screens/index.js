@@ -16,6 +16,8 @@ import ManageDuraCylinder from "./ManageDuraCylinder";
 import DuraCylinderScreen from "./DuraCylinder";
 import AddDuraCylinderScreen from "./AddDuraCylinder";
 import AddDuraCylinderFileScreen from "./AddDuraCylinderFile";
+import ManagePackage from "./ManagePackage";
+import PermanentPackageScreen from "./PermanentPackage";
 
 export {
     LoginScreen,
@@ -35,5 +37,7 @@ export {
     ManageDuraCylinder,
     DuraCylinderScreen,
     AddDuraCylinderScreen,
-    AddDuraCylinderFileScreen
+    AddDuraCylinderFileScreen,
+    ManagePackage,
+    PermanentPackageScreen
 }

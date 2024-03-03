@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable } from "react-native";
 import styles from "./Login.module.css";
-import AuthButton from "./../components/AuthButton.js";
 import { useEffect } from "react";
 import axios from "../utils/axios";
 
@@ -17,14 +16,9 @@ const LoginScreen = ({navigation}) => {
             <View>
                 {/* <Image source={require("./../assets/icon.png")}/> */}
                 <View style={styles.button}>
-                    {/* <AuthButton /> */}
                     <Pressable onPress={() => navigation.navigate("regularLogin")}>
                         <Text>Login with email and password</Text>
                     </Pressable>
-                </View>
-
-                <View style = {styles.AuthButton}>
-                    
                 </View>
             </View>
         </View>

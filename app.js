@@ -12,6 +12,7 @@ const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const orderRouter = require("./routes/orderRoutes");
 const clientRouter = require("./routes/clientRoutes");
+const resourceRouter = require("./routes/resourceRoutes");
 
 const cookieParser = require("cookie-parser");
 
@@ -33,5 +34,6 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/client", clientRouter);
 app.use("/api/v1/package/permanent", permanentPackageRouter);
+app.use("/api/v1/resource", resourceRouter);
 
 module.exports = app;

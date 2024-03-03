@@ -9,11 +9,11 @@ import * as Location from 'expo-location';
 import Loader from "./../components/Loader";
 import getUserRoles from "../utils/getUserRoles";
 
-const CylinderScreen = ({navigation, route}) => {
+const PermanentPackageScreen = ({navigation, route}) => {
     const { user, authToken } = useAuthContext();
-    const [cylinder, setCylinder] = useState(route.params.cylinder);
-    const tableTitle = ["Barcode", "Serial Number", "Product Code", "Volume", "Manufactured Date", "Manufacturer", "Owner", "Branch", "Status", "Batch Number", "Filling Pressure", "Grade", "Last Test Date", "Transaction Status", "Tare Weight", "Test Due Date", "Minimum thickness", "Usage", "Valve", "Valve gaurd"];
-    const tableData = [cylinder.barcode, cylinder.serial_number, cylinder.product_code, cylinder.volume, cylinder.manufactured_date, cylinder.manufacturer, cylinder.owner, cylinder.branch, cylinder.status, cylinder.batch_number, cylinder.filling_pressure, cylinder.grade, cylinder.last_test_date, cylinder.transaction_status, cylinder.tare_weight, cylinder.test_due_date, cylinder.minimum_thickness, cylinder.usage, cylinder.valve, cylinder.valve_gaurd];
+    const [packageData, setPackageData] = useState(route.params.packageData);
+    const tableTitle = ["Barcode", "Serial Number", "Last Test Date", "Status", "Working Pressure", "Valves", "Manifold", "Wheels", "Service",  "Batch Number",  "Grade",  "Transaction Status", "Test Due Date"];
+    const tableData = [packageData.barcode, packageData.serial_number, packageData.last_test_date, packageData.status, packageData.working_pressure, packageData.valves, packageData.manifold, packageData.wheels, packageData.service, packageData.batch_number, packageData.grade, packageData.transaction_status, packageData.test_due_date];
     
     const [actionTypes, setActionTypes] = useState([]);
     const [selectedActionType, setSelectedActionType] = useState("");
@@ -23,52 +23,15 @@ const CylinderScreen = ({navigation, route}) => {
     const [grade, setGrade] = useState("");
     const [batchNumber, setBatchNumber] = useState("");
     const [billId, setBillId] = useState("");
-    const [materialBarcode, setMaterialBarcode] = useState(cylinder.barcode);
+    // const [materialBarcode, setMaterialBarcode] = useState(cylinder.barcode);
     const [transactionType, setTransactionType] = useState("");
-    const [quantity, setQuantity] = useState("");
-    const [company, setCompany] = useState("");
-    const [projectNumber, setProjectNumber] = useState("");
-    const [materialProvidedTo, setMaterialProvidedTo] = useState("");
-    const [manufacturerCertificateAvailable, setManufacturerCertificateAvailable] = useState(false);
-    const [sveTested, setSveTested] = useState(false);
-    const [billed, setBilled] = useState(false);
-    const [invoiceNumber, setInvoiceNumber] = useState("");
-
-    const [showSveTestedDropDown, setShowSveTestedDropDown] = useState("");
 
     const [showDropDown, setShowDropDown] = useState(false);
     const [showCompanyDropDown, setShowCompanyDropDown] = useState(false);
-    const [showManufacturerCertificateDropDown, setShowManufacturerCertificateDropDown] = useState(false);
-    const [showBilledDropDown, setShowBilledDropDown] = useState(false);
-    const [companies, setCompanies] = useState([]);
+    // const [companies, setCompanies] = useState([]);
 
 
     const [loading, setLoading] = useState(false);
-
-    useEffect(()=> {
-        const getClients = async () => {
-            try {
-                const data = await axios.get("/client", {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                        Accept: "application/json",
-                    }
-                });
-                const companies_data = data.data.clients.map(el => {
-                    return {
-                        label : el.name,
-                        value : el._id
-                    }
-                });
-                setCompanies(companies_data);
-            } catch (error) {
-                console.error(error);
-            }
-            
-        };
-
-        getClients();
-    }, [])
 
     useEffect(() => {
         if(user) {
@@ -104,14 +67,14 @@ const CylinderScreen = ({navigation, route}) => {
 
     useEffect(() => {
         axios
-        .get(`/cylinder/barcode/${cylinder.barcode}`, {
+        .get(`/package/permanent/barcode/${packageData.barcode}`, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
                 Accept: "application/json",
             },
         })
         .then((data) => {
-            setCylinder(data.data.data);
+            setPackageData(data.data.data);
         })
         .catch(err => {
             console.error(err);
@@ -119,83 +82,11 @@ const CylinderScreen = ({navigation, route}) => {
 
     }, []);
 
-    const onChangeQuantity = (text) => {
-        let newText = '';
-        let numbers = '0123456789';
-    
-        for (var i=0; i < text.length; i++) {
-            if(numbers.indexOf(text[i]) > -1 ) {
-                newText = newText + text[i];
-            }
-            else {
-                Alert.alert("please enter numbers only");
-            }
-        }
-        setQuantity(newText);
-    }
-
-   
-
-    const makeSubmitRequest = async (type, quantity, orderDetails) => {
-
-        try {
-
-            const newQuantity = 1*quantity;
-            setLoading(true);
-            const data = await axios.patch(`/material/barcode/store/${materialBarcode}`, {
-                type,
-                quantity : newQuantity,
-                orderDetails
-            },
-            {
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                  Accept: "application/json",
-                },
-            }
-            );
-            setLoading(false);
-            const resData = data.data;
-            if(data.status === 200) {
-                navigation.navigate("transactionSuccess", {data : resData})
-            }
-        } catch(error) {
-            setLoading(false);
-            console.error(error);
-        }
-    }
-
-    const nullifyVariables = () => {
-        setQuantity("");
-        setCompany("");
-        setProjectNumber("");
-        setMaterialProvidedTo("");
-
-        setManufacturerCertificateAvailable("");
-        setSveTested("")
-    }
-
-    const handleOutputSubmit = async () => {
-       try {
-            const orderDetails = {
-                company_name : company,
-                project_name : projectNumber,
-                material_provided_to : materialProvidedTo,
-                billed: billed,
-                invoice_no : invoiceNumber
-            };
-            await makeSubmitRequest("output", quantity, orderDetails) 
-            nullifyVariables();
-       } catch (error) {
-            console.error(error)
-       }
-        
-    }
 
     const handleTestedSubmit =  async() => {
         try {
             setLoading(true);
-            const testedRespone = await axios.patch(`/cylinder/tester/barcode/${cylinder.barcode}`, {}, {
+            const testedRespone = await axios.patch(`/package/permanent/tester/barcode/${packageData.barcode}`, {}, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
                   Accept: "application/json",
@@ -204,7 +95,7 @@ const CylinderScreen = ({navigation, route}) => {
             setLoading(false);
             if(testedRespone.status === 200) {
                 Alert.alert("Test date updated successfully");
-                navigation.navigate("cylinder", {cylinder : testedRespone.data.data});
+                navigation.navigate("package", {packageData : testedRespone.data.data});
                 setSelectedActionType("");
             }
         } catch (error) {
@@ -223,7 +114,7 @@ const CylinderScreen = ({navigation, route}) => {
 
         try {
             setLoading(true);
-            const updated = await axios.patch(`/cylinder/filler/barcode/${cylinder.barcode}`, body, {
+            const updated = await axios.patch(`/package/permanent/filler/barcode/${packageData.barcode}`, body, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
                   Accept: "application/json",
@@ -232,40 +123,24 @@ const CylinderScreen = ({navigation, route}) => {
     
             setLoading(false);
             if(updated.status === 200) {
-                Alert.alert("Cylinder filling entry marked successfully");
+                Alert.alert("Package filling entry marked successfully");
                 // navigation.navigate("cylinder", {cylinder : updated.data.updated});
-                setCylinder(updated.data.updated);
+                setPackageData(updated.data.updated);
                 setSelectedActionType("");
             } else  {
                 Alert.alert("Something went wrong");
             }
         } catch (error) {   
             setLoading(false); 
-            Alert.alert("Either the cylinder is already full or something went wrong");
+            Alert.alert("Either the package is already full or something went wrong");
             console.error(error);
         }
         
     }
-    const handleInputSubmit = async () => {
-        
-        try {
-            const orderDetails = {
-                manufacturer_test_certificate_available : manufacturerCertificateAvailable,
-                sve_tested_material : sveTested,
-                billed : billed,
-                invoice_no : invoiceNumber
-            };
-            await makeSubmitRequest("input", quantity, orderDetails);
-            nullifyVariables();
-
-        } catch (error) {
-            console.error(error)
-        }
-    }
 
     const handleGetTransactionHistory = async() => {
         try {
-            await axios.get(`/cylinder/cylinder-report?barcode=${cylinder.barcode}`, {
+            await axios.get(`/package/permanent/package-report?barcode=${packageData.barcode}`, {
                 headers: {
                     "Accept": 'application/json',
                     'Content-Type': 'multipart/form-data',
@@ -295,7 +170,7 @@ const CylinderScreen = ({navigation, route}) => {
             };
 
             setLoading(true);
-            const pickUpData = await axios.patch(`/cylinder/pickup/barcode/${cylinder.barcode}`, body , {
+            const pickUpData = await axios.patch(`/package/permanent/pickup/barcode/${packageData.barcode}`, body , {
                     headers: {
                         "Accept": 'application/json',
                         "Authorization": `Bearer ${authToken}`
@@ -304,9 +179,9 @@ const CylinderScreen = ({navigation, route}) => {
             
             setLoading(false);
             if(pickUpData.status === 200) {
-                Alert.alert("Cylinder pickup updated successfully");
+                Alert.alert("Package pickup updated successfully");
                 setSelectedActionType("");
-                setCylinder(pickUpData.data.cylinder);
+                setPackageData(pickUpData.data.cylinder);
             } else  {
                 Alert.alert("Something went wrong");
             }
@@ -412,16 +287,16 @@ const CylinderScreen = ({navigation, route}) => {
                 </>
             ) : <></>}
 
-            {selectedActionType === "pickup" && cylinder.trackingStatus === 0 ? <Text>Cylinder is empty, fill it first to dispatch</Text> : <></>}
-            {selectedActionType === "pickup" && cylinder.trackingStatus !== 0 ? (
+            {selectedActionType === "pickup" && packageData.trackingStatus === 0 ? <Text>package is empty, fill it first to dispatch</Text> : <></>}
+            {selectedActionType === "pickup" && packageData.trackingStatus !== 0 ? (
                 <>
-                    <Text>The current tracking status for this cylinder</Text>
-                    {cylinder.actions?.map((el, idx) =><Text key={idx}>{idx+1}. {`Cylinder ${el.action} at ${el.date} and ${el.time} by ${el.performedBy} from (${el.latitude},${el.longitude})`}{"\n\n"}</Text>)}
+                    <Text>The current tracking status for this package</Text>
+                    {packageData.actions?.map((el, idx) =><Text key={idx}>{idx+1}. {`Cylinder ${el.action} at ${el.date} and ${el.time} by ${el.performedBy} from (${el.latitude},${el.longitude})`}{"\n\n"}</Text>)}
                     {/* https://www.google.com/maps/dir/?api=1&origin=37.7749,-122.4194&destination=34.0522,-118.2437&waypoints=41.8781,-87.6298|40.7128,-74.0060 */}
-                    {cylinder.actions !== 0 ? <Text style={styles.link} onPress={() => handleLinkPress(generateGoogleMapsLink(cylinder.actions))}>
+                    {packageData.actions !== 0 ? <Text style={styles.link} onPress={() => handleLinkPress(generateGoogleMapsLink(packageData.actions))}>
                         Open in maps
                     </Text> : <></>}
-                    {cylinder.trackingStatus === 1 ? 
+                    {packageData.trackingStatus === 1 ? 
                     <>
                         <Text>Enter the Bill Id</Text>
                         <TextInput 
@@ -433,7 +308,7 @@ const CylinderScreen = ({navigation, route}) => {
                     <>
                     </>}
                     
-                    <Text>Click the submit button to move the cylinder to next stage</Text>
+                    <Text>Click the submit button to move the package to next stage</Text>
                    <Button
                         title = "Submit"
                         onPress={handlePickupSubmit}>
@@ -454,12 +329,27 @@ const CylinderScreen = ({navigation, route}) => {
            
             
 
-        <Table borderStyle={{borderWidth: 1}}>
-                <TableWrapper style={styles.wrapper}>
-                    <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                    <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
-                </TableWrapper>
-        </Table> 
+            <Table borderStyle={{borderWidth: 1}}>
+                    <TableWrapper style={styles.wrapper}>
+                        <Col data={tableTitle} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                        <Col data={tableData} style={styles.title} heightArr={[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} textStyle={styles.text}/>
+                    </TableWrapper>
+            </Table> 
+            <View style={styles.cylinderSection}>
+                    <Text>
+                        Cylinders
+                    </Text>
+                    <View>
+                        {packageData.cylinders.map((barcode, idx) => (
+                            <Pressable onPress={() => {let cylinder = {barcode}; navigation.navigate("cylinder", {cylinder})}} key={idx} >
+                                <View style={styles.barcode}>
+                                    <Text>{barcode}</Text>
+                                </View>
+                            </Pressable> 
+                        ))}
+                    </View>
+                    
+            </View>
 
         </View>
 
@@ -485,7 +375,15 @@ const styles = StyleSheet.create({
     link: {
         color: 'blue',
         textDecorationLine: 'underline',
-    } 
+    },
+    cylinderSection: {
+        width: "100%"
+    },
+    barcode: {
+        padding: 5,
+        borderWidth: 2,
+        margin: 5
+    }
 });
 
-export default CylinderScreen;
+export default PermanentPackageScreen;

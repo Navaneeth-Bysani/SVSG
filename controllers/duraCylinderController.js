@@ -7,6 +7,7 @@ const createExcel = require("../utils/createExcel");
 const Email = require("../utils/email");
 const moment = require("moment-timezone");
 const Tracking = require("./../models/trackingModel");
+const {format_dura_cylinder_response} = require("./../utils/formatters/responseFormatters");
 
 const getIndianDateTimeFromTimeStamp = (timestamp) => {
     const indianTime = moment(timestamp).tz("Asia/Kolkata");
@@ -91,37 +92,6 @@ exports.createOne = catchAsync(async (req,res,next) => {
 });
 
 
-
-const format_dura_cylinder_response = (data) => {
-    const indian_last_test_date = getIndianDateTimeFromTimeStamp(data.last_test_date);
-    const indian_test_due_date = getIndianDateTimeFromTimeStamp(data.test_due_date);
-
-    console.log(data);
-    const formattedData = {
-        barcode : data.barcode,
-        serial_number :  data.serial_number,
-        volume : data.volume,
-        status : data.status,
-        batch_number : data.batch_number || "Not assigned yet",
-        grade : (data.status === "full" ? data.grade : "Not filled yet"),
-        last_test_date : (data.last_test_date ? `${indian_last_test_date.date}, ${indian_last_test_date.time}` : "Not tested yet"),
-        transaction_status : (data.isDispatched ? "Dispatched" : "In store"),
-        actions : data.currentTrackId?.actions,
-        trackingStatus : data.trackingStatus,
-        tare_weight: data.tare_weight,
-        test_due_date: `${indian_test_due_date.date}`,
-        valve: data.valve,
-        trv: data.trv,
-        level_gauge: data.level_gauge,
-        pressure_gauge: data.pressure_gauge,
-        make: data.make,
-        frame: data.frame,
-        adaptor: data.adaptor,
-        service: data.service
-    };
-
-    return formattedData;
-}
 
 exports.getAll = catchAsync(async (req,res, next) => {
     const limit = req.query.limit;

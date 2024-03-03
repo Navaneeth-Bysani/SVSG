@@ -5,30 +5,24 @@ import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
 import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; 
 import getUserRoles from '../utils/getUserRoles';
+import DropDown from "react-native-paper-dropdown";
 
-const SingleCylinder = (props) => {
+const SinglePermanentPackage = (props) => {
     return(
         <>
             <Pressable onPress={() => {
-                props.navigation.navigate("cylinder", {cylinder:props.cylinder})
+                props.navigation.navigate("permanentPackage", {packageData:props.packageData})
             }}>
-            <Card title={props.cylinder.barcode} elevation={7}>
+            <Card title={props.packageData.barcode} elevation={7}>
                 <Text>
-                    Barcode: {props.cylinder.barcode.toUpperCase()} 
+                    Barcode: {props.packageData.barcode.toUpperCase()} 
                 </Text>
                 <Text>
-                    Serial Number: {props.cylinder.serial_number}
+                    Serial Number: {props.packageData.serial_number}
                 </Text>
                 <Text>
-                    Product code: {props.cylinder.product_code}
+                    No. of cylinders: {props.packageData.number_of_cylinders}
                 </Text>
-                <Text>
-                    Volume: {props.cylinder.volume}
-                </Text>
-                <Text>
-                    Status: {props.cylinder.status}
-                </Text>
-                
             </Card> 
             </Pressable>
                    
@@ -36,8 +30,8 @@ const SingleCylinder = (props) => {
     )
 };
 
-const ManageCylinder = ({navigation}) => {
-    const [cylinders, setCylinders] = useState();
+const ManagePackage = ({navigation}) => {
+    const [packages, setPackages] = useState();
     const { authToken, user } = useAuthContext();
     const [role, setRole] = useState("");
     const [pageNumber, setPageNumber] = useState(1);
@@ -47,6 +41,14 @@ const ManageCylinder = ({navigation}) => {
           getUserRoles(user.email).then(role => setRole(role));
         }
     }, []);
+
+    const packageTypes = [
+        {label : "Permanent", value : "permanent"},
+        {label : "Temporary", value : "temporary"}
+    ];
+    const [packageType, setPackageType] = useState("permanent");
+    const [showDropDown, setShowDropDown] = useState(false);
+
     const getAllCylindersReport = async () => {
         try {
           await axios.get("/cylinder/report", {
@@ -62,48 +64,62 @@ const ManageCylinder = ({navigation}) => {
         }
     }
     useEffect(() => {
-        const getCylinders = async() => {
+        const getPackages = async() => {
             try {
-                const cylindersData = await axios.get(`/cylinder?limit=10&pageNumber=${pageNumber}`, {
+                const packagesData = await axios.get(`/package/${packageType}?limit=10&pageNumber=${pageNumber}`, {
                     headers: {
                         Authorization: `Bearer ${authToken}`,
                         Accept: "application/json",
                     }
                 });
-                setCylinders(cylindersData.data.data);
+                console.log(packagesData.data);
+                setPackages(packagesData.data.data);
             } catch (error) {
                 console.error(error);
             }
             
         }
-        getCylinders();
-    }, [pageNumber])
+        getPackages();
+    }, [pageNumber, packageType])
     
     return(
         <>
+            
             <ScrollView>
                 <View style={styles.headRow}>
                     {(role.includes("admin")) && <View style={styles.headRowItem}>
-                        <TouchableOpacity onPress={() => navigation.navigate("addcylinder")}>
+                        <TouchableOpacity onPress={() => navigation.navigate("addPackage")}>
                             <Ionicons name="add" size={50} color="black" />
                         </TouchableOpacity>
                     </View>}
                     
-                    {(role.includes("admin")) && <View style={styles.headRowItem}>
+                    {/* {(role.includes("admin")) && <View style={styles.headRowItem}>
                         <TouchableOpacity onPress={() => navigation.navigate("addFile")}>
                             <MaterialCommunityIcons name="microsoft-excel" size={50} color="black" />
                         </TouchableOpacity>
-                    </View>}
+                    </View>} */}
 
-                    <View style={styles.headRowItem}>
+                    {/* <View style={styles.headRowItem}>
                         <TouchableOpacity onPress={() => getAllCylindersReport()}>
                             <AntDesign name="book" size={50} color="black" />
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                 </View>
+                <View style={styles.container}>
+                    <DropDown
+                            label={"Select"}
+                            mode={"outlined"}
+                            value={packageType}
+                            setValue={setPackageType}
+                            list={packageTypes}
+                            visible={showDropDown}
+                            showDropDown={() => setShowDropDown(true)}
+                            onDismiss={() => setShowDropDown(false)}
+                            style={{ backgroundColor: 'white' }}
+                    />
                 {
-                    cylinders?.length === 0 ? <Text>No cylinders as of now. Add some cylinders to view.</Text> :
-                    cylinders?.map((cylinder, idx) => <SingleCylinder cylinder={cylinder} key={idx} navigation={navigation}/>)
+                    packages?.length === 0 ? <Text>No packages as of now. Add some packages to view.</Text> :
+                    packages?.map((packageData, idx) => <SinglePermanentPackage packageData={packageData} key={idx} navigation={navigation}/>)
                 }
                 <View style={styles.pager}>
                     <View style={styles.pagerItem}>
@@ -119,6 +135,7 @@ const ManageCylinder = ({navigation}) => {
                             <AntDesign name="arrowright" size={24} color="black" />
                         </TouchableOpacity>
                     </View>
+                </View>
                 </View>
             </ScrollView>
         </>
@@ -149,6 +166,7 @@ const styles = StyleSheet.create({
     pagerItem: {
         flex: 1,
         alignItems: "center"
-    }
+    },
+    container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' }
 })
-export default ManageCylinder;
+export default ManagePackage;
