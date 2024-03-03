@@ -7,6 +7,9 @@ import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import Loader from "./../components/Loader";
 import handleErrors from "../utils/handleErrors";
 import getUserRoles from "../utils/getUserRoles";
+import getCylinderFromBarcode from "../utils/cylinderHelpers/getCylinderFromBarcode";
+import getDuraCylinderFromBarcode from "../utils/duraCylinderHelpers/getDuraCylinderFromBarcode";
+import getPermanentPackageFromBarcode from "../utils/packageHelpers/getPermanentPackageFromBarcode";
 
 const DashBoardScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
@@ -25,16 +28,22 @@ const DashBoardScreen = ({navigation}) => {
     const handleSearch = async () => {
       try {
         setLoading(true);
-        //search for cylinder        
-        const content = await axios.get(`/cylinder/barcode/${barcode}`, {
+        
+        const response = await axios.get(`/resource/${barcode}`, {
           headers: {
               Authorization: `Bearer ${authToken}`,
               Accept: "application/json",
-          },
-      });
-        const cylinder = content.data.data;
+          }
+        });
+        const resource = response.data.resource;
+        if(resource.type === "cylinder") {
+          navigation.navigate("cylinder", {cylinder : resource.data});
+        } else if(resource.type === "duraCylinder") {
+          navigation.navigate("duracylinder", {cylinder : resource.data});
+        } else if(resource.type === "permanentPackage") {
+          Alert.alert("Permanent package page not added yet");
+        }
         setLoading(false);
-        navigation.navigate("cylinder", {cylinder : cylinder});  
         //if cylinder is not found, search for package
         //fill code for that  
       } catch (error) {
@@ -83,10 +92,10 @@ const DashBoardScreen = ({navigation}) => {
               <Button title="Dura Cylinders" style={styles1.navBtns} onPress={() => navigation.navigate("manageDuraCylinder")}/>
             </View>
             <View style={styles1.spacing}>
-              <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("addPackage")}/>
+              <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("managePackage")}/>
             </View>
             {
-              role.includes("admin") ? 
+              role?.includes("admin") ? 
                 <View style={styles1.spacing}>
                   <Button title="Users" style={styles1.navBtns} onPress={() => navigation.navigate("addUser")}/>
                 </View> : 

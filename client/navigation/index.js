@@ -18,7 +18,9 @@ import {
   ManageDuraCylinder,
   DuraCylinderScreen,
   AddDuraCylinderScreen,
-  AddDuraCylinderFileScreen
+  AddDuraCylinderFileScreen,
+  ManagePackage,
+  PermanentPackageScreen
 } from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
@@ -142,6 +144,14 @@ const AppNavigator = () => {
             />
 
             <MainTabs.Screen
+              name="permanentPackage"
+              component={PermanentPackageScreen}
+              options={{
+                title: "Permanent package"
+              }}
+            />
+
+            <MainTabs.Screen
               name="transactionSuccess"
               component={TransactionSuccessScreen}
               options={{
@@ -170,6 +180,14 @@ const AppNavigator = () => {
               component={ManageCylinder}
               options={{
                 title: "Manage Cylinders"
+              }}
+            />
+
+            <MainTabs.Screen
+              name="managePackage"
+              component={ManagePackage}
+              options={{
+                title: "Manage Packages"
               }}
             />
 
@@ -258,6 +276,14 @@ const AppNavigator = () => {
             />
 
             <AdminTabs.Screen
+              name="permanentPackage"
+              component={PermanentPackageScreen}
+              options={{
+                title: "Permanent package"
+              }}
+            />
+
+            <AdminTabs.Screen
               name="duracylinder"
               component={DuraCylinderScreen}
               options={{
@@ -322,6 +348,14 @@ const AppNavigator = () => {
             />
 
             <AdminTabs.Screen
+              name="managePackage"
+              component={ManagePackage}
+              options={{
+                title: "Manage Packages"
+              }}
+            />
+
+            <AdminTabs.Screen
               name="addPackage"
               component={AddPackageScreen}
               options={{
@@ -344,7 +378,7 @@ const AppNavigator = () => {
     let content;
     if(isLoggedIn) {
       content = <MainUserTabsNavigator />
-      if(role.includes("admin")) {
+      if(role?.includes("admin")) {
         content = <AdminTabsNavigator />
       }
     } else {

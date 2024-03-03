@@ -18,6 +18,14 @@ const AddPackageScreen = ({navigation}) => {
     const [ test_date, set_test_date ] = useState(new Date());
     const [ noOfCylinders, setNoOfCylinders] = useState(0);
 
+    const [workingPressure, setWorkingPressure] = useState("");
+    const [valves, setValves] = useState("");
+    const [manifold, setManifold] = useState("");
+    const [wheels, setWheels] = useState("");
+    const [service, setService] = useState("");
+
+
+
     const [ showDatePicker, setShowDatePicker] = useState(false);
 
     const [ loading, setLoading ] = useState(false);
@@ -40,10 +48,15 @@ const AddPackageScreen = ({navigation}) => {
         const packageData = {
             barcode,
             serial_number,
-            test_date : formatted_test_date,
-            number_of_cylinders : noOfCylinders
+            last_test_date : formatted_test_date,
+            number_of_cylinders : noOfCylinders,
+            working_pressure : workingPressure,
+            valves,
+            manifold,
+            wheels,
+            service
         };
-        console.log(packageData);
+        // console.log(packageData);
         if(packageType === "permanent") {
             setLoading(true);
             axios.post("/package/permanent", packageData , {
@@ -114,6 +127,21 @@ const AddPackageScreen = ({navigation}) => {
                 <TouchableOpacity onPress={() => setShowDatePicker(!showDatePicker)}>
                     <TextInput  placeholder="Select Date" style={stylesText.inputField} editable={false} value={test_date.toDateString()}/>
                 </TouchableOpacity>
+
+                <Text>Working Pressure</Text>
+                <TextInput  placeholder="Enter Working Pressure" onChangeText={setWorkingPressure} style={stylesText.inputField}/>
+
+                <Text>Valves</Text>
+                <TextInput  placeholder="Enter Valves" onChangeText={setValves} style={stylesText.inputField}/>
+
+                <Text>Manifold</Text>
+                <TextInput  placeholder="Enter Manifold" onChangeText={setManifold} style={stylesText.inputField}/>
+
+                <Text>Wheels</Text>
+                <TextInput  placeholder="Enter Wheels" onChangeText={setWheels} style={stylesText.inputField}/>
+
+                <Text>Service</Text>
+                <TextInput  placeholder="Enter Service" onChangeText={setService} style={stylesText.inputField}/>
 
                 {
                     packageType === "permanent" ? 

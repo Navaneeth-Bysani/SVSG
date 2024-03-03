@@ -42,6 +42,7 @@ const AddCylindersToPackage = ({navigation, route}) => {
         }).then(() => {
             setLoading(false);
             Alert.alert("Cylinders added succesfully");
+            navigation.navigate("managePackage")
         }).catch((err) => {
             console.error(err);
             setLoading(false);

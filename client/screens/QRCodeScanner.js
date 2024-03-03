@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, Button, Alert, ScrollView } from "react-native"
 import { BarCodeScanner } from "expo-barcode-scanner";
 import axios from "./../utils/axios";
 import useAuthContext from "../hooks/useAuthContext";
+import handleErrors from "../utils/handleErrors";
 
 export default function QRCodeScanner({navigation}) {
   const [hasPermission, setHasPermission] = useState(null);
@@ -20,17 +21,27 @@ export default function QRCodeScanner({navigation}) {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     try {
-      let res;
       setScanned(true);
-      // Alert.alert(data);
-      const content = await axios.get(`/cylinder/barcode/${data}`, {
-        headers: {
-            Authorization: `Bearer ${authToken}`,
-            Accept: "application/json",
-        },
-      });
-      const cylinder = content.data.data;
-      navigation.navigate("cylinder", {cylinder : cylinder});  
+      try {
+        
+        const response = await axios.get(`/resource/${data}`, {
+          headers: {
+              Authorization: `Bearer ${authToken}`,
+              Accept: "application/json",
+          }
+        });
+        const resource = response.data.resource;
+        if(resource.type === "cylinder") {
+          navigation.navigate("cylinder", {cylinder : resource.data});
+        } else if(resource.type === "duraCylinder") {
+          navigation.navigate("duracylinder", {cylinder : resource.data});
+        } else if(resource.type === "permanentPackage") {
+          Alert.alert("Permanent package page not added yet");
+        }
+      } catch (error) {
+          handleErrors(error);
+      }
+        
     } catch (error) {
       console.error(error);
     }
