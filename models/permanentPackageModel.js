@@ -80,7 +80,14 @@ const permanentPackageSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: "cylinder"
         }
-    ]
+    ],
+    grade: {
+        type: String
+    },
+
+    batch_number: {
+        type: String
+    }
 }, {timestamps : true});
 
 const permanentPackageModel = mongoose.model("permanentPackage", permanentPackageSchema);

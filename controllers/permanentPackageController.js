@@ -2,6 +2,8 @@ const catchAsync = require("../utils/catchAsync");
 const PermanentPackage = require("./../models/permanentPackageModel");
 const Cylinder = require("./../models/cylinderModel");
 const {format_permanent_package_response} = require("./../utils/formatters/responseFormatters");
+const Tracking = require("./../models/trackingModel");
+const {getIndianDateTimeFromTimeStamp} = require("./../utils/formatters/dateTimeFormatters");
 
 exports.createOne = catchAsync(async(req, res, next) => {
     const {barcode, serial_number, last_test_date, number_of_cylinders, working_pressure, valves, manifold, wheels, service} = req.body;
@@ -166,6 +168,165 @@ exports.testerEntryByBarcode = catchAsync(async(req, res, next) => {
     const testUpdated = await PermanentPackage.findOneAndUpdate({barcode}, {last_test_date : Date.now()}, {new : true});
     res.status(200).json({
         "message" : "tested successfully",
-        data : format_cylinder_response(testUpdated)
+        data : format_permanent_package_response(testUpdated)
     })
 });
+
+const fillerEntryHelper = async(item, data, res) => {
+    if(!item) {
+        return res.status(404).json({
+            "message" : "No such material exists with given id or barcode"
+        });
+    }
+    if(item.status === "full") {
+        return res.status(400).json({
+            "message" : "Cylinder is already filled"
+        })
+    }
+    if(
+        // !data.filling_pressure || 
+        !data.grade || 
+        !data.batch_number
+    ) {
+        console.log("Not sufficient information. Missing some fields");
+        return res.status(400).json({
+            "message" : "Missing few field entries"
+        });
+        
+    }
+    try {
+        data.status = "full";
+        data.trackingStatus = 1;
+        const updated = await PermanentPackage.findByIdAndUpdate(item._id, data, {new:true}).populate({path:"cylinders", select:"barcode"});
+        return res.status(200).json({
+            "message" : "succesfully updated",
+            updated : format_permanent_package_response(updated)
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            "message" : "Something went wrong"
+        })
+    }
+}
+
+exports.fillerEntry = catchAsync(async(req, res, next) => {
+    const id = req.params.id;
+    const {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    } = req.body;
+
+    const item = await PermanentPackage.findById(id);
+    const data = {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    };
+    return await fillerEntryHelper(item, data, res);
+});
+
+exports.fillerEntryByBarcode = catchAsync(async(req, res, next) => {
+    const barcode = req.params.barcode.toLowerCase();
+    const {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    } = req.body;
+
+    const item = await PermanentPackage.findOne({barcode});
+    const data = {
+        // filling_pressure, 
+        grade, 
+        batch_number
+    };
+    return await fillerEntryHelper(item, data, res);
+});
+
+exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
+    const barcode = req.params.barcode.toLowerCase();
+    const {location} = req.body;
+    const latitude = location.coords.latitude;
+    const longitude = location.coords.longitude;
+
+    const item = await PermanentPackage.findOne({barcode});
+    if(!item) {
+        return res.status(404).json({
+            "message" : "Item not found"
+        });
+    }
+
+    const trackingStatus = item.trackingStatus;
+    if(trackingStatus === 0) {
+        return res.status(400).json({
+            "message" : "Can't be dispatched, because the package is empty"
+        })
+    };
+
+    const currentDate = getIndianDateTimeFromTimeStamp(Date.now());
+
+    const trackingData = {
+        date: currentDate.date,
+        time: currentDate.time,
+        performedBy: req.user.email,
+        latitude: latitude,
+        longitude: longitude,
+        action: ""
+    }
+
+    if(trackingStatus === 1) {
+        const billId = req.body.billId;
+        if(!billId) {
+            return res.status(400).json({
+                "message" : "Bad request, need billId"
+            })
+        }
+        // const trackingString = `Cylinder dispatched with bill id - ${billId} at ${currentDate.date}, ${currentDate.time} by ${req.user.email} from (${latitude},${longitude})`;
+        
+        trackingData.action = "dispatched";
+        const tracking = await Tracking.create({
+            cylinderId : item._id,
+            billId: billId,
+            actions: [trackingData]
+        });
+        item.currentTrackId = tracking._id;
+        item.isDispatched = true;
+        item.trackingStatus = 2;
+        await item.save();
+    } else if(trackingStatus === 2) {
+        const tracking = await Tracking.findById(item.currentTrackId);
+        // const trackingString = `Cylinder reached the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        trackingData.action = "arrived at destination";
+        tracking.actions.push(trackingData);
+        await tracking.save();
+        item.trackingStatus = 3;
+        await item.save();
+    } else if(trackingStatus === 3) {
+        const tracking = await Tracking.findById(item.currentTrackId);
+        // const trackingString = `Cylinder picked up from the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        trackingData.action = "picked up from destination"
+        tracking.actions.push(trackingData);
+        await tracking.save();
+        item.status = "empty";
+        item.trackingStatus = 4;
+        await item.save();
+    } else if(trackingStatus === 4) {
+        const tracking = await Tracking.findById(item.currentTrackId);
+        // const trackingString = `Cylinder reached SVSG at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
+        trackingData.action = "reached SVSG";
+        tracking.actions.push(trackingData);
+        await tracking.save();
+        item.isDispatched = false;
+        item.trackingStatus = 0;
+        item.currentTrackId = null;
+        await item.save();
+    }
+
+    const fetchedItem = await PermanentPackage.findById(item._id).populate("currentTrackId").populate({path:"cylinders", select:"barcode"});
+
+    return res.status(200).json({
+        "message" : "updated package",
+        data : format_permanent_package_response(fetchedItem)
+    })
+})

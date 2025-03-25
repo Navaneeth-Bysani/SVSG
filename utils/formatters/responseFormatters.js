@@ -79,7 +79,10 @@ const format_permanent_package_response = (data) => {
         wheels: data.wheels,
         service: data.service,
         number_of_cylinders: data.number_of_cylinders,
-        cylinders: data.cylinders.map(cylinder => cylinder.barcode)
+        cylinders: data.cylinders.map(cylinder => cylinder.barcode),
+        grade: data.grade,
+        batch_number: data.batch_number,
+        trackingStatus : data.trackingStatus
     }
 
     return formattedData;

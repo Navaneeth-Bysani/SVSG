@@ -95,7 +95,7 @@ const PermanentPackageScreen = ({navigation, route}) => {
             setLoading(false);
             if(testedRespone.status === 200) {
                 Alert.alert("Test date updated successfully");
-                navigation.navigate("package", {packageData : testedRespone.data.data});
+                navigation.navigate("permanentPackage", {packageData : testedRespone.data.data});
                 setSelectedActionType("");
             }
         } catch (error) {
@@ -181,12 +181,13 @@ const PermanentPackageScreen = ({navigation, route}) => {
             if(pickUpData.status === 200) {
                 Alert.alert("Package pickup updated successfully");
                 setSelectedActionType("");
-                setPackageData(pickUpData.data.cylinder);
+                setPackageData(pickUpData.data.data);
             } else  {
                 Alert.alert("Something went wrong");
             }
         } catch (error) {
             console.error(error);
+            setLoading(false);
             Alert.alert("Something went wrong!");
         }
         

@@ -12,7 +12,10 @@ const {createOne,
     updateOneByBarcode,
     updateCylindersofOneByBarcode,
     testerEntry,
-    testerEntryByBarcode
+    testerEntryByBarcode,
+    fillerEntry,
+    fillerEntryByBarcode,
+    pickUpEntryByBarcode
 } = require("./../controllers/permanentPackageController");
 
 const router = express.Router();
@@ -29,5 +32,10 @@ router.patch("/barcode/:barcode", restrictTo("admin"), updateOneByBarcode);
 
 router.patch("/tester/:id", restrictTo("admin", "tester"), testerEntry);
 router.patch("/tester/barcode/:barcode", restrictTo("admin", "tester"), testerEntryByBarcode);
+
+router.patch("/filler/:id", restrictTo("admin", "filler"), fillerEntry);
+router.patch("/filler/barcode/:barcode", restrictTo("admin", "filler"), fillerEntryByBarcode);
+
+router.patch("/pickup/barcode/:barcode", restrictTo("admin", "pickup"), pickUpEntryByBarcode);
 
 module.exports = router;
