@@ -18,6 +18,7 @@ import AddDuraCylinderScreen from "./AddDuraCylinder";
 import AddDuraCylinderFileScreen from "./AddDuraCylinderFile";
 import ManagePackage from "./ManagePackage";
 import PermanentPackageScreen from "./PermanentPackage";
+import BulkDeliveryScreen from "./BulkDeliveryScreen";
 
 export {
     LoginScreen,
@@ -39,5 +40,6 @@ export {
     AddDuraCylinderScreen,
     AddDuraCylinderFileScreen,
     ManagePackage,
-    PermanentPackageScreen
+    PermanentPackageScreen,
+    BulkDeliveryScreen
 }

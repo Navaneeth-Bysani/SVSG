@@ -94,6 +94,11 @@ const DashBoardScreen = ({navigation}) => {
             <View style={styles1.spacing}>
               <Button title="Packages" style={styles1.navBtns} onPress={() => navigation.navigate("managePackage")}/>
             </View>
+            {role?.includes("admin", "pickup") &&
+              <View style={styles1.spacing}>
+                <Button title="Bulk Delivery" style={styles1.navBtns} onPress={() => navigation.navigate("bulkDelivery")}/>
+              </View>
+            }
             {
               role?.includes("admin") ? 
                 <View style={styles1.spacing}>

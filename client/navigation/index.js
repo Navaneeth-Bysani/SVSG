@@ -20,7 +20,8 @@ import {
   AddDuraCylinderScreen,
   AddDuraCylinderFileScreen,
   ManagePackage,
-  PermanentPackageScreen
+  PermanentPackageScreen,
+  BulkDeliveryScreen
 } from "./../screens";
 import useAuthContext from "../hooks/useAuthContext";
 import {useState, useEffect} from "react";
@@ -198,6 +199,14 @@ const AppNavigator = () => {
                 title: "Manage Dura Cylinders"
               }}
             />
+
+            <MainTabs.Screen
+              name="bulkDelivery"
+              component={BulkDeliveryScreen}
+              options={{
+                title: "Bulk Delivery"
+              }}
+            />
           </MainTabs.Navigator>
 
           
@@ -368,6 +377,14 @@ const AppNavigator = () => {
               component={AddCylindersToPackageScreen}
               options={{
                 title: "Add Cylinders to Package"
+              }}
+            />
+
+            <AdminTabs.Screen
+              name="bulkDelivery"
+              component={BulkDeliveryScreen}
+              options={{
+                title: "Bulk Delivery"
               }}
             />
         </AdminTabs.Navigator>
