@@ -25,7 +25,7 @@ const BulkDeliveryScreen = ({navigation}) => {
                 return prevBarcodes.slice(0, noOfBarcodes);
             }
             // If increasing the count, extend the array while keeping existing values
-            return [...prevBarcodes, ...Array(noOfBarcodes - prevBarcodes.length).fill("")];
+            return [...prevBarcodes, ...Array(noOfBarcodes - prevBarcodes.length).fill({barcode: "", status: "", type: ""})];
         });
     }, [noOfBarcodes]);
 
@@ -42,13 +42,23 @@ const BulkDeliveryScreen = ({navigation}) => {
         return input;
     }
 
+    // const barcodeChanged = (index, value) => {
+    //     console.log("barcode changed", index, value);
+    //     setBarcodes((prevCylinders) => {
+    //         const newCylinders = [...prevCylinders];
+    //         newCylinders[index].barcode = value;
+    //         console.log(newCylinders);
+    //         return newCylinders;
+    //     });
+    // }
     const barcodeChanged = (index, value) => {
-        setBarcodes((prevCylinders) => {
-            const newCylinders = [...prevCylinders];
-            newCylinders[index] = value;
-            return newCylinders;
+        setBarcodes((prevBarcodes) => {
+            return prevBarcodes.map((barcodeObj, i) =>
+                i === index ? { ...barcodeObj, barcode: value } : barcodeObj
+            );
         });
-    }
+    };
+    
 
 
     const [ loading, setLoading ] = useState(false);
@@ -110,7 +120,7 @@ const BulkDeliveryScreen = ({navigation}) => {
             setLoading(true);
             const data = {
                 actionType: actionTypes.find((item) => item.value === actionType)?.actionType,
-                barcodes,
+                barcodes : barcodes.map((el) => el.barcode),
                 billId,
                 location
             }
@@ -170,13 +180,15 @@ const BulkDeliveryScreen = ({navigation}) => {
         {barcodes.map((el, idx) => (
             <View key={idx}>
                 <Text>{`Item ${idx+1}`}</Text>
+                <Text>status: {el?.status}</Text>
+                <Text>type: {el?.type}</Text>
                 <TextInput  
                     placeholder="Enter Barcode" 
                     onChangeText={(data) => barcodeChanged(idx, data)} 
                     style={stylesText.inputField}
-                    value= {el}
+                    value= {barcodes[idx].barcode}
                     onEndEditing={() => {
-                        const barcode = barcodes[idx];
+                        const barcode = barcodes[idx].barcode;
                         if(barcode) {
                             axios.get(`/cylinder/pickup/status/${barcode}`, {
                                 headers: {
@@ -184,8 +196,22 @@ const BulkDeliveryScreen = ({navigation}) => {
                                     Accept: "application/json",
                                 }
                             }).then(response => {
-                                const {type, status} = response.data.response;
-                            }).catch(err => console.log(err));
+                                setBarcodes((prevBarcodes) => {
+                                    const newBarcodes = [...prevBarcodes];
+                                    newBarcodes[idx].status = response.data.response?.status;
+                                    newBarcodes[idx].type = response.data.response?.type;
+                                    return newBarcodes;
+                                })
+                            }).catch(err => {
+                                if(err.status === 404) {
+                                    setBarcodes((prevBarcodes) => {
+                                        const newBarcodes = [...prevBarcodes];
+                                        newBarcodes[idx].status = "Not found";
+                                        newBarcodes[idx].type = "";
+                                        return newBarcodes;
+                                    })
+                                }
+                            });
                         }
                     }}
                 />   

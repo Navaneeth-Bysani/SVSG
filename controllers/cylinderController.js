@@ -716,7 +716,7 @@ exports.getPickupStatusBarCode = catchAsync(async (req, res, next) => {
     const barcode = req.params.barcode.toLowerCase();
     const { entityData, type } = await getEntityAndType(barcode);
     const response = {
-        status : entityData.status,
+        status : entityData?.status,
         type
     }
     if (!entityData) {
