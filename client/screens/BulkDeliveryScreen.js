@@ -2,183 +2,201 @@ import { View, Text, StyleSheet, Image, ImageBackground, Pressable, Button, Text
 import DropDown from "react-native-paper-dropdown";
 import styles from "./AddCylinder.module.css";
 import useAuthContext from "../hooks/useAuthContext"
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from "../utils/axios";
 import Loader from "../components/Loader";
+import * as Location from 'expo-location';
 
 const BulkDeliveryScreen = ({navigation}) => {
     const {user, authToken, logout} = useAuthContext();
-
-    const [packageType, setPackageType] = useState("");
+    const [actionType, setActionType] = useState("");
     const [showDropDown, setShowDropDown] = useState(false);
 
-    const [ barcode, setBarcode ] = useState("");
-    const [ serial_number, setSerialNumber] = useState("");
-    const [ test_date, set_test_date ] = useState(new Date());
-    const [ noOfCylinders, setNoOfCylinders] = useState(0);
+    const [ noOfBarcodes, setNoOfBarcodes] = useState(0);
+    const [ barcodes, setBarcodes] = useState([]);
 
-    const [workingPressure, setWorkingPressure] = useState("");
-    const [valves, setValves] = useState("");
-    const [manifold, setManifold] = useState("");
-    const [wheels, setWheels] = useState("");
-    const [service, setService] = useState("");
+    const [billId, setBillId] = useState("");
 
+    useEffect(() => {
+        setBarcodes((prevBarcodes) => {
+            // If reducing the count, slice the array
+            if (noOfBarcodes < prevBarcodes.length) {
+                return prevBarcodes.slice(0, noOfBarcodes);
+            }
+            // If increasing the count, extend the array while keeping existing values
+            return [...prevBarcodes, ...Array(noOfBarcodes - prevBarcodes.length).fill("")];
+        });
+    }, [noOfBarcodes]);
 
+    const InputData = () => {
+        const type = actionTypes.find((item) => item.value === actionType);
+        let input = null;
+        
+        if(type?.actionType === "warehousepickup" || type?.actionType === "plantpickup") {
+            input = (<>
+                <TextInput  placeholder="Enter Bill Id" onChangeText={setBillId} style={stylesText.inputField}/>
+            </>)
+        }
 
-    const [ showDatePicker, setShowDatePicker] = useState(false);
+        return input;
+    }
+
+    const barcodeChanged = (index, value) => {
+        setBarcodes((prevCylinders) => {
+            const newCylinders = [...prevCylinders];
+            newCylinders[index] = value;
+            return newCylinders;
+        });
+    }
+
 
     const [ loading, setLoading ] = useState(false);
 
-    const packageTypes = [
-        {label : "Permanent", value : "permanent"},
-        {label : "Temporary", value : "temporary"}
+    const actionTypes = [
+        {label : "Pickup from SVSG Hosakote", value : "svsg_hosakote", actionType: "plantpickup"},
+        {label : "Pickup from SVSG Peenya", value : "svsg_peenya", actionType: "warehousepickup"},
+        {label : "Pickup from client", value : "client_pickup", actionType: "clientpickup"},
+        {label : "Delivery to SVSG Hosakote", value : "svsg_hosakote_delivery", actionType: "plantdelivery"},
+        {label : "Delivery to client", value : "client_delivery", actionType: "clientdelivery"},
+        {label : "Delivery to SVSG Peenya", value : "svsg_peenya_delivery", actionType: "warehousedelivery"}
     ];
 
-    const handleSubmit = () => {
-        function padTo2Digits(num) {
-            return num.toString().padStart(2, '0');
-        }
+    const handleSubmit = async () => {
+        // try {
+        //     const {status} = await Location.requestForegroundPermissionsAsync();
+        //     if (status !== 'granted') {
+        //         setErrorMsg('Permission to access location was denied');
+        //         throw new Error('Permission denied'); // Stop further execution
+        //     }
+        
+        //     const {location} = await Location.getCurrentPositionAsync({});
+        //     setLoading(true);
+        //     const data = {
+        //         actionType: actionTypes.find((item) => item.value === actionType)?.actionType,
+        //         barcodes,
+        //         billId,
+        //         location
+        //     }
 
-        const formatted_test_date = [
-            test_date.getFullYear(),
-            padTo2Digits(test_date.getMonth() + 1),
-            padTo2Digits(test_date.getDate()),
-        ].join('-');
-        const packageData = {
-            barcode,
-            serial_number,
-            last_test_date : formatted_test_date,
-            number_of_cylinders : noOfCylinders,
-            working_pressure : workingPressure,
-            valves,
-            manifold,
-            wheels,
-            service
-        };
-        // console.log(packageData);
-        if(packageType === "permanent") {
+        //     const response = await axios.post("/cylinder/pickup/bulk", data, {
+        //         headers: {
+        //             Authorization: `Bearer ${authToken}`,
+        //             Accept: "application/json",
+        //         }
+        //     });
+
+        //     const {message} = response.data;
+        //     Alert.alert(message);
+        //     setLoading(false);
+        // } catch(err) {
+        //     console.log(err);
+        //     setLoading(false);
+        //     Alert.alert("Error", "An error occurred while processing your request.");
+        // }
+        
+        
+        Location.requestForegroundPermissionsAsync()
+        .then(({ status }) => {
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                throw new Error('Permission denied'); // Stop further execution
+            }
+            return Location.getCurrentPositionAsync({});
+        })
+        .then((location) => {
+            console.log("Location:", location);
+            location = location;
             setLoading(true);
-            axios.post("/package/permanent", packageData , {
+            const data = {
+                actionType: actionTypes.find((item) => item.value === actionType)?.actionType,
+                barcodes,
+                billId,
+                location
+            }
+            axios.post("/cylinder/pickup/bulk", data, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     Accept: "application/json",
-                },
-            }).then((data) => {
-                Alert.alert(`Permanent package has been created with barcode ${barcode}`);
+                }
+            }).then(response => {
+                const {message} = response.data;
+                Alert.alert(message);
                 setLoading(false);
-                navigation.navigate("addCylindersToPackage", {packageType, barcode, noOfCylinders});
-            }).catch(error => {
-                console.error(error);
+            }).catch(err => {
+                console.log(err);
                 setLoading(false);
-                Alert.alert("something went wrong");
-            })
-        }
+            });
+        })
+        .catch((error) => {
+            console.error("Error fetching location:", error);
+        });
+
         
     }
-
-    const validateNumber = (text, setFun) => {
-        let newText = '';
-        let numbers = '0123456789';
     
-        for (var i=0; i < text.length; i++) {
-            if(numbers.indexOf(text[i]) > -1 ) {
-                newText = newText + text[i];
-            }
-            else {
-                Alert.alert("please enter numbers only");
-            }
-        }
-
-        setFun(text);
-    }
-    
-    const datePicked = (event, date) => {
-        setShowDatePicker(false);
-        set_test_date(date);
-    }
     return (
         <ScrollView>
         <View style={stylesText.container}>
         <Loader loading={loading}/>
+        <Text>Number of barcodes</Text>
+        <TextInput  
+            placeholder="Enter number of barcodes" 
+            onChangeText={(text) => {
+            // Allow only numeric input
+            const numericValue = text.replace(/[^0-9]/g, '');
+            setNoOfBarcodes(1*numericValue);
+            }} 
+            style={stylesText.inputField}
+            keyboardType="numeric"
+        />
+        
         <DropDown
-                label={"Select"}
+                label={"Select action type"}
                 mode={"outlined"}
-                value={packageType}
-                setValue={setPackageType}
-                list={packageTypes}
+                value={actionType}
+                setValue={setActionType}
+                list={actionTypes}
                 visible={showDropDown}
                 showDropDown={() => setShowDropDown(true)}
                 onDismiss={() => setShowDropDown(false)}
                 style={{ backgroundColor: 'white' }}
         />
-        {packageType !== "" ? (
-            <>
-            
+ 
+        {InputData()}  
+        <Text>Enter the barcodes below</Text>
+        <Text>{`Taking input for ${noOfBarcodes}`}</Text>
 
-                <Text>barcode (case sensitive)</Text>
-                <TextInput  placeholder="Enter Barcode" onChangeText={setBarcode} style={stylesText.inputField}/>
-
-                <Text>Serial Number</Text>
-                <TextInput  placeholder="Enter Serial Number" onChangeText={setSerialNumber} style={stylesText.inputField}/>
-
-                <Text>Test date</Text>
-                {showDatePicker && <DateTimePicker mode="date" value={test_date} onChange={datePicked} display="default" is24Hour={true}/>}
-                <TouchableOpacity onPress={() => setShowDatePicker(!showDatePicker)}>
-                    <TextInput  placeholder="Select Date" style={stylesText.inputField} editable={false} value={test_date.toDateString()}/>
-                </TouchableOpacity>
-
-                <Text>Working Pressure</Text>
-                <TextInput  placeholder="Enter Working Pressure" onChangeText={setWorkingPressure} style={stylesText.inputField}/>
-
-                <Text>Valves</Text>
-                <TextInput  placeholder="Enter Valves" onChangeText={setValves} style={stylesText.inputField}/>
-
-                <Text>Manifold</Text>
-                <TextInput  placeholder="Enter Manifold" onChangeText={setManifold} style={stylesText.inputField}/>
-
-                <Text>Wheels</Text>
-                <TextInput  placeholder="Enter Wheels" onChangeText={setWheels} style={stylesText.inputField}/>
-
-                <Text>Service</Text>
-                <TextInput  placeholder="Enter Service" onChangeText={setService} style={stylesText.inputField}/>
-
-                {
-                    packageType === "permanent" ? 
-                    (<>
-                        <Text>Number of cylinders</Text>
-                        <TextInput  
-                            placeholder="Enter number of cylinders" 
-                            onChangeText={(text) => {
-                                // Allow only numeric input
-                                const numericValue = text.replace(/[^0-9]/g, '');
-                                setNoOfCylinders(1*numericValue);
-                            }} 
-                            style={stylesText.inputField}
-                            keyboardType="numeric"
-                        />
-                    </>)
-                    : 
-                    <>
-                    </>
-                }
-               
-
-                <Button
-                    title = "Add Package"
-                    onPress={handleSubmit}>
-                        Add Package
-                </Button>
-
-            </>
-        ) :
-        <Text>
-            Select a Package Type
-        </Text>
-        }
-        
-
-            
+        {barcodes.map((el, idx) => (
+            <View key={idx}>
+                <Text>{`Item ${idx+1}`}</Text>
+                <TextInput  
+                    placeholder="Enter Barcode" 
+                    onChangeText={(data) => barcodeChanged(idx, data)} 
+                    style={stylesText.inputField}
+                    value= {el}
+                    onEndEditing={() => {
+                        const barcode = barcodes[idx];
+                        if(barcode) {
+                            axios.get(`/cylinder/pickup/status/${barcode}`, {
+                                headers: {
+                                    Authorization: `Bearer ${authToken}`,
+                                    Accept: "application/json",
+                                }
+                            }).then(response => {
+                                const {type, status} = response.data.response;
+                            }).catch(err => console.log(err));
+                        }
+                    }}
+                />   
+            </View>
+        ))}     
+        <Button
+            title="Submit"
+            onPress={handleSubmit}
+        >
+            Submit
+        </Button>
         </View>
         </ScrollView>
     )
@@ -202,3 +220,5 @@ const stylesText = StyleSheet.create({
 });
 
 export default BulkDeliveryScreen;
+
+//fix error handling, and entity status and type

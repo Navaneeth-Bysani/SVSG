@@ -85,4 +85,17 @@ const format_permanent_package_response = (data) => {
     return formattedData;
 }
 
-module.exports = {format_cylinder_response, format_dura_cylinder_response, format_permanent_package_response};
+const format_entity_response = (data, type) => {
+    switch(type) {
+        case "cylinder":
+            return format_cylinder_response(data);
+        case "duraCylinder":
+            return format_dura_cylinder_response(data);
+        case "permanentPackage":
+            return format_permanent_package_response(data);
+        default:
+            throw new Error("Invalid type provided");
+    }
+}
+
+module.exports = {format_cylinder_response, format_dura_cylinder_response, format_permanent_package_response, format_entity_response};

@@ -15,7 +15,9 @@ const {
     pickUpEntryByBarcode,
     getCylinderTransactionHistory,
     uploadExcel,
-    createWithExcel
+    createWithExcel,
+    bulkPickup,
+    getPickupStatusBarCode
 } = require("../controllers/cylinderController");
 
 const {loggedInUser, protect, restrictTo} = require("../controllers/authController");
@@ -45,7 +47,9 @@ router.patch("/tester/barcode/:barcode", restrictTo("admin", "tester"), testerEn
 
 // router.patch("/pickup/:id", restrictTo("admin", "pickup"), )
 router.patch("/pickup/barcode/:barcode", restrictTo("admin", "pickup"), pickUpEntryByBarcode);
+router.post("/pickup/bulk", restrictTo("admin", "pickup"), bulkPickup);
 
+router.get("/pickup/status/:barcode", restrictTo("admin", "pickup"), getPickupStatusBarCode);
 router.delete("/barcode/:barcode", restrictTo("admin"), deleteOneByBarcode);
 
 

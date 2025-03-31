@@ -97,7 +97,7 @@ const cylinderSchema = new mongoose.Schema({
     //0 - unfilled and undispatched
     trackingStatus : {
         type: Number,
-        enum: [0, 1, 2, 3, 4],
+        enum: [0, 1, 2, 3, 4, 5, 6],
         default: 0
     },
 

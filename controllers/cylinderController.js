@@ -1,5 +1,7 @@
 const catchAsync = require("../utils/catchAsync");
 const Cylinder = require("../models/cylinderModel");
+const DuraCylinder = require("../models/duraCylinderModel");
+const PermanentPackage = require("../models/permanentPackageModel");
 const Order = require("../models/orderModel");
 const multer = require("multer");
 const readXlsxFile = require('read-excel-file/node')
@@ -7,8 +9,8 @@ const createExcel = require("../utils/createExcel");
 const Email = require("../utils/email");
 // const moment = require("moment-timezone");
 const Tracking = require("./../models/trackingModel");
-const {format_cylinder_response} = require("./../utils/formatters/responseFormatters");
-const {getIndianDateTimeFromTimeStamp, increaseYearBy5} = require("./../utils/formatters/dateTimeFormatters");
+const { format_cylinder_response, format_entity_response } = require("./../utils/formatters/responseFormatters");
+const { getIndianDateTimeFromTimeStamp, increaseYearBy5 } = require("./../utils/formatters/dateTimeFormatters");
 
 // const getIndianDateTimeFromTimeStamp = (timestamp) => {
 //     const indianTime = moment(timestamp).tz("Asia/Kolkata");
@@ -25,13 +27,22 @@ const {getIndianDateTimeFromTimeStamp, increaseYearBy5} = require("./../utils/fo
 //     return new_date;
 // }
 
-const createOneEntity = async(data) => {
+const ACTIONS = {
+    PLANTPICKUP: 0,
+    PLANTDELIVERY: 1,
+    WAREHOUSEPICKUP: 2,
+    WAREHOUSEDELIVERY: 3,
+    CLIENTPICKUP: 4,
+    CLIENTDELIVERY: 5
+}
+
+const createOneEntity = async (data) => {
     try {
-        if(!data.owner) {
+        if (!data.owner) {
             data.owner = "Sri Vishnu Speciality Gases";
         }
 
-        if(!data.branch) {
+        if (!data.branch) {
             data.branch = "Hosakote";
         }
 
@@ -45,13 +56,13 @@ const createOneEntity = async(data) => {
 
 
 
-exports.createOne = catchAsync(async (req,res,next) => {
+exports.createOne = catchAsync(async (req, res, next) => {
     const {
-        barcode, 
-        serial_number, 
-        product_code, 
-        volume, 
-        manufactured_date, 
+        barcode,
+        serial_number,
+        product_code,
+        volume,
+        manufactured_date,
         manufacturer,
         filling_pressure,
         tare_weight,
@@ -61,19 +72,19 @@ exports.createOne = catchAsync(async (req,res,next) => {
         owner,
         branch,
         valve,
-        valve_gaurd 
+        valve_gaurd
     } = req.body;
 
     const data = {
-        barcode: barcode.toLowerCase(), 
-        serial_number, 
-        product_code, 
-        volume, 
-        manufactured_date, 
+        barcode: barcode.toLowerCase(),
+        serial_number,
+        product_code,
+        volume,
+        manufactured_date,
         manufacturer,
         filling_pressure,
         tare_weight,
-        test_due_date : req.body.test_due_date ? test_due_date : increaseYearBy5(manufactured_date),
+        test_due_date: req.body.test_due_date ? test_due_date : increaseYearBy5(manufactured_date),
         minimum_thickness,
         usage,
         owner,
@@ -83,15 +94,15 @@ exports.createOne = catchAsync(async (req,res,next) => {
     };
 
     const newOne = await createOneEntity(data);
-    if(newOne) {
+    if (newOne) {
         res.status(201).json({
             newOne
         })
     } else {
         res.status(400).json({
-            "message" : "Something went wrong!"
+            "message": "Something went wrong!"
         })
-    }  
+    }
 });
 
 
@@ -129,94 +140,94 @@ exports.createOne = catchAsync(async (req,res,next) => {
 //     return formattedData;
 // }
 
-exports.getAll = catchAsync(async (req,res, next) => {
+exports.getAll = catchAsync(async (req, res, next) => {
     const limit = req.query.limit;
     const pageNumber = req.query.pageNumber;
 
-    const startIndex = limit*(pageNumber-1);
+    const startIndex = limit * (pageNumber - 1);
     const data = await Cylinder.find().skip(startIndex).limit(limit);
     const formattedData = data.map(cylinder => format_cylinder_response(cylinder));
     res.status(200).json({
-        data : formattedData
+        data: formattedData
     })
 });
 
-exports.getOne = catchAsync(async (req,res,next) => {
+exports.getOne = catchAsync(async (req, res, next) => {
     const data = await Cylinder.findById(req.params.id).populate("currentTrackId");
-    
-    if(!data) {
+
+    if (!data) {
         res.status(404).json({
-            "message" : "no data is found with that id"
+            "message": "no data is found with that id"
         });
 
         return;
     }
 
     res.status(200).json({
-        data : format_cylinder_response(data)
+        data: format_cylinder_response(data)
     })
 });
 
-exports.deleteOne = catchAsync(async (req,res,next) => {
+exports.deleteOne = catchAsync(async (req, res, next) => {
     const id = req.params.id;
     const deleted = await Cylinder.findByIdAndDelete(id);
 
     res.status(204).json({
-        "message" : "deleted successfully"
+        "message": "deleted successfully"
     })
 });
 
-exports.getOneByBarCode = catchAsync(async (req,res) => {
+exports.getOneByBarCode = catchAsync(async (req, res) => {
     const barcode = req.params.barcode.toLowerCase();
-    const data = await Cylinder.findOne({barcode}).populate("currentTrackId");
+    const data = await Cylinder.findOne({ barcode }).populate("currentTrackId");
 
-    if(!data) {
+    if (!data) {
         res.status(404).json({
-            "message" : "Unable to find anything with this barcode"
+            "message": "Unable to find anything with this barcode"
         })
         return;
     }
 
     res.status(200).json({
-        data : format_cylinder_response(data)
+        data: format_cylinder_response(data)
     })
 });
 
-exports.deleteOneByBarcode = catchAsync(async (req,res,next) => {
+exports.deleteOneByBarcode = catchAsync(async (req, res, next) => {
     const barcode = req.params.barcode.toLowerCase();
-    const deletedMaterial = await Cylinder.deleteOne({barcode});
+    const deletedMaterial = await Cylinder.deleteOne({ barcode });
 
     res.status(204).json({
-        "message" : "deleted successfully"
+        "message": "deleted successfully"
     })
 });
 
-exports.getAllReport = catchAsync(async (req,res,next) => {
+exports.getAllReport = catchAsync(async (req, res, next) => {
     const userEmail = req.user.email;
 
     //0. Fetch materials data
     const data = await Cylinder.find();
 
     const headers = [
-        {key: "barcode", header: "Barcode"},
-        {key: "serial_number", header : "Serial Number"},
-        {key: "product_code", header: "Product code"},
-        {key: "volume", header: "Volume"},
-        {key: "manufactured_date", header:"Manufactured Date"},
-        {key: "manufacturer", header:"Manufacturer"},
-        {key: "owner", header:"Owner"},
-        {key: "branch", header:"Branch"},
-        {key: "status", header:"Status"},
-        {key: "filling_pressure", header:"Filling Pressure"},
-        {key: "grade", header:"Grade"},
-        {key: "batch_number", header:"Batch Number"},
-        {key: "last_test_date", header:"Last Test Date"},
-        {key: "tare_weight", header: "Tare Weight"},
-        {key: "test_due_date", header: "Test Due Date"},
-        {key: "minimum_thickenss", header: "Minimum Thickness"},
-        {key: "usage", header : "Usage"},
-        {key: "valve", header: "valve"},
-        {key: "valve_gaurd", header: "valve gaurd"}
+        { key: "barcode", header: "Barcode" },
+        { key: "serial_number", header: "Serial Number" },
+        { key: "product_code", header: "Product code" },
+        { key: "volume", header: "Volume" },
+        { key: "manufactured_date", header: "Manufactured Date" },
+        { key: "manufacturer", header: "Manufacturer" },
+        { key: "owner", header: "Owner" },
+        { key: "branch", header: "Branch" },
+        { key: "status", header: "Status" },
+        { key: "filling_pressure", header: "Filling Pressure" },
+        { key: "grade", header: "Grade" },
+        { key: "batch_number", header: "Batch Number" },
+        { key: "last_test_date", header: "Last Test Date" },
+        { key: "tare_weight", header: "Tare Weight" },
+        { key: "test_due_date", header: "Test Due Date" },
+        { key: "minimum_thickenss", header: "Minimum Thickness" },
+        { key: "usage", header: "Usage" },
+        { key: "valve", header: "valve" },
+        { key: "valve_gaurd", header: "valve gaurd" }
     ];
 
     //1. create excel sheet
@@ -226,7 +237,7 @@ exports.getAllReport = catchAsync(async (req,res,next) => {
     const Emailer = new Email(req.user, "some url");
 
     const attachments = [{
-        path : excelFilePath
+        path: excelFilePath
     }]
     await Emailer.sendMaterialsReport(attachments);
     //3. delete the excel file (can be taken care later)
@@ -234,105 +245,105 @@ exports.getAllReport = catchAsync(async (req,res,next) => {
 
     //4. send response
     res.status(200).json({
-        "message" : "email sent successfully"
+        "message": "email sent successfully"
     })
 });
 
-const fillerEntryHelper = async(cylinder, data, res) => {
-    if(!cylinder) {
+const fillerEntryHelper = async (cylinder, data, res) => {
+    if (!cylinder) {
         return res.status(404).json({
-            "message" : "No such material exists with given id or barcode"
+            "message": "No such material exists with given id or barcode"
         });
     }
-    if(cylinder.status === "full") {
+    if (cylinder.status === "full") {
         return res.status(400).json({
-            "message" : "Cylinder is already filled"
+            "message": "Cylinder is already filled"
         })
     }
-    if(
+    if (
         // !data.filling_pressure || 
-        !data.grade || 
+        !data.grade ||
         !data.batch_number
     ) {
         console.log("Not sufficient information. Missing some fields");
         return res.status(400).json({
-            "message" : "Missing few field entries"
+            "message": "Missing few field entries"
         });
-        
+
     }
     try {
         data.status = "full";
         data.trackingStatus = 1;
-        const updated = await Cylinder.findByIdAndUpdate(cylinder._id, data, {new:true});
+        const updated = await Cylinder.findByIdAndUpdate(cylinder._id, data, { new: true });
         return res.status(200).json({
-            "message" : "succesfully updated",
-            updated : format_cylinder_response(updated)
+            "message": "succesfully updated",
+            updated: format_cylinder_response(updated)
         });
     } catch (error) {
         console.log(error);
         return res.status(400).json({
-            "message" : "Something went wrong"
+            "message": "Something went wrong"
         })
     }
 }
 
-exports.fillerEntry = catchAsync(async(req, res, next) => {
+exports.fillerEntry = catchAsync(async (req, res, next) => {
     const id = req.params.id;
     const {
         // filling_pressure, 
-        grade, 
+        grade,
         batch_number
     } = req.body;
 
     const cylinder = await Cylinder.findById(id);
     const data = {
         // filling_pressure, 
-        grade, 
+        grade,
         batch_number
     };
     return await fillerEntryHelper(cylinder, data, res);
 });
 
-exports.fillerEntryByBarcode = catchAsync(async(req, res, next) => {
+exports.fillerEntryByBarcode = catchAsync(async (req, res, next) => {
     const barcode = req.params.barcode.toLowerCase();
     const {
         // filling_pressure, 
-        grade, 
+        grade,
         batch_number
     } = req.body;
 
-    const cylinder = await Cylinder.findOne({barcode});
+    const cylinder = await Cylinder.findOne({ barcode });
     const data = {
         // filling_pressure, 
-        grade, 
+        grade,
         batch_number
     };
     return await fillerEntryHelper(cylinder, data, res);
 });
 
-exports.testerEntry = catchAsync(async(req,res, next) => {
+exports.testerEntry = catchAsync(async (req, res, next) => {
     const id = req.params.id;
-    const testUpdated = await Cylinder.findByIdAndUpdate(id, {last_test_date : Date.now()}, {new: true});
+    const testUpdated = await Cylinder.findByIdAndUpdate(id, { last_test_date: Date.now() }, { new: true });
 
     res.status(200).json({
-        "message" : "tested successfully",
-        data : format_cylinder_response(testUpdated)
+        "message": "tested successfully",
+        data: format_cylinder_response(testUpdated)
     })
 });
 
-exports.testerEntryByBarcode = catchAsync(async(req, res, next) => {
+exports.testerEntryByBarcode = catchAsync(async (req, res, next) => {
     const barcode = req.params.barcode.toLowerCase();
-    const testUpdated = await Cylinder.findOneAndUpdate({barcode}, {last_test_date : Date.now()}, {new : true});
+    const testUpdated = await Cylinder.findOneAndUpdate({ barcode }, { last_test_date: Date.now() }, { new: true });
     res.status(200).json({
-        "message" : "tested successfully",
-        data : format_cylinder_response(testUpdated)
+        "message": "tested successfully",
+        data: format_cylinder_response(testUpdated)
     })
 });
 
-const cylinderStatusHelper = async(cylinder, res) => {
-    if(!cylinder) {
+const cylinderStatusHelper = async (cylinder, res) => {
+    if (!cylinder) {
         return res.status(404).json({
-            "message" : "No cylinder found with that id or barcode"
+            "message": "No cylinder found with that id or barcode"
         })
     }
     try {
@@ -342,133 +353,204 @@ const cylinderStatusHelper = async(cylinder, res) => {
     } catch (error) {
         console.log(error);
         return res.status(400).json({
-            "message" : "something went wrong"
+            "message": "something went wrong"
         })
     }
 }
 
-
-
-exports.pickUpEntryByBarcode = catchAsync(async(req,res,next) => {
-    const barcode = req.params.barcode.toLowerCase();
-    const {location} = req.body;
-    const latitude = location.coords.latitude;
-    const longitude = location.coords.longitude;
-
-    const cylinder = await Cylinder.findOne({barcode});
-    if(!cylinder) {
-        return res.status(404).json({
-            "message" : "Cylinder not found"
-        });
+const getEntityAndType = async (barcode) => {
+    console.log("In getEntityAndType")
+    console.log(barcode);
+    const cylinderSearch = await Cylinder.findOne({ barcode });
+    console.log("cylinderSearch", cylinderSearch)
+    if (cylinderSearch) {
+        return {
+            entityData: cylinderSearch,
+            type: "cylinder"
+        }
     }
 
-    const trackingStatus = cylinder.trackingStatus;
-    if(trackingStatus === 0) {
-        return res.status(400).json({
-            "message" : "Can't be dispatched, because the cylinder is empty"
+    const duraCylinderSearch = await DuraCylinder.findOne({ barcode });
+    console.log("duraCylinderSearch", duraCylinderSearch)
+    if (duraCylinderSearch) {
+        return {
+            entityData: duraCylinderSearch,
+            type: "duraCylinder"
+        }
+    }
+
+    const permanentPackageSearch = await PermanentPackage.findOne({ barcode });
+    console.log("permanentPackageSearch", permanentPackageSearch)
+    if (permanentPackageSearch) {
+        return {
+            entityData: permanentPackageSearch,
+            type: "permanentPackage"
+        }
+    }
+
+    return { entityData: null, type: null };
+}
+
+const checkTrackingStatusMatchesActionType = (trackingStatus, actionType) => {
+    switch (actionType) {
+        case "plantpickup":
+            return trackingStatus === ACTIONS.PLANTDELIVERY;
+        case "plantdelivery":
+            return trackingStatus === ACTIONS.CLIENTPICKUP || trackingStatus === ACTIONS.WAREHOUSEPICKUP;
+        case "warehousepickup":
+            return trackingStatus === ACTIONS.WAREHOUSEDELIVERY;
+        case "warehousedelivery":
+            return trackingStatus === ACTIONS.PLANTPICKUP || trackingStatus === ACTIONS.CLIENTPICKUP;
+        case "clientpickup":
+            return trackingStatus === ACTIONS.CLIENTDELIVERY;
+        case "clientdelivery":
+            return trackingStatus === ACTIONS.PLANTPICKUP || trackingStatus === ACTIONS.WAREHOUSEPICKUP;
+        default:
+            return false;
+    }
+
+}
+
+const pickUpEntryByBarcodeHelper = async (barcode, req, res) => {
+    //metadata has location : {latitude, longitude}
+    const { actionType, location, metadata } = req.body;
+    const { entityData, type } = await getEntityAndType(barcode);
+
+    if (!actionType || !location) {
+        res.status(400).json({
+            "message": "Bad request, need actionType and location"
         })
-    };
+        throw new Error("Bad request, need actionType and location");
+    }
+    if (!entityData) {
+        res.status(404).json({
+            "message": "No such material exists with given id or barcode"
+        });
+        throw new Error("No such material exists with given id or barcode");
+    }
+
+    const currTrackingStatus = entityData.trackingStatus;
+    if (ACTIONS[actionType.toUpperCase()] === ACTIONS.PLANTPICKUP && entityData.status === "empty") {
+        res.status(400).json({
+            "message": `Can't be dispatched, because the entity is empty - ${barcode}`
+        })
+        throw new Error(`Can't be dispatched, because the entity is empty - ${barcode}`);
+    }
+
+    const isStatusValid = checkTrackingStatusMatchesActionType(currTrackingStatus, actionType);
+    if (!isStatusValid) {
+        res.status(400).json({
+            "message": `Invalid tracking status for the action type. Current status is ${Object.keys(ACTIONS).find(key => ACTIONS[key] === currTrackingStatus)} for ${barcode}`
+        })
+        throw new Error(`Invalid tracking status for the action type. Current status is ${Object.keys(ACTIONS).find(key => ACTIONS[key] === currTrackingStatus)} for ${barcode}`);
+    }
 
     const currentDate = getIndianDateTimeFromTimeStamp(Date.now());
-
     const trackingData = {
         date: currentDate.date,
         time: currentDate.time,
         performedBy: req.user.email,
-        latitude: latitude,
-        longitude: longitude,
-        action: ""
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        action: actionType
     }
 
-    if(trackingStatus === 1) {
+    entityData.trackingStatus = ACTIONS[actionType.toUpperCase()];
+    const newTrackingStatus = ACTIONS[actionType.toUpperCase()];
+
+    entityData.trackingStatus = newTrackingStatus;
+
+    if (newTrackingStatus === ACTIONS.PLANTPICKUP) {
         const billId = req.body.billId;
-        if(!billId) {
-            return res.status(400).json({
-                "message" : "Bad request, need billId"
+        if (!billId) {
+            res.status(400).json({
+                "message": "Bad request, need bill Id"
             })
+            throw new Error("Bad request, need bill Id");
         }
-        // const trackingString = `Cylinder dispatched with bill id - ${billId} at ${currentDate.date}, ${currentDate.time} by ${req.user.email} from (${latitude},${longitude})`;
-        
-        trackingData.action = "dispatched";
+
         const tracking = await Tracking.create({
-            cylinderId : cylinder._id,
+            cylinderId: entityData._id,
             billId: billId,
             actions: [trackingData]
         });
-        cylinder.currentTrackId = tracking._id;
-        cylinder.isDispatched = true;
-        cylinder.trackingStatus = 2;
-        await cylinder.save();
-    } else if(trackingStatus === 2) {
-        const tracking = await Tracking.findById(cylinder.currentTrackId);
-        // const trackingString = `Cylinder reached the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
-        trackingData.action = "arrived at destination";
+        entityData.currentTrackId = tracking._id;
+        entityData.isDispatched = true;
+
+        await entityData.save();
+    } else {
+        const tracking = await Tracking.findById(entityData.currentTrackId);
         tracking.actions.push(trackingData);
+
+        switch (newTrackingStatus) {
+            case ACTIONS.PLANTDELIVERY:
+                break;
+            case ACTIONS.CLIENTDELIVERY:
+                break;
+            case ACTIONS.WAREHOUSEPICKUP:
+                break;
+            case ACTIONS.CLIENTPICKUP:
+                metadata?.shouldMarkEmpty && (entityData.status = "empty");
+                break;
+            case ACTIONS.WAREHOUSEDELIVERY:
+                break;
+            default:
+                res.status(400).json({
+                    "message": "Invalid action type"
+                })
+                throw new Error("Invalid action type");
+        }
+
         await tracking.save();
-        cylinder.trackingStatus = 3;
-        await cylinder.save();
-    } else if(trackingStatus === 3) {
-        const tracking = await Tracking.findById(cylinder.currentTrackId);
-        // const trackingString = `Cylinder picked up from the destination at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
-        trackingData.action = "picked up from destination"
-        tracking.actions.push(trackingData);
-        await tracking.save();
-        cylinder.status = "empty";
-        cylinder.trackingStatus = 4;
-        await cylinder.save();
-    } else if(trackingStatus === 4) {
-        const tracking = await Tracking.findById(cylinder.currentTrackId);
-        // const trackingString = `Cylinder reached SVSG at ${currentDate.date}, ${currentDate.time} by ${req.user.email} at (${latitude}, ${longitude})`;
-        trackingData.action = "reached SVSG";
-        tracking.actions.push(trackingData);
-        await tracking.save();
-        cylinder.isDispatched = false;
-        cylinder.trackingStatus = 0;
-        cylinder.currentTrackId = null;
-        await cylinder.save();
+        await entityData.save();
     }
+    console.log(type);
+    return format_entity_response(entityData, type)
+};
 
-    const fetchedCylinder = await Cylinder.findById(cylinder._id).populate("currentTrackId");
+exports.pickUpEntryByBarcode = catchAsync(async (req, res, next) => {
+    const barcode = req.params.barcode.toLowerCase();
 
-    return res.status(200).json({
-        "message" : "updated cylinder",
-        cylinder: format_cylinder_response(fetchedCylinder)
+    const entityResponse = await pickUpEntryByBarcodeHelper(barcode, req, res);
+    res.status(200).json({
+        "message": "transaction successful",
+        data: entityResponse
     })
 })
 
 const format_trackings = (el) => {
     return `Cylinder ${el.action} at ${el.date} and ${el.time} by ${el.performedBy} from (${el.latitude},${el.longitude})`
 }
-exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
+exports.getCylinderTransactionHistory = catchAsync(async (req, res, next) => {
     // let filter = {barcode : req.query.barcode, _id : req.query.materialId};
     let filter = {};
-    if(req.query.barcode) {
-        filter = {barcode : req.query.barcode.toLowerCase()}
-    } else if(req.query.materialId) {
-        filter = {_id : req.query.materialId}
+    if (req.query.barcode) {
+        filter = { barcode: req.query.barcode.toLowerCase() }
+    } else if (req.query.materialId) {
+        filter = { _id: req.query.materialId }
     } else {
         return res.status(400).json({
-            "message" : "need some query parameter"
+            "message": "need some query parameter"
         })
     }
     const cylinder = await Cylinder.findOne(filter);
-    const trackings = await Tracking.find({cylinderId : cylinder._id}).sort("createdAt");
+    const trackings = await Tracking.find({ cylinderId: cylinder._id }).sort("createdAt");
     const headers = [
-        {key: "sno", header: "Serial Number", width : 10},
-        {key: "action1", header: "Action-1", width : 100},
-        {key: "action2", header: "Action-2", width : 100},
-        {key: "action3", header: "Action-3", width : 100},
-        {key: "action4", header: "Action-4", width : 100},
+        { key: "sno", header: "Serial Number", width: 10 },
+        { key: "action1", header: "Action-1", width: 100 },
+        { key: "action2", header: "Action-2", width: 100 },
+        { key: "action3", header: "Action-3", width: 100 },
+        { key: "action4", header: "Action-4", width: 100 },
 
     ];
     const modifiedOrders = trackings.map((tracking, idx) => {
-       
+
         return {
-            sno : idx+1,
-            action1 : tracking.actions.length > 0 ? format_trackings(tracking.actions[0]) : "-",
-            action2 : tracking.actions.length > 1 ? format_trackings(tracking.actions[1]) : "-",
-            action3 : tracking.actions.length > 2 ? format_trackings(tracking.actions[2]) : "-",
-            action4 : tracking.actions.length > 3 ? format_trackings(tracking.actions[3]) : "-"
+            sno: idx + 1,
+            action1: tracking.actions.length > 0 ? format_trackings(tracking.actions[0]) : "-",
+            action2: tracking.actions.length > 1 ? format_trackings(tracking.actions[1]) : "-",
+            action3: tracking.actions.length > 2 ? format_trackings(tracking.actions[2]) : "-",
+            action4: tracking.actions.length > 3 ? format_trackings(tracking.actions[3]) : "-"
         }
     });
 
@@ -479,26 +561,26 @@ exports.getCylinderTransactionHistory = catchAsync(async(req,res,next) => {
     const Emailer = new Email(req.user, "some url");
 
     const attachments = [{
-        path : excelFilePath
+        path: excelFilePath
     }]
     await Emailer.sendMaterialsReport(attachments);
     res.status(200).json({
-        "message" : "email sent succesfully",
+        "message": "email sent succesfully",
     })
 })
 
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null,'uploads/');
+        cb(null, 'uploads/');
     },
-    filename: (req,file,cb) => {
-      // user-3459923fdg-3334556474.jpeg
-      const ext = file.mimetype.split('/')[1];
-      cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+    filename: (req, file, cb) => {
+        // user-3459923fdg-3334556474.jpeg
+        const ext = file.mimetype.split('/')[1];
+        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
     }
 });
 
-const multerFilter = (req,file,cb) => {
+const multerFilter = (req, file, cb) => {
     cb(null, true);
 };
 
@@ -509,12 +591,12 @@ const upload = multer({
 
 exports.uploadExcel = upload.single('document');
 
-exports.createWithExcel = catchAsync(async(req,res,next) => {
-    
+exports.createWithExcel = catchAsync(async (req, res, next) => {
+
     const filename = req.file.filename;
 
     let repeated_barcodes = "";
-    
+
 
     let repeated_length = 0;
     let repeated_barcodes_data = await readXlsxFile(`uploads/${filename}`).then(async (rows) => {
@@ -526,45 +608,45 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
 
         const promises = rows.map(async element => {
             let obj = {
-                barcode : `${element[0]}`.toLowerCase(),
+                barcode: `${element[0]}`.toLowerCase(),
                 serial_number: `${element[1]}`.toLowerCase(),
                 product_code: element[2],
                 volume: element[3],
                 manufactured_date: element[4],
                 manufacturer: element[5],
-                owner : element[6],
-                branch : element[7],
-                filling_pressure : element[8],
-                tare_weight : element[9],
-                minimum_thickness : element[10],
-                usage : element[11] || "",
+                owner: element[6],
+                branch: element[7],
+                filling_pressure: element[8],
+                tare_weight: element[9],
+                minimum_thickness: element[10],
+                usage: element[11] || "",
                 valve: element[12] || "",
                 valve_guard: element[13] || "",
                 test_due_date: increaseYearBy5(element[4])
             }
             data.push(obj);
-            const cylinderData = await (Cylinder.findOne({barcode: obj.barcode}));
+            const cylinderData = await (Cylinder.findOne({ barcode: obj.barcode }));
             return (cylinderData);
         })
 
         const repeated_cylinders = await Promise.all(promises);
         const repeated_cylinders_data = [];
         repeated_cylinders.forEach(element => {
-            if(element != null) {
+            if (element != null) {
                 repeated_cylinders_data.push(element.barcode);
                 repeated_length = repeated_length + 1;
             }
         })
-        
+
         repeated_barcodes = repeated_cylinders_data.join(", ");
         console.log(repeated_cylinders_data);
-        
+
         data.forEach(async (el) => {
             try {
                 // const existingCylinder = await Cylinder.findOne({barcode: el.barcode});
                 // console.log("here");
                 // console.log(repeated_cylinders_data.includes(el.barcode));
-                if(repeated_cylinders_data.includes(el.barcode.toLowerCase())) {
+                if (repeated_cylinders_data.includes(el.barcode.toLowerCase())) {
                     //Leave it
                 } else {
                     await Cylinder.create(el);
@@ -579,20 +661,70 @@ exports.createWithExcel = catchAsync(async(req,res,next) => {
             }
         })
     });
-    if(repeated_barcodes.length !== 0) {
+    if (repeated_barcodes.length !== 0) {
         console.log("Repeated few barcodes");
         res.status(201).json({
-            "message" : "Few barcodes are repeated",
-            repeated_barcodes_message : repeated_barcodes,
+            "message": "Few barcodes are repeated",
+            repeated_barcodes_message: repeated_barcodes,
             repeated_barcodes_num: repeated_length
         });
         return;
     }
-    
+
     // console.log("No repeated barcodes");
     res.status(201).json({
-        "message" : "created successfuly",
+        "message": "created successfuly",
         repeated_barcodes_num: 0,
         repeated_barcodes_message: ""
     })
 });
+
+exports.bulkPickup = catchAsync(async (req, res, next) => {
+    const { barcodes, pickUpData, action } = req.body;
+    console.log(barcodes);
+    console.log("req body", req.body);
+    const getPromises = barcodes.map(async (barcode) => {
+        const entityResponse = await getEntityAndType(barcode);
+        return {entityResponse, barcodeInput: barcode};
+    });
+    const entitiesData = await Promise.all(getPromises);
+    const notFoundEntities = entitiesData.filter(entity => entity.entityResponse.entityData === null);
+    // console.log("entites data", entitiesData);
+    // console.log("not found entities" , notFoundEntities);
+    if(notFoundEntities.length > 0) {
+        res.status(404).json({
+            "message": "No such entity exists with given barcode",
+            notFoundEntities: notFoundEntities.map(entity => entity.barcodeInput)
+        })
+        throw new Error(`No such entity exists with given barcode - ${",".join(notFoundEntities)}`);
+    }
+    const promises = barcodes.map(async (barcode) => {
+        const entityResponse = await pickUpEntryByBarcodeHelper(barcode, req, res);
+        return entityResponse;
+    });
+
+    const entities = await Promise.all(promises);
+    console.log(entities);
+    res.status(200).json({
+        "message": "transaction successful",
+        data: entities
+    })
+})
+
+
+exports.getPickupStatusBarCode = catchAsync(async (req, res, next) => {
+    const barcode = req.params.barcode.toLowerCase();
+    const { entityData, type } = await getEntityAndType(barcode);
+    const response = {
+        status : entityData.status,
+        type
+    }
+    if (!entityData) {
+        res.status(404).json({
+            "message": "No such entity exists with given barcode"
+        })
+    }
+    res.status(200).json({
+        response
+    })
+})
