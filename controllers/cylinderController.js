@@ -717,7 +717,11 @@ exports.getPickupStatusBarCode = catchAsync(async (req, res, next) => {
     const { entityData, type } = await getEntityAndType(barcode);
     const response = {
         status : entityData?.status,
-        type
+        type,
+        currTrackingStatus: Object.keys(ACTIONS).find(key => ACTIONS[key] === entityData?.trackingStatus),
+    }
+    if(response.currTrackingStatus === undefined) {
+        response.currTrackingStatus = "";
     }
     if (!entityData) {
         res.status(404).json({

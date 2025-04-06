@@ -55,13 +55,13 @@
     },
     "extra": {
       "eas": {
-        "projectId": "60d1b606-a7c0-49f2-82ea-f99c1551e9e0"
+        "projectId": "8fb59843-d39d-4c82-9cb7-ab68457e3609"
       }
     },
     "androidStatusBar": {
       "backgroundColor": "#C2185B",
       "translucent": false
     },
-    "owner": "navaneeth_bysani"
+    "owner": "svsgases"
   }
 }
