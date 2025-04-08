@@ -36,7 +36,7 @@ export default function QRCodeScanner({navigation}) {
         } else if(resource.type === "duraCylinder") {
           navigation.navigate("duracylinder", {cylinder : resource.data});
         } else if(resource.type === "permanentPackage") {
-          Alert.alert("Permanent package page not added yet");
+          navigation.navigate("permanentPackage", {packageData : resource.data});
         }
       } catch (error) {
           handleErrors(error);

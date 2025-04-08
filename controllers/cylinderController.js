@@ -700,7 +700,7 @@ exports.bulkPickup = catchAsync(async (req, res, next) => {
     const promises = barcodes.map(async (barcode) => {
         const entityResponse = await pickUpEntryByBarcodeHelper(barcode, req, res);
         return entityResponse;
-    });
+    }); 
 
     const entities = await Promise.all(promises);
     console.log(entities);

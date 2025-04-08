@@ -13,6 +13,7 @@ const userRouter = require("./routes/userRoutes");
 const orderRouter = require("./routes/orderRoutes");
 const clientRouter = require("./routes/clientRoutes");
 const resourceRouter = require("./routes/resourceRoutes");
+const entityRouter = require("./routes/entityRoutes");
 
 const cookieParser = require("cookie-parser");
 

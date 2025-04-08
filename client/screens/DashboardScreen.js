@@ -41,7 +41,7 @@ const DashBoardScreen = ({navigation}) => {
         } else if(resource.type === "duraCylinder") {
           navigation.navigate("duracylinder", {cylinder : resource.data});
         } else if(resource.type === "permanentPackage") {
-          Alert.alert("Permanent package page not added yet");
+          navigation.navigate("permanentPackage", {packageData : resource.data});
         }
         setLoading(false);
         //if cylinder is not found, search for package
