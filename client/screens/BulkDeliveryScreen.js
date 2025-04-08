@@ -8,6 +8,8 @@ import axios from "../utils/axios";
 import Loader from "../components/Loader";
 import * as Location from 'expo-location';
 import RadioButton from "../components/RadioButton";
+import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; 
+import { BarCodeScanner } from "expo-barcode-scanner";
 
 const BulkDeliveryScreen = ({ navigation }) => {
     const { user, authToken, logout } = useAuthContext();
@@ -20,6 +22,9 @@ const BulkDeliveryScreen = ({ navigation }) => {
     const [barcodes, setBarcodes] = useState([]);
 
     const [billId, setBillId] = useState("");
+    const [qrScanIdx, setQrScanIdx] = useState(-1);
+
+    const [indexToUpdate, setIndexToUpdate] = useState(-1);
 
     useEffect(() => {
         setBarcodes((prevBarcodes) => {
@@ -108,6 +113,25 @@ const BulkDeliveryScreen = ({ navigation }) => {
         //     setLoading(false);
         //     Alert.alert("Error", "An error occurred while processing your request.");
         // }
+        setLoading(true);
+
+        const emptyBarcodes = barcodes.filter((el) => el.barcode === "");
+        if (emptyBarcodes.length > 0) {
+            Alert.alert("Bad Request", "There are a few empty barcodes. Please fill them before submitting.");
+            return;
+        }
+
+        const emptyOrNotFoundEntities = barcodes.filter((el) => el.status === "Not found" || el.status === "empty").map(el => el.barcode);
+        console.log(emptyOrNotFoundEntities);
+        if (emptyOrNotFoundEntities.length > 0) {
+            Alert.alert("Bad Request", `${emptyOrNotFoundEntities.join(", ")} are not found or empty. Please check the status of the barcodes.`);
+            return;
+        }
+
+        if (actionAndLocationType === "warehousepickup" || actionAndLocationType === "plantpickup" && billId === "") {
+            Alert.alert("Bad Request", "Please enter the bill ID.");
+            return;
+        }
 
 
         Location.requestForegroundPermissionsAsync()
@@ -121,7 +145,7 @@ const BulkDeliveryScreen = ({ navigation }) => {
             .then((location) => {
                 console.log("Location:", location);
                 location = location;
-                setLoading(true);
+                
                 const data = {
                     actionType: actionAndLocationType,
                     barcodes: barcodes.map((el) => el.barcode),
@@ -144,11 +168,68 @@ const BulkDeliveryScreen = ({ navigation }) => {
                 });
             })
             .catch((error) => {
+                setLoading(false);
                 console.error("Error fetching location:", error);
             });
 
 
     }
+
+    const scanQR = async (index) => {
+        const { status } = await BarCodeScanner.requestPermissionsAsync();
+        if(status !== "granted") {
+            Alert.alert("Permission to access camera was denied");
+            return;
+        }
+        if(qrScanIdx === -1) {
+            setQrScanIdx(index);
+        } else {
+            setQrScanIdx(-1);
+        }
+    }
+
+    const handleQrScanning = (data, index) => {
+        
+        setBarcodes((prevBarcodes) => {
+            return prevBarcodes.map((barcodeObj, i) =>
+                i === index ? { ...barcodeObj, barcode: data } : barcodeObj
+            );
+        });
+        updateEntityStatus(index, data);
+        setQrScanIdx(-1);
+    }
+
+    const updateEntityStatus = async (idx, barcode) => {
+        try{
+            if(!barcode) return;
+            const response = await axios.get(`/cylinder/pickup/status/${barcode}`, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    Accept: "application/json",
+                }
+            });
+            const { status, type, currTrackingStatus } = response.data.response;
+            setBarcodes((prevBarcodes) => {
+                const newBarcodes = [...prevBarcodes];
+                newBarcodes[idx].status = status;
+                newBarcodes[idx].type = type;
+                newBarcodes[idx].currTrackingStatus = currTrackingStatus;
+                return newBarcodes;
+            });
+            
+        } catch(err) {
+            if (err.status === 404) {
+                setBarcodes((prevBarcodes) => {
+                    const newBarcodes = [...prevBarcodes];
+                    newBarcodes[idx].status = "Not found";
+                    newBarcodes[idx].type = "";
+                    return newBarcodes;
+                })
+            }
+            console.error(err);
+        }
+    }
+
 
     return (
         <ScrollView>
@@ -186,51 +267,39 @@ const BulkDeliveryScreen = ({ navigation }) => {
                 />
 
                 {InputData()}
+
+                
                 <Text>Enter the barcodes below</Text>
                 <Text>{`Taking input for ${noOfBarcodes}`}</Text>
 
-                {barcodes.map((el, idx) => (
+
+                {actionType != "" && location != "" && barcodes.map((el, idx) => (
                     <View key={idx}>
                         <Text>{`Item ${idx + 1}`} - {el?.type} - {actionAndLocationType === "plantpickup" && el?.status === "empty" ? <Text style={{ color: 'red' }}>{el?.status}</Text> : <Text style={{ color: 'green' }}>{`${el?.status} `}</Text>}</Text>
                         <Text>
                             current location: {el?.currTrackingStatus?.match(/^(PLANT|WAREHOUSE|CLIENT)/)?.[0]} - {el?.currTrackingStatus.match(/(PICKUP|DELIVERY)$/)?.[0]}
                         </Text>
-
-                        <TextInput
-                            placeholder="Enter Barcode"
-                            onChangeText={(data) => barcodeChanged(idx, data)}
-                            style={stylesText.inputField}
-                            value={barcodes[idx].barcode}
-                            onEndEditing={() => {
-                                const barcode = barcodes[idx].barcode;
-                                if (barcode) {
-                                    axios.get(`/cylinder/pickup/status/${barcode}`, {
-                                        headers: {
-                                            Authorization: `Bearer ${authToken}`,
-                                            Accept: "application/json",
-                                        }
-                                    }).then(response => {
-                                        setBarcodes((prevBarcodes) => {
-                                            const newBarcodes = [...prevBarcodes];
-                                            newBarcodes[idx].status = response.data.response?.status;
-                                            newBarcodes[idx].type = response.data.response?.type;
-                                            newBarcodes[idx].currTrackingStatus = response.data.response?.currTrackingStatus;
-                                            console.log(newBarcodes);
-                                            return newBarcodes;
-                                        })
-                                    }).catch(err => {
-                                        if (err.status === 404) {
-                                            setBarcodes((prevBarcodes) => {
-                                                const newBarcodes = [...prevBarcodes];
-                                                newBarcodes[idx].status = "Not found";
-                                                newBarcodes[idx].type = "";
-                                                return newBarcodes;
-                                            })
-                                        }
-                                    });
-                                }
-                            }}
-                        />
+                        {qrScanIdx === idx && (
+                                <BarCodeScanner
+                                    onBarCodeScanned={({data}) => handleQrScanning(data, idx)}
+                                    style={stylesText.scanner}
+                                />
+                        )}
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                            <TextInput
+                                placeholder="Enter Barcode"
+                                onChangeText={(data) => barcodeChanged(idx, data)}
+                                style={[stylesText.inputField, {flex: 1, marginBottom: 0}]}
+                                value={barcodes[idx].barcode}
+                                onEndEditing={() => {
+                                    updateEntityStatus(idx, barcodes[idx].barcode);
+                                }}
+                            />
+                            
+                            <TouchableOpacity onPress={() => {scanQR(idx)}} style={{ marginLeft: 10 }}>
+                                <Ionicons name="qr-code-outline" size={30} color="#000" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 ))}
                 <Button
@@ -257,8 +326,14 @@ const stylesText = StyleSheet.create({
         alignItems: "center",
         height: 50,
         padding: 10,
-        marginBottom: 10
-    }
+        marginBottom: 10,
+        marginTop: 10,
+    },
+    scanner: {
+        width: 500,
+        height: 300,
+        alignSelf: 'center',
+    },
 });
 
 export default BulkDeliveryScreen;
