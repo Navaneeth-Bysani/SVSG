@@ -140,6 +140,7 @@ const BulkDeliveryScreen = ({ navigation }) => {
                 }).catch(err => {
                     console.log(err);
                     setLoading(false);
+                    Alert.alert("Error", err.response.data.message || "An error occurred while processing your request.");
                 });
             })
             .catch((error) => {

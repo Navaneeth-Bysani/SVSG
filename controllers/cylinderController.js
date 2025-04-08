@@ -693,8 +693,7 @@ exports.bulkPickup = catchAsync(async (req, res, next) => {
     // console.log("not found entities" , notFoundEntities);
     if(notFoundEntities.length > 0) {
         res.status(404).json({
-            "message": "No such entity exists with given barcode",
-            notFoundEntities: notFoundEntities.map(entity => entity.barcodeInput)
+            "message": `Barcodes not found ${notFoundEntities.map(entity => entity.barcodeInput)?.join(", ")}`,
         })
         throw new Error(`No such entity exists with given barcode - ${",".join(notFoundEntities)}`);
     }
