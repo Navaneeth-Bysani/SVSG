@@ -4,6 +4,8 @@ const {
     getOneByBarcode
 } = require("../controllers/resourceController");
 
+router.use(protect);
+
 router.get("/:barcode", getOneByBarcode);
 
 module.exports = router;
